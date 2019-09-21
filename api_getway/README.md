@@ -1,0 +1,2 @@
+## API Getway
+This layer will be the center that will keep the scan flowing. It will get the request from the client and will pass them along with more details specific to each microservice. In the end, the get way responsibility is to achieve all the relevant information the client and the microservices needs.
