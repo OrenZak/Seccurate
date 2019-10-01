@@ -1,5 +1,7 @@
 import urllib
 
+# this function gets forms list and the relevant url
+#the function return all input types and parameters from the form
 def GetFormInputFields(url, form):
     inputnames = {}
     inputnonames = []
@@ -51,6 +53,8 @@ def GetFormInputFields(url, form):
             inputnames[textarea.attrs['name']] = textarea.text
     return (method, inputnames, inputnonames)
 
+# this function gets relevant data and return the body of the relevant request from the form
+#TODO we need to refactor this function
 def ParseForms(inputname,inputnames,xssfixedparameters,payload,inputnonames):
     originalvalue = inputnames[inputname]
     inputnames[inputname] = payload
@@ -70,3 +74,7 @@ def ParseForms(inputname,inputnames,xssfixedparameters,payload,inputnonames):
     # exit()
     inputnames[inputname] = originalvalue
     return data
+
+ ##this function gets a list of urls and create a list of Page Entities
+def parseURLs(self,url_list):
+    return

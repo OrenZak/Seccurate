@@ -1,13 +1,14 @@
 import socketio
 
+
 class SocketIOClient():
+    global sio
     sio = socketio.Client()
-    def __init__(self):
-        global sio
-        print("Constructor")
 
+    def __init__(self, logicService):
+        self.logicService = logicService
 
-    def connectToServer(self,serverURL):
+    def connectToServer(self, serverURL):
         self.severURL = serverURL
         sio.connect(serverURL)
 
@@ -15,24 +16,37 @@ class SocketIOClient():
         sio.disconnect()
 
     @sio.event
-    def connect(self): # auto event - invoked when the connection is completed
+    def connect(aaa):  # auto event - invoked when the connection is completed
         print("I'm connected!")
         print('my sid is', sio.sid)
+        return
 
     @sio.event
-    def disconnect(self): # auto event - invoked when the client disconnected from the server
+    def disconnect(self):  # auto event - invoked when the client disconnected from the server
         print("I'm disconnected!")
+        return
 
-    @sio.on('find vulnerabilities')
-    def startScan(url_list): # start scan method, the server needs to provide urls to scan
+    @sio.on('config new scan')
+    def configNewScan(scanInfo):  # set up a scan, needs to create a new db in the logic service
+        print('Set up a scan')
+        print(scanInfo)
+        return
+
+    @sio.on('start scan')
+    def startScan(scanParams):  # start scan method, the server needs to provide urls to scan
         print('I need to start scan')
+        print(scanParams)
+        return
 
-    @sio.on('send vulnerabilities')
-    def sendScan(db_name): # we need to get DB name ( which is scan name)
+    @sio.on('get results')
+    def sendScanResults(db_name):  # we need to get DB name ( which is scan name)
         print('I need to send results')
-        #sio.emit('scan results', {'foo': 'bar'})
+        print(db_name)
+        sio.emit('scan results', {'data': 'results'})
+        return
 
     @sio.on('update payloads')
-    def updatePayloads(payloadObject):#should be payload type and payload data
+    def updatePayloads(payloadObject):  # should be payload type and payload data
         print('I need to update vulneabilities payloads')
-
+        print(payloadObject)
+        return

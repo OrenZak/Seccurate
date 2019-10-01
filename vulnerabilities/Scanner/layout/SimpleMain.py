@@ -1,5 +1,8 @@
 import sys
 import optparse
+
+import RXSSAlgorithm
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 from PyQt4.QtGui import *
@@ -8,7 +11,7 @@ from PyQt4.QtWebKit import *
 from PyQt4.QtNetwork import *
 
 from urlparse import urlparse
-from logic import RXSSAlgorithm
+#from logic import RXSSAlgorithm
 
 import ssl
 
