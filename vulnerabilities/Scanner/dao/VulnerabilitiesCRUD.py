@@ -63,7 +63,7 @@ class VulnerabilitiesCRUD(): # this class job is to CRUD vulnerbilities objects 
         self.__cursor.execute("""SELECT * from Vulns_Objects where id = %d""" % id)
         item =self.__cursor.fetchone()
         if (item is None):
-            raise Exception("No such payload with id %d" % id)
+            raise Exception("No such vulnerability with id %d" % id)
         return SimpleVulnerabilityEntity(item[0],item[1],item[2], item[3], item[4])
 
     def updateVuln(self,vuln):
