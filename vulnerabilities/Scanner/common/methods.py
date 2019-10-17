@@ -75,6 +75,21 @@ def ParseForms(inputname,inputnames,xssfixedparameters,payload,inputnonames):
     inputnames[inputname] = originalvalue
     return data
 
+def ParseFormsSQLI(inputname,inputnames,payload,inputnonames):
+    originalvalue = inputnames[inputname]
+    inputnames[inputname] = payload
+    data = urllib.urlencode(inputnames)
+    removefirstchar = len(data) == 0
+    for inputnoname in inputnonames:
+        data = data + "&" + inputnoname
+    if removefirstchar:
+        data = data[1::]
+    #print "[*] Url: " + self.urlform
+    #print "[*] Data: " + data.encode('utf-8') + "\n\n"
+    # exit()
+    inputnames[inputname] = originalvalue
+    return data
+
  ##this function gets a list of urls and create a list of Page Entities
 def parseURLs(self,url_list):
     return
