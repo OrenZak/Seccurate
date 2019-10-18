@@ -1,29 +1,38 @@
 class SimplePayloadEntity():
-    def __init__(self, id=None, payload=None):
+    def __init__(self, id=None, payload=None, vuln_descriptor=None):
         self.__id = id
+        self.__vuln_descriptor = vuln_descriptor
         self.__payload = payload
         return
 
     def getID(self):
         return self.__id
 
+    def setID(self, id):
+        self.__id = id
+
+    def getVulnDescriptor(self):
+        return self.__vuln_descriptor
+
+    def setVulnDescriptor(self, vuln_descriptor):
+        self.__vuln_descriptor = vuln_descriptor
+
     def getPayload(self):
         return self.__payload
 
     def setPayload(self, payload):
-        self.__payload - payload
+        self.__payload = payload
 
 
 class RXSSPayloadEntity(SimplePayloadEntity):
-    def __init__(self):
-        return
+    def __init__(self, id = None, payload = None, vuln_descriptor=None):
+        SimplePayloadEntity.__init__(self, id, payload, vuln_descriptor)
 
 
 class SQLIPayloadEntity(SimplePayloadEntity):
-    def __init__(self, id=None, payload=None, type=None):
-        SimplePayloadEntity.__init__(id, payload)
+    def __init__(self, id=None, payload=None, type=None, vuln_descriptor=None):
+        SimplePayloadEntity.__init__(self, id, payload, vuln_descriptor)
         self.__type = type
-        return
 
     def getType(self):
         return self.__type

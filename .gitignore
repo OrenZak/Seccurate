@@ -2,3 +2,6 @@
 .idea/
 venv/
 install/
+venv3/
+
+*/node_modules

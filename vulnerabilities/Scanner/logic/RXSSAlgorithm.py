@@ -209,7 +209,7 @@ class MainWindow(QMainWindow):
                             try:
                                 # Get Response From the Server
                                 r = self.br.open(self.urlform + "?" + data.encode('utf-8'))
-                            except:
+                            except Exception as e:
                                 check_r = False
                                 self.event = "<h1>[-]Error:<h1><h2>URL:</h2> " + self.urlform + "?" + data.encode(
                                     'utf-8') + "<br><h2>Error: </h2>" + str(e) + "<br><br><br><br>"
