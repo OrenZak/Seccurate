@@ -6,14 +6,32 @@ from VulnerabilityDescriptionCRUD import VulnerabilityDescriptionCRUD
 from PayloadObjects import SQLIPayloadEntity
 from VulnerabilitiesObjects import SimpleVulnerabilityEntity
 from SQLIAlgorithm import SQLIAlgorithm
+from ResponseObject import ResponseEntity
+import mechanize
 
 
 class TestSQLIAlgorithm(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.__SQLICRUD = SQLICrud.getInstance('D:\DB\TestsqliAlgorithm.db')
-        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('D:\DB\TestVulnsDescription.db')
+        cls.__SQLICRUD = SQLICrud.getInstance('D:\DB\TestVulnServiceDB.db')
+        cls.__SQLICRUD.dropPayloadsTable()
+        cls.__SQLICRUD.dropResponsesTable()
+        cls.__SQLICRUD.createSQLITable()
+        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('D:\DB\TestVulnServiceDB.db')
+        cls.__vulnDescriptor.dropTable()
+        cls.__vulnDescriptor.createTable()
+        cls.__br = mechanize.Browser()
+        cls.__br.addheaders = [('User-agent',
+                          'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34')]
+        cls.cj = mechanize.CookieJar()
+        cls.__br.set_cookiejar(cls.cj)
+        cls.__br.open("http://localhost/bwapp/index.php")
+        cls.__br.select_form(nr=0)
+        cls.__br.form['login'] = 'bee'
+        cls.__br.form['password'] = 'bug'
+        cls.__br.submit()
+        cls.__sqlAlgorithm = SQLIAlgorithm(db='D:\DB\TestVulnServiceDB.db', cookie_jar=cls.__br.cookiejar)
 
     @classmethod
     def tearDownClass(cls):
@@ -25,73 +43,55 @@ class TestSQLIAlgorithm(unittest.TestCase):
     def setUp(self):
         vuln1 = VulnerabilityDescriptionObject(name='Testname1', severity=1, description='abc', recommendations='aaa')
         vuln2 = VulnerabilityDescriptionObject(name='Testname2', severity=2, description='def', recommendations='bbb')
-        self.__vulnDescriptor.createVulnerabilityDescription(vuln1)
-        self.__vulnDescriptor.createVulnerabilityDescription(vuln2)
-        sqli1 = SQLIPayloadEntity(payload='abcTest', type='type1', vuln_descriptor=1)
-        sqli2 = SQLIPayloadEntity(payload='defTest', type='type2', vuln_descriptor=2)
-        self.__SQLICRUD.createPayload(sqli1)
-        self.__SQLICRUD.createPayload(sqli2)
+        self.vuln1ID = self.__vulnDescriptor.createVulnerabilityDescription(vuln1).getVulnID()
+        self.vuln2ID = self.__vulnDescriptor.createVulnerabilityDescription(vuln2).getVulnID()
+        self.sqli1 = SQLIPayloadEntity(payload="5;;5';;5''", type='error-based',
+                                       vuln_descriptor=self.vuln1ID)
+        self.sqli2 = SQLIPayloadEntity(payload='defTest', type='type2', vuln_descriptor=self.vuln2ID)
+        self.sqli1ID = self.__SQLICRUD.createPayload(self.sqli1).getID()
+        self.sqli2ID = self.__SQLICRUD.createPayload(self.sqli2).getID()
+        self.response1 = self.__SQLICRUD.createResponse(ResponseEntity("error"))
+        self.response2 = self.__SQLICRUD.createResponse(ResponseEntity("SQL"))
 
     def tearDown(self):
-        self.__SQLICRUD.deleteAllDataFromTable()
+        self.__SQLICRUD.deletePayloads()
+        self.__SQLICRUD.deleteResponses()
         self.__vulnDescriptor.deleteAllDataFromTable()
 
-    def test_get_payloads(self):
-        sqliAlgorithmInstance = SQLIAlgorithm()
-        algorithm_res = sqliAlgorithmInstance.getSQLIPayloads('D:\DB\TestsqliAlgorithm.db')
-        test_res = self.__SQLICRUD.getSQLIPayloads(size=100) #big number that will surely cover all payloads
-        self.assertEqual(len(algorithm_res),len(test_res))
-        for i in range(len(algorithm_res)):
-            #TODO: register this kind of comparison so that assertequal can do it
-            self.assertEqual(algorithm_res[i].getID(),test_res[i].getID())
-            self.assertEqual(algorithm_res[i].getPayload(), test_res[i].getPayload())
-            self.assertEqual(algorithm_res[i].getType(), test_res[i].getType())
-            self.assertEqual(algorithm_res[i].getVulnDescriptor(), test_res[i].getVulnDescriptor())
+    def test_validate_error_based(self):
+        regular_response = unicode(self.__br.open("https://www.ynet.co.il").read(), 'utf-8')
+        error_response = unicode(self.__br.open("https://www.haaretz.co.il").read(), 'utf-8')
+        regular_result = (regular_response, self.__sqlAlgorithm.hash_page(regular_response) , 2)
+        error_result = (error_response, self.__sqlAlgorithm.hash_page(error_response), 2)
+        regular_imitating_result = (regular_response, self.__sqlAlgorithm.hash_page(regular_response), 2)
+        self.assertTrue(self.__sqlAlgorithm.validate_error_based(regular_result, error_result, regular_imitating_result))
+
+    def test_get_error_based_responses(self):
+        responses = [response.getResponse() for response in self.__sqlAlgorithm.get_error_based_responses()]
+        self.assertIn(self.response1.getResponse(), responses)
+        self.assertIn(self.response2.getResponse(), responses)
+
+    """def test_get_injection_points(self):
+        self.__sqlAlgorithm.update_links(["https://www.haaretz.co.il"])
+        forms, links = self.__sqlAlgorithm.get_injection_points()
+        print(forms)
+        print (links)"""
+
+    def test_scan_sqli(self):
+        self.__sqlAlgorithm.update_links(["http://localhost/bwapp/sqli_3.php"])
+        self.__sqlAlgorithm.scan_sqli()
 
 
-    """def test_create_payload(self):
-        self.assertEqual('abcTest', self.__SQLICRUD.getSQLIPayloads(1, 0)[0].getPayload())
-        self.assertEqual('defTest', self.__SQLICRUD.getSQLIPayloads(1, 1)[0].getPayload())
-
-    def test_wrong_create_payload(self):
-        self.assertNotEqual('abdTest', self.__SQLICRUD.getSQLIPayloads(1, 0)[0].getPayload())
-
-    def test_get_payloads_pagination(self):
-        self.assertEqual(len(self.__SQLICRUD.getSQLIPayloads(2, 0)), 2)
-
-    def test_read_by_id(self):
-        self.assertEqual('abcTest', self.__SQLICRUD.getPayloadByID(1).getPayload())
-        self.assertEqual('defTest', self.__SQLICRUD.getPayloadByID(2).getPayload())
-
-    def test_wrong_read_by_id(self):
-        with self.assertRaises(Exception):
-            self.__SQLICRUD.getPayloadByID(3)
-
-    def test_create_correct_number_of_payloads(self):
-        self.assertEqual(2, len(self.__SQLICRUD.getSQLIPayloads()))
-
-    def test_update(self):
-        self.__SQLICRUD.updatePayload(SQLIPayloadEntity(2, 'testUpdate', 'aa', 2))
-        self.assertEqual('testUpdate', self.__SQLICRUD.getPayloadByID(2).getPayload())
-
-    def test_update_wrong_id(self):
-        with self.assertRaises(Exception) as cm:
-            self.__SQLICRUD.updatePayload(SQLIPayloadEntity(3, 'a', 'b', 2))
-        self.assertEqual(str(cm.exception), 'No such payload with id 3')
-
-    def test_delete_by_id(self):
-        self.__SQLICRUD.deletePayloadByID(1)
-        self.assertEqual(1, len(self.__SQLICRUD.getSQLIPayloads()))
-
-    def test_delete_all_data_from_table(self):
-        self.__SQLICRUD.deleteAllDataFromTable()
-        self.assertEqual(0, len(self.__SQLICRUD.getSQLIPayloads()))
+    def test_get_cookies_from_jar(self):
+        a = [(cookie.name,cookie.value) for cookie in self.cj]
+        b = [(cookie.name, cookie.value) for cookie in self.__sqlAlgorithm.get_cookiejar()]
+        self.assertEqual(a, b)
 
     def doCleanups(self):
         pass
 
     def suite(self):
-        pass"""
+        pass
 
 
 if __name__ == '__main__':

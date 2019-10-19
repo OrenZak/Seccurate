@@ -33,12 +33,12 @@ class TestSQLICRUD(unittest.TestCase):
         vuln2 = VulnerabilityDescriptionObject(name='Testname2', severity=2, description='def', recommendations='bbb')
         self.vuln1ID = self.__vulnDescriptor.createVulnerabilityDescription(vuln1).getVulnID()
         self.vuln2ID = self.__vulnDescriptor.createVulnerabilityDescription(vuln2).getVulnID()
-        self.sqli1 = SQLIPayloadEntity(payload='abcTest', type='type1', vuln_descriptor=self.vuln1ID)
+        self.sqli1 = SQLIPayloadEntity(payload="'; WAITFOR DELAY '00:00:05.000'", type='error-based', vuln_descriptor=self.vuln1ID)
         self.sqli2 = SQLIPayloadEntity(payload='defTest', type='type2', vuln_descriptor=self.vuln2ID)
         self.sqli1ID = self.__SQLICRUD.createPayload(self.sqli1).getID()
         self.sqli2ID = self.__SQLICRUD.createPayload(self.sqli2).getID()
-        self.response1 = self.__SQLICRUD.createResponse(ResponseEntity("error1"))
-        self.response2 = self.__SQLICRUD.createResponse(ResponseEntity("error2"))
+        self.response1 = self.__SQLICRUD.createResponse(ResponseEntity("SQL"))
+        self.response2 = self.__SQLICRUD.createResponse(ResponseEntity("error"))
 
     def tearDown(self):
         self.__SQLICRUD.deletePayloads()
