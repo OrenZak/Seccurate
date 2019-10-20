@@ -35,8 +35,8 @@ else:
     url = options.url
 
 app = QApplication(sys.argv)
-app.setApplicationName(QString("Chrome"));
-app.setApplicationVersion(QString("53.0.2785.113"));
+app.setApplicationName(QString("Chrome"))
+app.setApplicationVersion(QString("53.0.2785.113"))
 f = open("Results.html", "w")
 f.write("")
 f.close()
