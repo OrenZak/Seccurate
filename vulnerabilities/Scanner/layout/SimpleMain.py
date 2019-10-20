@@ -11,7 +11,7 @@ from PyQt4.QtWebKit import *
 from PyQt4.QtNetwork import *
 
 from urlparse import urlparse
-#from logic import RXSSAlgorithm
+# from logic import RXSSAlgorithm
 
 import ssl
 
@@ -33,7 +33,6 @@ if (options.url == None):
     exit(0)
 else:
     url = options.url
-
 
 app = QApplication(sys.argv)
 app.setApplicationName(QString("Chrome"));
