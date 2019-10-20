@@ -9,6 +9,7 @@ import mechanize
 import hashlib
 import re
 import time
+import copy
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -141,14 +142,14 @@ class SQLIAlgorithm():
         return error_based_responses
 
     def inject_to_form(self, form_attributes, link):
-        non_vulnerable_inputnames = form_attributes[1]
+        non_vulnerable_inputnames = []
         url = self.link_to_url(link)
         # error-based
         for payload in self.error_based_payloads:
             splitted_payload = payload.getPayload().split(';;')
             regular_payload, error_payload, regular_imitating_payload = splitted_payload[0], splitted_payload[1], \
                                                                         splitted_payload[2]
-            for inputname in non_vulnerable_inputnames:
+            for inputname in form_attributes[1]:
                 regular_result = self.get_url_open_results(form_attributes[0],
                                                            ParseFormsSQLI(inputname, form_attributes[1],
                                                                           regular_payload, form_attributes[2]), url)
@@ -160,12 +161,14 @@ class SQLIAlgorithm():
                                                                                     regular_imitating_payload,
                                                                                     form_attributes[2]), url)
                 if self.validate_error_based(regular_result, error_result, regular_imitating_result):
-                    self.event = "**SQLI Detected** method: " + str(form_attributes[0]) + " response " + str(
-                        error_result[0]) + " URL : " + url + " payload: " + error_payload + "\n"
+                    # self.event = "**SQLI Detected** method: " + str(form_attributes[0]) + " response " + str(
+                    #     error_result[0]) + " URL : " + url + " payload: " + error_payload + "\n"
+                    self.event = "SQLI Detected in :" + inputname
                     self.add_event()
-                    non_vulnerable_inputnames.pop(inputname, None)
+                    print(self.event)
                 else:
                     print (inputname + " not vulnerable to payload " + error_payload)
+                    non_vulnerable_inputnames.append(inputname)
 
     def inject_to_links(self, links):
         for link in links:
