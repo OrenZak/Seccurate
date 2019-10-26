@@ -63,13 +63,9 @@ def GetFormInputFields(url, form):
 
 # this function gets relevant data and return the body of the relevant request from the form
 # TODO we need to refactor this function
-def ParseForms(inputname, inputnames, xssfixedparameters, payload, inputnonames):
+def ParseForms(inputname, inputnames, payload, inputnonames):
     originalvalue = inputnames[inputname]
     inputnames[inputname] = payload
-    for fixedinputname in xssfixedparameters:
-        for inputname0 in inputnames:
-            if fixedinputname == inputname0:
-                inputnames[inputname0] = xssfixedparameters[fixedinputname]
 
     data = urllib.urlencode(inputnames)
     removefirstchar = len(data) == 0

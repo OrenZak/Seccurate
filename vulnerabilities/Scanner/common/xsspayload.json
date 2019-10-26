@@ -1,4 +1,4 @@
 {
 	"'": ["Error", "SQL", "sql", "Sql","ERROR", "error"],
-	"<script>alert(1)</script>": ["<script>alert(1)</script>"]
+	"<script>console.log(123)</script>": ["<script>console.log(123)</script>"]
 }
