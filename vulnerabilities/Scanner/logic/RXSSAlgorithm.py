@@ -91,6 +91,8 @@ class MainWindow(QMainWindow):
         self.__sessionEntity = sessionEntity
         self.html = self.browser.page().mainFrame().toHtml().toUtf8()
         self.soup = BeautifulSoup(str(self.html), 'html.parser')
+        self.networkAccessManager = QNetworkAccessManager()
+        self.cookieJar = QNetworkCookieJar()
 
     def setcookies(self, domain):
         self.networkAccessManager = QNetworkAccessManager()

@@ -1,13 +1,17 @@
 import socketio
 import json
 
+from ConfigScanBoundary import ConfigScanBoundary
+from VulnerabilityBoundary import VulnerabilityBoundary
+
 
 class SocketIOClient():
     global sio
+    global clientLogicService
     sio = socketio.Client()
 
     def __init__(self, logicService):
-        self.logicService = logicService
+        clientLogicService = logicService
 
     def connectToServer(self, serverURL):
         self.severURL = serverURL
@@ -35,15 +39,20 @@ class SocketIOClient():
 
     @sio.on('start scan')
     def startScan(scanParams):  # start scan method, the server needs to provide urls to scan
-        print('I need to start scan')
-        print(scanParams)
+        configScanBoundry = ConfigScanBoundary.deserialize(scanParams)
+        clientLogicService.startScan(pageEntities=configScanBoundry.getPageEntityies(),
+                                     sessionEntity=configScanBoundry.getSessionEntity())
+
         return
 
     @sio.on('get results')
-    def sendScanResults(db_name):  # we need to get DB name ( which is scan name)
-        print('I need to send results')
-        print(db_name)
-        sio.emit('scan results', {'data': 'results'})
+    def sendScanResults(clientInfo):  # we need to get DB name ( which is scan name)
+        vulnerabilityEntities = clientLogicService.retriveScanResults(clientInfo=clientInfo)
+        scanResultBoundary = []
+        for vulnEntity in vulnerabilityEntities:
+            vulnBoundary = VulnerabilityBoundary(vulnEntity=vulnEntity, vulnDescriptionEntity="TODO get here something")
+            scanResultBoundary.append(vulnBoundary.serialize())
+        sio.emit('scan results', {scanResultBoundary})
         return
 
     @sio.on('update payloads')

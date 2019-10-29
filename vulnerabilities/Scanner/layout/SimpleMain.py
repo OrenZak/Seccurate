@@ -22,7 +22,6 @@ sessionEntity = SessionEntity(type="cookie", value="sessionID=blablalba")
 # app.setApplicationVersion(QString("53.0.2785.113"))
 
 rxssalgo = MainWindow(pageEntities=[pageEntity1, pageEntity2, pageEntity3], sessionEntity=sessionEntity)
-rxssalgo.setcookies(urlparse("http://alesev.co.il/xss.php").hostname)
 rxssalgo.StartScan()
 
 # app.exec_()
