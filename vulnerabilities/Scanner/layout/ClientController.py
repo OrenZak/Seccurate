@@ -57,6 +57,6 @@ class SocketIOClient():
 
     @sio.on('update payloads')
     def updatePayloads(payloadObject):  # should be payload type and payload data
-        print('I need to update vulneabilities payloads')
-        print(payloadObject)
+        # TODO create payloadBoundary if needed
+        clientLogicService.updatePayloads(payloadObject=payloadObject)
         return
