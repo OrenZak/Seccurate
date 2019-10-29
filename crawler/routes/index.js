@@ -1,29 +1,26 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-const Crawler = require('simplecrawler')
+const crawler = require("../src/crawler");
 
 /* GET start Crawler */
-router.get('/crawl', function(req, res, next) {
+router.get("/crawl", function(req, res, next) {
   const mainUrl = req.query.url;
-  res.render('index', { title: `Crawler started on: ${mainUrl}` });
-  startCrawl(mainUrl)
+  crawler.startCrawl(mainUrl);
+  res.render("index", { title: `Crawler started on: ${mainUrl}` });
 });
 
-const startCrawl = function (mainUrl) {
-  createCrawler(mainUrl).start();
-}
-
-const createCrawler = function(mainUrl) {
-  console.log('createCrawler with: ' + mainUrl);
-  const crawler = Crawler(mainUrl);
-  crawler.interval = 2000; // 2 seconds
-  crawler.maxDepth = 10;
-  crawler.maxConcurrency = 3;
-  crawler.on("fetchcomplete", function(queueItem, responseBuffer, response) {
-      console.log("I just received queueItem: ", queueItem.url);
-
-  });
-  return crawler;
-}
+router.post("/scan_config ", function(req, res, next) {
+  try {
+    const config = {
+      'interval':  req.query.interval || 2000, // 2 seconds
+      'maxConcurrency': req.query.maxConcurrency || 3,
+      'maxDepth': req.query.maxDepth || 3
+    };
+    crawler.setConfig(config);
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
 
 module.exports = router;
