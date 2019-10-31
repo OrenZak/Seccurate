@@ -1,7 +1,7 @@
 import socketio
 import json
 
-from ConfigScanBoundary import ConfigScanBoundary
+from ScanBoundary import ScanBoundary
 from VulnerabilityBoundary import VulnerabilityBoundary
 
 
@@ -39,7 +39,7 @@ class SocketIOClient():
 
     @sio.on('start scan')
     def startScan(scanParams):  # start scan method, the server needs to provide urls to scan
-        configScanBoundry = ConfigScanBoundary.deserialize(scanParams)
+        configScanBoundry = ScanBoundary.deserialize(scanParams)
         clientLogicService.startScan(pageEntities=configScanBoundry.getPageEntityies(),
                                      sessionEntity=configScanBoundry.getSessionEntity())
 

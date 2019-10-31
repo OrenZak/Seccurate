@@ -5,12 +5,18 @@ class LogicService():
     def __init__(self):
         return
 
-    def configNewScan(self, scanInfo):  # Config new db u
+    def configNewScan(self, dbName):  # Config new db u
         return
 
-    def startScan(self, pageEntities=None, sessionEntity=None):  # start scan by using the client info data
-        self.__scanForRXSS(pageEntities=pageEntities, sessionEntity=sessionEntity)
-        self.__scanForSqlInjection(pageEntities=pageEntities, sessionEntity=sessionEntity)
+    def startScan(self, pageEntities=None, sessionEntity=None,
+                  algoType=None):  # start scan by using the client info data
+        if algoType == "ALL":
+            self.__scanForRXSS(pageEntities=pageEntities, sessionEntity=sessionEntity)
+            self.__scanForSqlInjection(pageEntities=pageEntities, sessionEntity=sessionEntity)
+        elif algoType == "SQLI":
+            self.__scanForSqlInjection()
+        elif algoType == "RXSS":
+            self.__scanForRXSS()
 
         return
 
