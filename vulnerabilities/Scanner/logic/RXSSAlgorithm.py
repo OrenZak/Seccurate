@@ -1,6 +1,10 @@
-# encoding=utf8 
+# encoding=utf8
+import base64
 import sys
 
+from RXSSCrud import RXSSCrud
+from VulnerabilitiesCRUD import VulnerabilitiesCRUD
+from VulnerabilitiesObjects import SimpleVulnerabilityEntity
 from methods import GetFormInputFields, ParseForms
 
 reload(sys)
@@ -80,7 +84,7 @@ class JShandle(QMainWindow):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, pageEntities=None, sessionEntity=None, *args, **kwargs):
+    def __init__(self, pageEntities=None, sessionEntity=None, dbName=None, *args, **kwargs):
         self.app = QApplication(sys.argv)
         self.app.setApplicationName(QString("Chrome"))
         self.app.setApplicationVersion(QString("53.0.2785.113"))
@@ -93,6 +97,9 @@ class MainWindow(QMainWindow):
         self.soup = BeautifulSoup(str(self.html), 'html.parser')
         self.networkAccessManager = QNetworkAccessManager()
         self.cookieJar = QNetworkCookieJar()
+        self.__VulnCrud = VulnerabilitiesCRUD.getInstance('C:\DB\TestVulnServiceDB.db')
+        self.__RXSSVulnDescription = None  # TODO add after guy implements the method
+        self.__dbName = dbName
 
     def setcookies(self, domain):
         self.networkAccessManager = QNetworkAccessManager()
@@ -191,19 +198,16 @@ class MainWindow(QMainWindow):
                             r = self.br.open(self.urlform, data.encode('utf-8'))
                         except Exception as e:
                             check_r = False
-                            self.event = "<h1>[-]Error:<h1><h2>URL:</h2> " + self.urlform + "<br><h2>Data:</h2> " + data.encode(
+                            print "<h1>[-]Error:<h1><h2>URL:</h2> " + self.urlform + "<br><h2>Data:</h2> " + data.encode(
                                 'utf-8') + "<br><h2>Error: </h2>" + str(e) + "<br><br><br><br>"
-                            # print "[+] ***Original HTML response***\n    Maybe XSS: payload "+response+" return in the response, URL: "+self.urlform+" payload: "+data+"\n\n"
-                            self.addEvent()
                     else:
                         try:
                             # Get Response From the Server
                             r = self.br.open(self.urlform + "?" + data.encode('utf-8'))
                         except Exception as e:
                             check_r = False
-                            self.event = "<h1>[-]Error:<h1><h2>URL:</h2> " + self.urlform + "?" + data.encode(
+                            print "<h1>[-]Error:<h1><h2>URL:</h2> " + self.urlform + "?" + data.encode(
                                 'utf-8') + "<br><h2>Error: </h2>" + str(e) + "<br><br><br><br>"
-                            self.addEvent()
                     if check_r:
                         self.UpdateCookiesMechanizetoQt()
                         self.htmlresponse = unicode(r.read(), 'utf-8')
@@ -211,14 +215,16 @@ class MainWindow(QMainWindow):
                         self.RenderingHandler()
                         for response in self.xsspayload[payload]:
                             if response in self.htmlresponse:
-                                self.event = "**Response Before Rendering** method: " + method + " Maybe XSS: payload " + response + " return in the response, URL: " + self.urlform + " payload: " + data + "\n"
-                                self.addEvent()
+                                print "**Response Before Rendering** method: " + method + " Maybe XSS: payload " + response + " return in the response, URL: " + self.urlform + " payload: " + data + "\n"
                                 if response in self.MainWindowJShandle.htmlresponse:
                                     self.event = "**XSS Detected After Rendering** method: " + method + " payload " + response + " URL : " + self.urlform + " payload: " + data + "\n"
-                                    self.addEvent()
+                                    request = str(method) + "\n" + "url = " + self.urlform + "\n" + "fullpayload = "
+                                    data
+                                    self.addEvent(vuln_descriptor="TODO get it somehow", url=self.urlform,
+                                                  payload=response,
+                                                  requestB64=base64.b64encode(request))
                                 else:  # False Positive
-                                    self.event = "***Identified False Positive*** method:" + method + " payload " + response + " URL: " + self.urlform + " payload: " + data + "\n"
-                                    self.addEvent()
+                                    print "***Identified False Positive*** method:" + method + " payload " + response + " URL: " + self.urlform + " payload: " + data + "\n"
 
     def RenderingHandler(self):
         # self.browser.hide()
@@ -304,17 +310,14 @@ class MainWindow(QMainWindow):
                             self.RenderingHandler()
                             for response in self.xsspayload[payload]:
                                 if response in self.htmlresponse:
-                                    self.event = "**Response Before Rendering** method: GET Maybe XSS: payload " + response + " return in the response, URL: " + self.urlform + " payload: " + data + "\n"
-                                    self.addEvent()
+                                    print "**Response Before Rendering** method: GET Maybe XSS: payload " + response + " return in the response, URL: " + self.urlform + " payload: " + data + "\n"
                                     if response in self.MainWindowJShandle.htmlresponse:
                                         self.event = "**XSS Detected method: GET : payload " + response + " return in the response, URL: " + self.urlform + " payload: " + data + "\n"
-                                        self.addEvent()
+                                        # self.addEvent()
                                     else:
-                                        self.event = "***Identified False Positive*** method: GET payload " + response + " URL: " + self.urlform + " payload: " + data + "\n"
-                                        self.addEvent()
+                                        print "***Identified False Positive*** method: GET payload " + response + " URL: " + self.urlform + " payload: " + data + "\n"
                         except Exception as e:
-                            self.event = "[-] Error happend " + str(e)
-                            self.addEvent()
+                            print "[-] Error happend " + str(e)
 
     def scarplinks(self):
         self.browser.loadFinished.connect(self.handleLoadFinished)
@@ -328,7 +331,13 @@ class MainWindow(QMainWindow):
         self.soup = BeautifulSoup(str(self.html), 'html.parser')
         self.ScanForms()
 
-    def addEvent(self):
+    def addEvent(self, vuln_descriptorID=None, url=None,
+                 payload=None,
+                 requestB64=None):
+        simpleVulnerability = SimpleVulnerabilityEntity(vuln_descriptor=vuln_descriptorID, url=url,
+                                                        payload=payload,
+                                                        requestB64=requestB64)
+        createdVuln = self.__VulnCrud.createVulnerability(simpleVulnerability, self.__dbName)
         f = open("Results.html", "a")
         f.write(self.event)
         f.close()

@@ -3,6 +3,7 @@ import json
 
 from ScanBoundary import ScanBoundary
 from VulnerabilityBoundary import VulnerabilityBoundary
+from configDatabaseBoundary import ConfigDatabaseBoundary
 
 
 class SocketIOClient():
@@ -31,17 +32,17 @@ class SocketIOClient():
         print("I'm disconnected!")
         return
 
-    @sio.on('config new scan')
-    def configNewScan(scanInfo):  # set up a scan, needs to create a new db in the logic service
-        print('Set up a scan')
-        print(scanInfo)
+    @sio.on('config database')
+    def configNewScan(dbNameBoundary):  # set up a scan, needs to create a new db in the logic service
+        dbBoundary = ConfigDatabaseBoundary.deserialize(dbNameBoundary)
+        clientLogicService.configNewScan(dbBoundary.getDbName())
         return
 
     @sio.on('start scan')
     def startScan(scanParams):  # start scan method, the server needs to provide urls to scan
-        configScanBoundry = ScanBoundary.deserialize(scanParams)
-        clientLogicService.startScan(pageEntities=configScanBoundry.getPageEntityies(),
-                                     sessionEntity=configScanBoundry.getSessionEntity())
+        configScanBoundary = ScanBoundary.deserialize(scanParams)
+        clientLogicService.startScan(pageEntities=configScanBoundary.getPageEntityies(),
+                                     sessionEntity=configScanBoundary.getSessionEntity())
 
         return
 
@@ -58,5 +59,6 @@ class SocketIOClient():
     @sio.on('update payloads')
     def updatePayloads(payloadObject):  # should be payload type and payload data
         # TODO create payloadBoundary if needed
+        # TODO decided( by zur) to not implement this feature at the moment
         clientLogicService.updatePayloads(payloadObject=payloadObject)
         return
