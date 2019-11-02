@@ -1,7 +1,6 @@
 class SimplePayloadEntity():
-    def __init__(self, id=None, payload=None, vuln_descriptor=None):
+    def __init__(self, id=None, payload=None):
         self.__id = id
-        self.__vuln_descriptor = vuln_descriptor
         self.__payload = payload
         return
 
@@ -11,12 +10,6 @@ class SimplePayloadEntity():
     def setID(self, id):
         self.__id = id
 
-    def getVulnDescriptor(self):
-        return self.__vuln_descriptor
-
-    def setVulnDescriptor(self, vuln_descriptor):
-        self.__vuln_descriptor = vuln_descriptor
-
     def getPayload(self):
         return self.__payload
 
@@ -25,13 +18,13 @@ class SimplePayloadEntity():
 
 
 class RXSSPayloadEntity(SimplePayloadEntity):
-    def __init__(self, id = None, payload = None, vuln_descriptor=None):
-        SimplePayloadEntity.__init__(self, id, payload, vuln_descriptor)
+    def __init__(self, id = None, payload = None):
+        SimplePayloadEntity.__init__(self, id, payload)
 
 
 class SQLIPayloadEntity(SimplePayloadEntity):
-    def __init__(self, id=None, payload=None, type=None, vuln_descriptor=None):
-        SimplePayloadEntity.__init__(self, id, payload, vuln_descriptor)
+    def __init__(self, id=None, payload=None, type=None): # type is foreign key which derives from name in Description
+        SimplePayloadEntity.__init__(self, id, payload)
         self.__type = type
 
     def getType(self):

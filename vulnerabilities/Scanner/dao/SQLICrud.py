@@ -2,22 +2,26 @@ import sqlite3
 from PayloadObjects import SQLIPayloadEntity
 from datetime import  datetime
 from ResponseObject import ResponseEntity
+import ConfigParser
 
-"""
-For configuration file:
-    1. SQLDB = SQLI_Payloads
-    2. path to production DB - 'C:\DB\sqliPayloads.db'
-"""
+
 class SQLICrud(): # this class job is to CRUD SQLI payload objects from/to the db
     __instance = None
 
-    def __init__(self, db):
+    def __init__(self, db_type):
         """private constructor"""
         if SQLICrud.__instance != None:
             raise Exception("Unable to create new instance of a singleton class")
         else:
             SQLICrud.__instance = self
+        self.config = ConfigParser.RawConfigParser()
+        #self.config.read("..\common\config.properties")
+        self.config.read(
+            'C:\\Users\\Guy Shakked\\PycharmProjects\\Seccurate\\vulnerabilities\\Scanner\\common\\config.properties')
+        db = self.config.get('VulnServiceDB', db_type)
+        print(db)
         self.__db = sqlite3.connect(db)
+        #self.__db = sqlite3.connect(db)
         print ("connected to DB")
         self.__cursor = self.__db.cursor()
         self.createSQLITable()
@@ -27,7 +31,7 @@ class SQLICrud(): # this class job is to CRUD SQLI payload objects from/to the d
 
         self.__cursor.execute("PRAGMA foreign_keys=on")
         self.__cursor.execute('CREATE TABLE IF NOT EXISTS SQLI_Payloads(id TEXT PRIMARY KEY, payload TEXT unique not null,\
-                               type TEXT not null, vuln_descriptor TEXT REFERENCES Vulnerability_Types(vuln_ID) ON DELETE CASCADE)')
+                               type TEXT REFERENCES Vulnerability_Types(name) ON DELETE CASCADE)')
         self.__cursor.execute('CREATE TABLE IF NOT EXISTS Error_Responses(response TEXT PRIMARY KEY)')
         self.__db.commit()
 
@@ -37,8 +41,8 @@ class SQLICrud(): # this class job is to CRUD SQLI payload objects from/to the d
         :return: payload with id after being inserted to DB
         """
         id = str(datetime.now()).replace('-','').replace(' ','').replace(':','').replace('.','')
-        self.__cursor.execute("""insert into SQLI_Payloads values(?,?,?,?)""",
-                              (id, payload.getPayload(), payload.getType(), payload.getVulnDescriptor()))
+        self.__cursor.execute("""insert into SQLI_Payloads values(?,?,?)""",
+                              (id, payload.getPayload(), payload.getType()))
         self.__db.commit()
         payload.setID(id)
         return payload
@@ -57,7 +61,7 @@ class SQLICrud(): # this class job is to CRUD SQLI payload objects from/to the d
         self.__cursor.execute("""SELECT * from SQLI_Payloads ORDER BY id ASC LIMIT %d OFFSET %d""" % (size, page*size))
         payload_list = []
         for payload in self.__cursor.fetchall():
-            sqli_payload = SQLIPayloadEntity(payload[0], payload[1], payload[2], payload[3])
+            sqli_payload = SQLIPayloadEntity(payload[0], payload[1], payload[2])
             payload_list.append(sqli_payload)
         return payload_list
 
@@ -66,7 +70,7 @@ class SQLICrud(): # this class job is to CRUD SQLI payload objects from/to the d
         self.__cursor.execute("""SELECT * from SQLI_Payloads where type='%s' ORDER BY id ASC LIMIT %d OFFSET %d""" % (type,size,page*size))
         payload_list = []
         for payload in self.__cursor.fetchall():
-            sqli_payload = SQLIPayloadEntity(payload[0], payload[1], payload[2], payload[3])
+            sqli_payload = SQLIPayloadEntity(payload[0], payload[1], payload[2])
             payload_list.append(sqli_payload)
         return payload_list
 
@@ -93,7 +97,7 @@ class SQLICrud(): # this class job is to CRUD SQLI payload objects from/to the d
         item =self.__cursor.fetchone()
         if (item is None):
             raise Exception("No such payload with id %s" % id)
-        return SQLIPayloadEntity(item[0],item[1],item[2],item[3])
+        return SQLIPayloadEntity(item[0],item[1],item[2])
 
     def updatePayload(self,payload):
         """
@@ -103,12 +107,14 @@ class SQLICrud(): # this class job is to CRUD SQLI payload objects from/to the d
 
         if (self.getPayloadByID(payload.getID()) is None):
             raise Exception("no such payload")
-        self.__cursor.execute("""update SQLI_Payloads set payload='%s', type='%s', vuln_descriptor='%s' where id='%s'""" % (payload.getPayload(), payload.getType(), payload.getVulnDescriptor(), payload.getID()))
+        self.__cursor.execute("""update SQLI_Payloads set payload='%s', type='%s' where id='%s'""" \
+                              % (payload.getPayload(), payload.getType(), payload.getID()))
         self.__db.commit()
         return payload
 
     def updateResponse(self, old_response, new_response):
-        self.__cursor.execute("""update Error_Responses SET response='%s' where response='%s'""" % (new_response.getResponse(),old_response.getResponse()))
+        self.__cursor.execute("""update Error_Responses SET response='%s' where response='%s'""" \
+                              % (new_response.getResponse(),old_response.getResponse()))
         self.__db.commit()
         return new_response
 
@@ -143,9 +149,9 @@ class SQLICrud(): # this class job is to CRUD SQLI payload objects from/to the d
         print("disconnected from db")
 
     @staticmethod
-    def getInstance(db):
+    def getInstance(db_type):
         if (SQLICrud.__instance == None):
-            SQLICrud(db)
+            SQLICrud(db_type)
         return SQLICrud.__instance
 
 """s = SQLICrud.getInstance('C:\DB\sqliPayloads.db')

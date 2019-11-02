@@ -1,33 +1,34 @@
 import sqlite3
 from PayloadObjects import RXSSPayloadEntity
 from datetime import datetime
+import ConfigParser
+
 
 class RXSSCrud(): # this class job is to CRUD RXSS payload objects from/to the db
 
-    """
-    For configuration file:
-        1. RXSSDB = RXSS_Payloads
-        2. Path to prod DB - C:\DB\\rxssPayloads.db
-    """
-
     __instance = None
 
-    def __init__(self, db):
+    def __init__(self, db_type):
         """private constructor"""
         if RXSSCrud.__instance != None:
             raise Exception("Unable to create new instance of a singleton class")
         else:
             RXSSCrud.__instance = self
-        self.__db = sqlite3.connect(db)
+        self.config = ConfigParser.RawConfigParser()
+        #self.config.read('..\\common\\config.properties')
+        self.config.read(
+            'C:\\Users\\Guy Shakked\\PycharmProjects\\Seccurate\\vulnerabilities\\Scanner\\common\\config.properties')
+        self.__db = sqlite3.connect(self.config.get('VulnServiceDB', db_type))
+        #self.__db = sqlite3.connect(db)
         print ("connected to DB")
         self.__cursor = self.__db.cursor()
         self.createTable()
 
     def createTable(self):
         """Creates the RXSS_Payloads table if it doesn't exist"""
-        self.__cursor.execute("PRAGMA foreign_keys=on")
-        self.__cursor.execute('CREATE TABLE IF NOT EXISTS RXSS_Payloads(id TEXT PRIMARY KEY, payload TEXT unique not null,\
-         vuln_descriptor TEXT REFERENCES Vulnerability_Types(vuln_id) ON DELETE CASCADE)')
+        #self.__cursor.execute("PRAGMA foreign_keys=on")
+        self.__cursor.execute('CREATE TABLE IF NOT EXISTS RXSS_Payloads(id TEXT PRIMARY KEY,\
+         payload TEXT unique not null)')
         self.__db.commit()
 
     def createPayload(self, payload):
@@ -36,8 +37,7 @@ class RXSSCrud(): # this class job is to CRUD RXSS payload objects from/to the d
         :return: payload with id after being inserted to DB
         """
         id = str(datetime.now()).replace('-', '').replace(' ', '').replace(':', '').replace('.', '')
-        self.__cursor.execute("""insert into RXSS_Payloads values(?,?,?)""",
-                              (id, payload.getPayload(),payload.getVulnDescriptor()))
+        self.__cursor.execute("""insert into RXSS_Payloads values(?,?)""", (id, payload.getPayload()))
         self.__db.commit()
         payload.setID(id)
         return payload
@@ -52,7 +52,7 @@ class RXSSCrud(): # this class job is to CRUD RXSS payload objects from/to the d
             """SELECT * from RXSS_Payloads ORDER BY id ASC LIMIT %d OFFSET %d""" % (size, page * size))
         payload_list = []
         for payload in self.__cursor.fetchall():
-            rxss_payload = RXSSPayloadEntity(payload[0], payload[1], payload[2])
+            rxss_payload = RXSSPayloadEntity(payload[0], payload[1])
             payload_list.append(rxss_payload)
         return payload_list
 
@@ -65,7 +65,7 @@ class RXSSCrud(): # this class job is to CRUD RXSS payload objects from/to the d
         item = self.__cursor.fetchone()
         if (item is None):
             raise Exception("No such payload with id %s" % id)
-        return RXSSPayloadEntity(item[0], item[1], item[2])
+        return RXSSPayloadEntity(item[0], item[1])
 
     def updatePayload(self, payload):
         """
@@ -75,8 +75,8 @@ class RXSSCrud(): # this class job is to CRUD RXSS payload objects from/to the d
 
         if (self.getPayloadByID(payload.getID()) is None):
             raise Exception("no such payload")
-        self.__cursor.execute("""update RXSS_Payloads set payload='%s', vuln_descriptor='%s' where id='%s'""" % (
-        payload.getPayload(), payload.getVulnDescriptor(), payload.getID()))
+        self.__cursor.execute("""update RXSS_Payloads set payload='%s' where id='%s'""" % (
+        payload.getPayload(), payload.getID()))
         self.__db.commit()
         return payload
 
@@ -99,9 +99,9 @@ class RXSSCrud(): # this class job is to CRUD RXSS payload objects from/to the d
         print("disconnected from db")
 
     @staticmethod
-    def getInstance(db):
+    def getInstance(db_type):
         if (RXSSCrud.__instance == None):
-            RXSSCrud(db)
+            RXSSCrud(db_type)
         return RXSSCrud.__instance
 
 """s = RXSSCrud.getInstance()

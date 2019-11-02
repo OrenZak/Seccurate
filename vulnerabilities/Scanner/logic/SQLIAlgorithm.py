@@ -9,7 +9,10 @@ import mechanize
 import hashlib
 import re
 import time
-import copy
+import ConfigParser
+from VulnerabilitiesObjects import SimpleVulnerabilityEntity
+from VulnerabilitiesCRUD import VulnerabilitiesCRUD
+import base64
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -17,38 +20,72 @@ sys.setdefaultencoding('utf8')
 
 class SQLIAlgorithm():
 
-    def __init__(self, db, links=None, cookie_jar=None):
-        self.sqliDBInstance = SQLICrud.getInstance(db)
-        self.__links_backlog = []
-        self.__links_chosen_to_scan = []
-        self.__scanned = []
-        if links is not None:
-            self.update_links(links)
-        self.__cookie_jar = cookie_jar
+    def __init__(self, db_type, vuln_table_name, page_entities=None, session_entity=None):  # db, links=None, cookie_jar=None):
+        # self.sqliDBInstance = SQLICrud.getInstance(db)
+        self.sqliDBInstance = SQLICrud.getInstance(db_type)
+        self.__vuln_table_name = vuln_table_name
+        self.vuln_db_instance = VulnerabilitiesCRUD.getInstance(db_type)
+        if page_entities:
+            self.page_entities_backlog = page_entities
+        else:
+            self.page_entities_backlog = []
+        self.page_entities_chosen_to_scan = []
+        self.page_entities_scanned = []
+        # if page_entities is not None:
+        #    self.update_links(page_entities)
+        # self.__cookie_jar = cookie_jar
+        self.__session_entity = session_entity
+        self.get_configuration_properties()
         self.init_mechanize()
 
-    # self.load_configuration()
+    def get_configuration_properties(self):
+        self.config = ConfigParser.RawConfigParser()
+        self.config.read(
+            'C:\\Users\\Guy Shakked\\PycharmProjects\\Seccurate\\vulnerabilities\\Scanner\\common\\config.properties')
+        # means for authentication
+        self.cookie = self.config.get('Authentication', 'Cookie')
+        self.baseAuth = self.config.get('Authentication', 'BasicAuthentication')
 
-    def load_configuration(self):
-        # TODO: solve problems of storing ' in DB + json wouldn't parse escape character
-        f = open("..\common\\sqliPayloads.json", "r")
-        self.sqli_payloads = json.load(f)
-        f.close()
-        """f = open("..\common\\xssnontauchbleparameters.json", "r")
-        self.xssnontauchbleparameters = json.load(f)
-        f = open("..\common\\xssfixedparameters.json", "r")
-        self.xssfixedparameters = json.load(f)
-        f.close()"""
+        # form_attributes_indices
+        self.method_index = int(self.config.get('FormAttributes', 'method'))
+        self.inputnames_index = int(self.config.get('FormAttributes', 'inputnames'))
+        self.inputnonames_index = int(self.config.get('FormAttributes', 'inputnonames'))
 
-    def update_links(self, links):
-        for link in links:
-            if link not in self.__links_backlog and link not in self.__scanned and link not in self.__links_chosen_to_scan:
-                self.__links_backlog.append(link)
+        # get_open_url_result_indices
+        self.response_index = int(self.config.get('URLOpenResultIndices', 'response'))
+        self.hash_index = int(self.config.get('URLOpenResultIndices', 'hash'))
+        self.time_index = int(self.config.get('URLOpenResultIndices', 'time'))
+        self.requestb64_index = int(self.config.get('URLOpenResultIndices', 'requestb64'))
+
+        # error_based results indices
+        self.regular_result_index = int(self.config.get('ErrorBasedVulnerabilityCheckIndices', 'regular'))
+        self.error_result_index = int(self.config.get('ErrorBasedVulnerabilityCheckIndices', 'error'))
+        self.regular_imitating_result_index = int(
+            self.config.get('ErrorBasedVulnerabilityCheckIndices', 'regular_imitating'))
+
+        # injection types data
+        self.injection_types_count = len(self.config.options('SQLITypes'))
+        self.injection_types = [self.config.get('SQLITypes', option) for option in self.config.options('SQLITypes')]
+        self.error_based = self.config.get('SQLITypes', 'error_based')
+
+    def update_links(self, page_entities):
+        for page_entity in page_entities:
+            url = page_entity.getURL()
+            if url not in [page_entity.getURL() for page_entity in self.page_entities_backlog] and url not in [
+                page_entity.getURL() for page_entity in self.page_entities_scanned] and url not in [page_entity.getURL()
+                                                                for page_entity in self.page_entities_chosen_to_scan]:
+                self.page_entities_backlog.append(page_entity)
+
+    def update_session_entity(self, session_entity):
+        self.__session_entity = session_entity
 
     def init_mechanize(self):
         self.br = mechanize.Browser()
         # self.UpdateCookiesQttoMechanize()
-        self.br.set_cookiejar(self.__cookie_jar)
+
+        # self.br.set_cookiejar(self.__cookie_jar)
+        self.cookie_jar = mechanize.CookieJar()
+        self.br.set_cookiejar(self.cookie_jar)
 
         # Browser options - have to understand what each of them means
         self.br.set_handle_equiv(True)
@@ -63,61 +100,76 @@ class SQLIAlgorithm():
         # br.set_debug_redirects(True)
         # br.set_debug_responses(True)
 
-        # User-Agent
+        # User-Agent TODO: create a list to rotate from? That list should use both of us and be implementes in config
         self.br.addheaders = [('User-agent', 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 \
         (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34')]
 
-    def scan_sqli(self, extra_links=None):
-        if extra_links is not None:
-            self.update_links(extra_links)
+    def start_scan(self):
+        self.updateAuthenticationMethod()
         forms, links = self.get_injection_points()
-        self.error_based_payloads = self.get_payloads_by_type(payload_type="error-based")
+        self.error_based_payloads = self.get_payloads_by_type(payload_type=self.error_based)
         self.error_based_responses = self.get_error_based_responses()
-        for link in links:
-            pass  # self.injectToLink(links[link])
-        for link in forms:
-            for form in forms.get(link):
-                self.inject_to_form(forms[link][form], link)
-        for link in self.__links_chosen_to_scan:
-            self.__scanned.append(link)
-            self.__links_chosen_to_scan.remove(link)
+        for page_entity in links:
+            for link in links.get(page_entity):
+                self.inject_to_links(link, page_entity)
+                # self.injectToLink(links[link])
+        for page_entity in forms:
+            for form in forms.get(page_entity):
+                self.inject_to_form(forms[page_entity][form], page_entity)
+        self.update_scanned_pages()
+
+    def update_scanned_pages(self):  # TODO: should it be updated per page so that if it crashes won't be done twice?
+        for page_entity in self.page_entities_chosen_to_scan:
+            self.page_entities_scanned.append(page_entity)
+            self.page_entities_chosen_to_scan.remove(page_entity)
+
+    def updateAuthenticationMethod(self):
+        if (self.__session_entity.getType() == self.cookie):
+            for cookie in self.__session_entity.getValue():#.split(";"):
+                self.cookie_jar.set_cookie(cookie)
+        elif (self.__session_entity.getType() == self.baseAuth):
+            self.br.addheaders.append(('Authorization', self.__session_entity.getValue()))
 
     def get_injection_points(self):
         """return dictionary containing a url and its form/parsed link objects"""
         forms = {}
         links = {}
-        for link in self.__links_backlog:
-            domain = urlparse(link).hostname
-            response = unicode(self.br.open(link).read(), 'utf-8')
-            self.soup = BeautifulSoup(response, 'html.parser')
-            links_list = self.extract_links(link, domain)
-            forms_list = self.extract_forms()
-            links[link] = links_list
-            forms[link] = {}
+        for page_entity in self.page_entities_backlog:
+            url = page_entity.getURL()
+            domain = urlparse(url).hostname
+            soup = self.get_soup_from_url(url)
+            links_list = self.extract_links(url, domain, soup)
+            forms_list = self.extract_forms(soup)
+            links[page_entity] = links_list
+            forms[page_entity] = {}
             for form in forms_list:
-                (method, inputnames, inputnonames) = GetFormInputFields(link, form)
+                (method, inputnames, inputnonames) = GetFormInputFields(url, form)
                 str_inputnames = {}
                 for k, v in inputnames.iteritems():
                     str_inputnames[k] = unicode(v).encode('utf-8')
                 inputnames = str_inputnames
-                forms[link][form] = (method, inputnames, inputnonames)
-            self.__links_chosen_to_scan.append(link)
-            self.__links_backlog.remove(link)
+                forms[page_entity][form] = (method, inputnames, inputnonames)
+            self.page_entities_chosen_to_scan.append(page_entity)
+            self.page_entities_backlog.remove(page_entity)
         return forms, links
 
-    def extract_links(self, link, domain):
+    def get_soup_from_url(self, url):
+        response = unicode(self.br.open(url).read(), 'utf-8')
+        return BeautifulSoup(response, 'html.parser')
+
+    def extract_links(self, url, domain, soup):
         links_list = []
-        embedded_links = self.soup.findAll(name='a')
+        embedded_links = soup.findAll(name='a')
         for embedded_link in embedded_links:
             if embedded_link.has_attr('href'):
-                href_full_link = urljoin(link, embedded_link['href'])
+                href_full_link = urljoin(url, embedded_link['href'])
                 if urlparse(href_full_link).hostname == domain:
                     links_list.append(href_full_link)  # print href_full_link
         print ("[*] Number of links: " + str(len(links_list)))
         return links_list
 
-    def extract_forms(self):
-        return self.soup.findAll(name='form', action=True)
+    def extract_forms(self, soup):
+        return soup.findAll(name='form', action=True)
 
     def get_payloads_by_type(self, payload_type):
         payloads = []
@@ -141,77 +193,103 @@ class SQLIAlgorithm():
             page_result = self.sqliDBInstance.getResponses(page=i)
         return error_based_responses
 
-    def inject_to_form(self, form_attributes, link):
-        non_vulnerable_inputnames = []
-        url = self.link_to_url(link)
-        # error-based
-        for payload in self.error_based_payloads:
-            splitted_payload = payload.getPayload().split(';;')
-            regular_payload, error_payload, regular_imitating_payload = splitted_payload[0], splitted_payload[1], \
-                                                                        splitted_payload[2]
-            for inputname in form_attributes[1]:
-                regular_result = self.get_url_open_results(form_attributes[0],
-                                                           ParseFormsSQLI(inputname, form_attributes[1],
-                                                                          regular_payload, form_attributes[2]), url)
-                error_result = self.get_url_open_results(form_attributes[0],
-                                                         ParseFormsSQLI(inputname, form_attributes[1], error_payload,
-                                                                        form_attributes[2]), url)
-                regular_imitating_result = self.get_url_open_results(form_attributes[0],
-                                                                     ParseFormsSQLI(inputname, form_attributes[1],
-                                                                                    regular_imitating_payload,
-                                                                                    form_attributes[2]), url)
-                if self.validate_error_based(regular_result, error_result, regular_imitating_result):
-                    # self.event = "**SQLI Detected** method: " + str(form_attributes[0]) + " response " + str(
-                    #     error_result[0]) + " URL : " + url + " payload: " + error_payload + "\n"
-                    self.event = "SQLI Detected in :" + inputname
-                    self.add_event()
-                    print(self.event)
-                else:
-                    print (inputname + " not vulnerable to payload " + error_payload)
-                    non_vulnerable_inputnames.append(inputname)
+    def inject_to_form(self, form_attributes, page_entity):
+        # non_vulnerable_inputnames = []
+        non_vulnerable_inputnames = form_attributes[self.inputnames_index]
+        i = 0
+        while i < self.injection_types_count and non_vulnerable_inputnames != {}:
+            non_vulnerable_inputnames = self.inject_to_inputnames(
+                injection_type=self.injection_types[i], non_vulnerable_inputnames=non_vulnerable_inputnames,
+                page_entity=page_entity, form_attributes=form_attributes)
+            i += 1
 
-    def inject_to_links(self, links):
-        for link in links:
-            url = self.link_to_url(link)
-            inputnames = self.get_link_input_names(link)
-            non_vulnerable_inputnames = inputnames
-            # error_based
+    def inject_to_links(self, link, page_entity):
+        all_inputnames = self.get_link_input_names(link)
+        non_vulnerable_inputnames = all_inputnames
+        i=0
+        while i < self.injection_types_count and non_vulnerable_inputnames != {}:
+            non_vulnerable_inputnames = self.inject_to_inputnames(
+                injection_type=self.injection_types[i], non_vulnerable_inputnames=non_vulnerable_inputnames,
+                page_entity=page_entity, link_attributes=all_inputnames)
+            i += 1
+
+    def inject_to_inputnames(self, injection_type, non_vulnerable_inputnames, page_entity, form_attributes=None,
+                             link_attributes=None):
+        # TODO: add other types in the next version and check if it is a form or a link
+        if injection_type == self.error_based:
+            if form_attributes:
+                return self.handle_error_based(non_vulnerable_inputnames=non_vulnerable_inputnames,
+                                               page_entity=page_entity, form_attributes=form_attributes)
+            elif link_attributes:
+                return self.handle_error_based(non_vulnerable_inputnames=non_vulnerable_inputnames,
+                                               page_entity=page_entity, link_attributes=link_attributes)
+
+    def handle_error_based(self, non_vulnerable_inputnames, page_entity, form_attributes=None, link_attributes=None):
+        url = self.link_to_url(page_entity.getURL())
+        final_non_vulnerable_input_names = []
+        for inputname in non_vulnerable_inputnames:
+            vulnerable = False
             for payload in self.error_based_payloads:
+                # TODO: turn error_based_payloads into a list of tuples instead of splitting it every iterations
                 splitted_payload = payload.getPayload().split(';;')
-                regular_payload, error_payload, regular_imitating_payload = splitted_payload[0], splitted_payload[1], \
-                                                                            splitted_payload[2]
-                for inputname in non_vulnerable_inputnames:
-                    regular_result = self.get_url_open_results("get", self.get_link_data(inputname, inputnames,
-                                                                                         regular_payload), url)
-                    error_result = self.get_url_open_results("get",
-                                                             self.get_link_data(inputname, inputnames, error_payload),
-                                                             url)
-                    regular_imitating_result = self.get_url_open_results("get",
-                                                                         self.get_link_data(inputname, inputnames,
-                                                                                            error_payload), url)
+                # regular_payload, error_payload, regular_imitating_payload = splitted_payload[0], splitted_payload[
+                #    1], splitted_payload[2]
 
-                    if self.validate_error_based(regular_result, error_result, regular_imitating_result):
-                        self.event = "**SQLI Detected** method: GET response " + str(
-                            error_result[0]) + " URL : " + url + " payload: " + error_payload + "\n"
-                        self.add_event()
-                        non_vulnerable_inputnames.pop(inputname, None)
-                    else:
-                        print (inputname + " not vulnerable to payload " + error_payload)
+                if form_attributes:
+                    method = form_attributes[self.method_index]
+                    data = self.get_form_data_with_payload(inputname=inputname,
+                                                           inputnames=form_attributes[self.inputnames_index],
+                                                           inputnonames=form_attributes[self.inputnonames_index],
+                                                           splitted_payload=splitted_payload)
+                else:  # links
+                    method = "get"
+                    data = self.get_link_data_with_payload(inputname, link_attributes, splitted_payload)
+
+                regular_result = self.get_url_open_results(method, data[self.regular_result_index], url)
+                self.verify_regular_hash(regular_result[self.response_index], page_entity.getPageHash())
+                error_result = self.get_url_open_results(method, data[self.error_result_index], url)
+                regular_imitating_result = self.get_url_open_results(method, data[self.regular_imitating_result_index],
+                                                                     url)
+
+                if self.validate_error_based(regular_result, error_result, regular_imitating_result):
+                    self.event = "SQLI Detected in :" + inputname
+                    print(self.event)
+                    self.add_event(name=payload.getType(), url=url, payload=payload.getPayload(),
+                                   requestB64=error_result[self.requestb64_index])
+                    vulnerable = True
+                    break
+                else:
+                    print (inputname + " not vulnerable to payload " + splitted_payload[1])
+                    #non_vulnerable_inputnames.append(inputname)
+            if not vulnerable:
+                final_non_vulnerable_input_names.append(inputname)
+        return final_non_vulnerable_input_names
+
+    def get_form_data_with_payload(self, inputname, inputnames, inputnonames, splitted_payload):
+        """result = []
+        for i in range(len(splitted_payload)):
+            result.append(ParseFormsSQLI(inputname, inputnames, splitted_payload[i], inputnonames))
+        return result"""
+        return [ParseFormsSQLI(inputname, inputnames, payload, inputnonames) for payload in splitted_payload]
 
     def get_link_input_names(self, link):
         inputnames = {}
         if len(urlparse(link).query):
             # print urlparse(link).query
             for parameter in urlparse(link).query.split('&'):
-                if len(parameter.split('=')) >= 2:
+                if len(parameter.split('=')) >= 2:  # TODO: what if values is base64/urlsafe padded with equal sign??
                     inputnames[parameter.split('=')[0]] = parameter.split('=')[1]
                 elif len(parameter.split('=')) == 1:
                     inputnames[parameter.split('=')[0]] = ''
         return inputnames
 
-    def get_link_data(self, inputname, inputnames, payload):
-        inputnames[inputname] = payload
-        return urlencode(inputnames)
+    def get_link_data_with_payload(self, inputname, inputnames, splittes_payload):
+        data = []
+        for payload in splittes_payload:
+            temp_inputnames = inputnames
+            temp_inputnames[inputname] = payload
+            data.append(urlencode(temp_inputnames))
+        return data  # inputnames[inputname] = payload  # return urlencode(inputnames)
 
     def get_url_open_results(self, method, data, url):
         check_r = True
@@ -224,11 +302,12 @@ class SQLIAlgorithm():
             except Exception as e:
                 check_r = False
 
-                self.event = "<h1>[-]Error:<h1><h2>URL:</h2> " + url + "<br><h2>Data:</h2> " + data.encode(
+                event = "<h1>[-]Error:<h1><h2>URL:</h2> " + url + "<br><h2>Data:</h2> " + data.encode(
                     'utf-8') + "<br><h2>Error: </h2>" + str(e) + "<br><br><br><br>"
+                print(event)
                 # print "[+] ***Original HTML response***\n    Maybe XSS: payload "+response+" return in the response, \
                 # URL: "+self.urlform+" payload: "+data+"\n\n"
-                self.add_event()
+                #self.add_event()
         else:
             try:
                 # Get Response From the Server
@@ -237,15 +316,17 @@ class SQLIAlgorithm():
                 end = time.time()
             except Exception as e:
                 check_r = False
-                self.event = "<h1>[-]Error:<h1><h2>URL:</h2> " + url + "?" + data.encode(
+                event = "<h1>[-]Error:<h1><h2>URL:</h2> " + url + "?" + data.encode(
                     'utf-8') + "<br><h2>Error: </h2>" + str(e) + "<br><br><br><br>"
-                self.add_event()
+                print(event)
+                #self.add_event()
         if check_r:
             # self.UpdateCookiesMechanizetoQt()
             htmlresponse = unicode(r.read(), 'utf-8')
             elapsed_time = end - start
             response_hash = self.hash_page(htmlresponse)
-            return [htmlresponse, response_hash, elapsed_time]
+            request = str(method) + "\n" + "url = " + url + "\n" + "fullpayload = " + data
+            return [htmlresponse, response_hash, elapsed_time, base64.b64encode(request)]
 
     """def getRegularRequestData(self, form_attributes, url):
         data = urlencode(form_attributes[1])  # inputnames
@@ -262,10 +343,12 @@ class SQLIAlgorithm():
 
     def validate_error_based(self, regular_result, error_result,
                              regular_imitating_result):  # , url, form_attributes, splitted_payload):
-        if regular_result[1] == regular_imitating_result[1] and regular_result[1] != error_result[1]:
+        if regular_result[self.hash_index] == regular_imitating_result[self.hash_index] \
+                and regular_result[self.hash_index] != error_result[self.hash_index]:
             return True
         else:
-            diff = self.get_diff_response_content(regular_result[0], error_result[0])
+            diff = self.get_diff_response_content(regular_result[self.response_index],
+                                                  error_result[self.response_index])
             for response in self.error_based_responses:
                 if response.getResponse() in diff:
                     return True
@@ -284,21 +367,91 @@ class SQLIAlgorithm():
         self.hash = hashlib.md5(str(self.hashSoup))
         return self.hash.digest()
 
+    def verify_regular_hash(self, actual_response, expected_hash):
+        # TODO: edit this function after oren implements hash
+        """if hashes not equal:
+            if self.__session_entity.getType() == self.cookie:
+                print ("cookie expired")  # TODO: raise ExpiredCookieException(page_entity)
+            elif self.__session_entity.getType() == self.baseAuth:
+                print ("wrong baseAuth")  # TODO: raise WrongBaseAuthCredentialsException(page_entity)"""
+        return True
+
     def remove_changing_attributes_from_soup(self):
         tags_to_remove = self.hashSoup.find_all(value=re.compile('[-a-zA-Z0-9+_/]{50,}'))
         for tag in tags_to_remove:
             tag.decompose()
 
-    def add_event(self):
+    def add_event(self, name=None, url=None, payload=None, requestB64=None):
+        simpleVulnerability = SimpleVulnerabilityEntity(name=name, url=url, payload=payload, requestB64=requestB64)
+        createdVuln = self.vuln_db_instance.createVulnerability(simpleVulnerability, self.__vuln_table_name)
+        print(createdVuln.getRequestB64())
+        #f = open("Results.html", "a")
+        #f.write(self.event)
+        #f.close()
+
+    """def add_event(self):
         f = open("Results.html", "a")
         f.write(self.event)
-        f.close()
+        f.close()"""
 
-    def update_cookie_jar(self, cookie):
+    """def update_cookie_jar(self, cookie):
         self.__cookie_jar.set_cookie(cookie)
 
     def get_cookiejar(self):
-        return self.__cookie_jar
+        return self.__cookie_jar"""
+
+
+"""regular_result = self.get_url_open_results(form_attributes[self.method_index],
+                                           ParseFormsSQLI(inputname,
+                                                          form_attributes[self.inputnames_index],
+                                                          regular_payload,
+                                                          form_attributes[self.inputnonames_index]),
+                                           url)
+if not self.verify_regular_hash(regular_result[self.response_index], page_entity.getPageHash()):
+    if self.__session_entity.getType() == self.cookie:
+        print ("cookie expired")  # TODO: raise ExpiredCookieException(page_entity)
+    elif self.__session_entity.getType() == self.baseAuth:
+        print ("wrong baseAuth")  # TODO: raise WrongBaseAuthCredentialsException(page_entity)
+error_result = self.get_url_open_results(form_attributes[self.method_index],
+                                         ParseFormsSQLI(inputname,
+                                                        form_attributes[self.inputnames_index],
+                                                        error_payload,
+                                                        form_attributes[self.inputnonames_index]),
+                                         url)
+regular_imitating_result = self.get_url_open_results(form_attributes[self.method_index],
+                                                     ParseFormsSQLI(inputname,
+                                                         form_attributes[self.inputnames_index],
+                                                         regular_imitating_payload,
+                                                         form_attributes[self.inputnonames_index]),
+                                                     url)"""
+
+"""for link in links:
+    url = self.link_to_url(link)
+    inputnames = self.get_link_input_names(link)
+    non_vulnerable_inputnames = inputnames
+    # error_based
+    for payload in self.error_based_payloads:
+        splitted_payload = payload.getPayload().split(';;')
+        regular_payload, error_payload, regular_imitating_payload = splitted_payload[0], splitted_payload[1], \
+                                                                    splitted_payload[2]
+        for inputname in non_vulnerable_inputnames:
+            regular_result = self.get_url_open_results("get", self.get_link_data(inputname, inputnames,
+                                                                                 regular_payload), url)
+            error_result = self.get_url_open_results("get",
+                                                     self.get_link_data(inputname, inputnames, error_payload),
+                                                     url)
+            regular_imitating_result = self.get_url_open_results("get",
+                                                                 self.get_link_data(inputname, inputnames,
+                                                                                    error_payload), url)
+
+            if self.validate_error_based(regular_result, error_result, regular_imitating_result):
+                self.event = "**SQLI Detected** method: GET response " + str(
+                    error_result[0]) + " URL : " + url + " payload: " + error_payload + "\n"
+                self.add_event()
+                non_vulnerable_inputnames.pop(inputname, None)
+            else:
+                print (inputname + " not vulnerable to payload " + error_payload)"""
+
 
 
 """s = SQLIAlgorithm()

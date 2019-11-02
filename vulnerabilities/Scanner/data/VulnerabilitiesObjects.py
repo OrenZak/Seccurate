@@ -1,7 +1,7 @@
 class SimpleVulnerabilityEntity():
-    def __init__(self, id=None, vuln_descriptor=None, url=None, payload=None, requestB64=None):
+    def __init__(self, id=None, name=None, url=None, payload=None, requestB64=None):
         self.__id = id
-        self.__vuln_descriptor = vuln_descriptor
+        self.__name = name
         self.__url = url
         self.__payload = payload
         self.__requestB64 = requestB64
@@ -13,11 +13,11 @@ class SimpleVulnerabilityEntity():
     def setID(self, id):
         self.__id = id
 
-    def getVulnDescriptor(self):
-        return self.__vuln_descriptor
+    def getName(self):
+        return self.__name
 
-    def setVulnDescriptor(self, vuln_descriptor):
-        self.__vuln_descriptor = vuln_descriptor
+    def setName(self, name):
+        self.__name = name
 
     def getURL(self):
         return self.__url
@@ -39,10 +39,10 @@ class SimpleVulnerabilityEntity():
 
 
 class RXSSVulnerabilityEntity(SimpleVulnerabilityEntity):  # RXSS vulenrability entity
-    def __init__(self, id=None, vuln_descriptor=None, url=None, payload=None, requestB64=None):
-        SimpleVulnerabilityEntity.__init__(self, id, vuln_descriptor, url, payload, requestB64)
+    def __init__(self, id=None, name=None, url=None, payload=None, requestB64=None):
+        SimpleVulnerabilityEntity.__init__(self, id, name, url, payload, requestB64)
 
 
 class SQLIVulnerabilityEntity(SimpleVulnerabilityEntity):  # SQLIVulnerabilityEntity
-    def __init__(self, id=None, vuln_descriptor=None, url=None, payload=None, requestB64=None):
-        SimpleVulnerabilityEntity.__init__(self, id, vuln_descriptor, url, payload, requestB64)
+    def __init__(self, id=None, name=None, url=None, payload=None, requestB64=None):
+        SimpleVulnerabilityEntity.__init__(self, id, name, url, payload, requestB64)
