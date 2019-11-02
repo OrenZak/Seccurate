@@ -55,7 +55,7 @@ if __name__ == '__main__':
     config.read('..\common\config.properties')
 
     URL = config.get('SocketIOServerInfo', 'hostname')
-    logicService = LogicService()
+    logicService = LogicService(db_type="test")
     c = SocketIOClient(logicService)
     c.connectToServer(URL)
-    #sio.emit('scan results', {'data': 'results'})
+    # sio.emit('scan results', {'data': 'results'})

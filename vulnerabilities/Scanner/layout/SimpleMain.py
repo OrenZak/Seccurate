@@ -1,9 +1,12 @@
 import sys
 import optparse
 
+from LogicService import LogicService
 from RXSSAlgorithm import *
 from PageObject import PageEntity
 from SessionObject import SessionEntity
+from VulnerabilityDescriptionCRUD import VulnerabilityDescriptionCRUD
+from VulnerabilityDescriptionObject import VulnerabilityDescriptionEntity
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -20,8 +23,18 @@ sessionEntity = SessionEntity(type="cookie", value="sessionID=blablalba")
 # app = QApplication(sys.argv)
 # app.setApplicationName(QString("Chrome"))
 # app.setApplicationVersion(QString("53.0.2785.113"))
-
-rxssalgo = MainWindow(pageEntities=[pageEntity1, pageEntity2, pageEntity3], sessionEntity=sessionEntity)
-rxssalgo.StartScan()
+vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('test')
+rxssDescription = VulnerabilityDescriptionEntity(name='rxss', severity=2, description='defTest',
+                                                 recommendations='bbb')
+vulnDescriptor.createVulnerabilityDescription(rxssDescription)
+logicService = LogicService(db_type="test")
+logicService.configNewScan("test")
+rxssalgo = MainWindow(db_type="test", dbName="test")
+rxssalgo.ScanPage(pageEntity=pageEntity1,
+                  sessionEntity=sessionEntity)
+rxssalgo.ScanPage(pageEntity=pageEntity2,
+                  sessionEntity=sessionEntity)
+rxssalgo.ScanPage(pageEntity=pageEntity3,
+                  sessionEntity=sessionEntity)
 
 # app.exec_()

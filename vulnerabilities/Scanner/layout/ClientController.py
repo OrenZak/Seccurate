@@ -1,7 +1,7 @@
 import socketio
 import json
 
-from ScanBoundary import ScanBoundary
+from PageBoundary import ScanBoundary
 from VulnerabilityBoundary import VulnerabilityBoundary
 from configDatabaseBoundary import ConfigDatabaseBoundary
 
