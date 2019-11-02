@@ -12,7 +12,7 @@ class URLBoundary {
     }
 
     serialize() {
-
+        return JSON.stringify(this);
     }
 
     static deserialize(urlBoundary) {

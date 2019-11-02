@@ -32,13 +32,13 @@ class SocketIOClient():
         print("I'm disconnected!")
         return
 
-    @sio.on('config database')
+    @sio.on('config_database')
     def configNewScan(dbNameBoundary):  # set up a scan, needs to create a new db in the logic service
         dbBoundary = ConfigDatabaseBoundary.deserialize(dbNameBoundary)
         clientLogicService.configNewScan(dbBoundary.getDbName())
         return
 
-    @sio.on('start scan')
+    @sio.on('start_scan')
     def startScan(scanParams):  # start scan method, the server needs to provide urls to scan
         configScanBoundary = ScanBoundary.deserialize(scanParams)
         clientLogicService.startScan(pageEntities=configScanBoundary.getPageEntityies(),
@@ -46,17 +46,17 @@ class SocketIOClient():
 
         return
 
-    @sio.on('get results')
+    @sio.on('get_results')
     def sendScanResults(clientInfo):  # we need to get DB name ( which is scan name)
         vulnerabilityEntities = clientLogicService.retriveScanResults(clientInfo=clientInfo)
         scanResultBoundary = []
         for vulnEntity in vulnerabilityEntities:
             vulnBoundary = VulnerabilityBoundary(vulnEntity=vulnEntity, vulnDescriptionEntity="TODO get here something")
             scanResultBoundary.append(vulnBoundary.serialize())
-        sio.emit('scan results', {scanResultBoundary})
+        sio.emit('scan_results', {scanResultBoundary})
         return
 
-    @sio.on('update payloads')
+    @sio.on('update_payloads')
     def updatePayloads(payloadObject):  # should be payload type and payload data
         # TODO create payloadBoundary if needed
         # TODO decided( by zur) to not implement this feature at the moment
