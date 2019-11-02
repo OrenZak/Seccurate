@@ -32,7 +32,7 @@ function startCrawl(mainUrl, loginInfo) {
   crawler.interval = crawler_config.interval;
   crawler.maxDepth = crawler_config.maxDepth;
   crawler.maxConcurrency = crawler_config.maxConcurrency;
-  crawler.timeout = crawler_config.timeout;
+  crawler.timeout = crawler_config.timeout;``
   crawler.decodeResponses = true;
   crawler.parseHTMLComments = false;
   crawler.allowInitialDomainChange = false;
@@ -43,15 +43,13 @@ function startCrawl(mainUrl, loginInfo) {
   crawler.acceptCookies = true;
 
   crawler.on("fetchcomplete", function(queueItem, responseBuffer, response) {
-    console.log(queueItem.url);
-    doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
-      fetchedUrl: queueItem.url
-    });
+    console.log(`New page: ${queueItem.url}`);
+    const hash = createHash(queueItem)
 
-    crawlerRepo.insert(mainUrl, {
-      url: queueItem.url,
-      hash: createHash(queueItem),
-      has_cookie: true
+    doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
+      fetchedUrl: queueItem.url,
+      cookies: getCookies(crawler, queueItem.url),
+      hash: hash,
     });
   });
 
@@ -131,10 +129,19 @@ function startAfterLogin(crawler, loginInfo, mainUrl) {
           }
         }
       );
-
-      // console.log(req);
     }
   );
+}
+
+function getCookies(crawler, url) {
+  let cookiesRes = [];
+  crawler.cookies.cookies.forEach(cookie => {
+    if (cookie.value != 'deleted' && (cookie.domain === '*' || url.contains(cookie.domain))) {
+      cookiesRes.push(cookie);
+    }
+  });
+
+  return cookiesRes;
 }
 
 function addCookieHeader(crawler, response) {
@@ -154,16 +161,29 @@ function createHash(queueItem) {
     .digest("hex");
 }
 
-// loginInfo = {
-//   form: {
-//     login: "bee",
-//     password: "bug",
-//     security: 0,
-//     form: "submit"
+loginInfo = {
+  form: {
+    login: "bee",
+    password: "bug",
+    security: 0,
+    form: "submit"
+  },
+  formAction: "login.php"
+}
+startCrawl("http://192.168.64.2/bWAPP/login.php", loginInfo);
+
+// {
+//   "url": "http://192.168.64.2/bWAPP/login.php",
+//   "loginInfo": {
+//     "form": {
+//     "login": "bee",
+//     "password": "bug",
+//     "security": 0,
+//     "form": "submit"
 //   },
-//   formAction: "login.php"
+//   "formAction": "login.php"
+//   }
 // }
-// startCrawl("http://192.168.64.2/bWAPP/login.php", loginInfo);
 
 module.exports = {
   eventEmitter: new events.EventEmitter(),
