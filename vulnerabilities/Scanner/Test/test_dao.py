@@ -2,7 +2,7 @@ import unittest
 from SQLICrud import SQLICrud
 from RXSSCrud import RXSSCrud
 from VulnerabilitiesCRUD import VulnerabilitiesCRUD
-from VulnerabilityDescriptionObject import VulnerabilityDescriptionObject
+from VulnerabilityDescriptionObject import VulnerabilityDescriptionEntity
 from VulnerabilityDescriptionCRUD import VulnerabilityDescriptionCRUD
 from PayloadObjects import SQLIPayloadEntity, RXSSPayloadEntity
 from VulnerabilitiesObjects import SimpleVulnerabilityEntity
@@ -14,11 +14,11 @@ class TestSQLICRUD(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.__SQLICRUD = SQLICrud.getInstance('D:\DB\TestVulnServiceDB.db')
+        cls.__SQLICRUD = SQLICrud.getInstance('C:\DB\TestVulnServiceDB.db')
         cls.__SQLICRUD.dropPayloadsTable()
         cls.__SQLICRUD.dropResponsesTable()
         cls.__SQLICRUD.createSQLITable()
-        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('D:\DB\TestVulnServiceDB.db')
+        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('C:\DB\TestVulnServiceDB.db')
         cls.__vulnDescriptor.dropTable()
         cls.__vulnDescriptor.createTable()
 
@@ -29,16 +29,17 @@ class TestSQLICRUD(unittest.TestCase):
         cls.__vulnDescriptor = None  # vulnDescriptor will only be closed by the last class using it to avoid programming error
 
     def setUp(self):
-        vuln1 = VulnerabilityDescriptionObject(name='Testname1', severity=1, description='abc', recommendations='aaa')
-        vuln2 = VulnerabilityDescriptionObject(name='Testname2', severity=2, description='def', recommendations='bbb')
+        vuln1 = VulnerabilityDescriptionEntity(name='Testname1', severity=1, description='abc', recommendations='aaa')
+        vuln2 = VulnerabilityDescriptionEntity(name='Testname2', severity=2, description='def', recommendations='bbb')
         self.vuln1ID = self.__vulnDescriptor.createVulnerabilityDescription(vuln1).getVulnID()
         self.vuln2ID = self.__vulnDescriptor.createVulnerabilityDescription(vuln2).getVulnID()
-        self.sqli1 = SQLIPayloadEntity(payload='abcTest', type='type1', vuln_descriptor=self.vuln1ID)
+        self.sqli1 = SQLIPayloadEntity(payload="'; WAITFOR DELAY '00:00:05.000'", type='error-based',
+                                       vuln_descriptor=self.vuln1ID)
         self.sqli2 = SQLIPayloadEntity(payload='defTest', type='type2', vuln_descriptor=self.vuln2ID)
         self.sqli1ID = self.__SQLICRUD.createPayload(self.sqli1).getID()
         self.sqli2ID = self.__SQLICRUD.createPayload(self.sqli2).getID()
-        self.response1 = self.__SQLICRUD.createResponse(ResponseEntity("error1"))
-        self.response2 = self.__SQLICRUD.createResponse(ResponseEntity("error2"))
+        self.response1 = self.__SQLICRUD.createResponse(ResponseEntity("SQL"))
+        self.response2 = self.__SQLICRUD.createResponse(ResponseEntity("error"))
 
     def tearDown(self):
         self.__SQLICRUD.deletePayloads()
@@ -50,27 +51,27 @@ class TestSQLICRUD(unittest.TestCase):
         self.assertEqual(self.sqli2.getPayload(), self.__SQLICRUD.getSQLIPayloads(1, 1)[0].getPayload())
 
     def test_create_response(self):
-        self.assertEqual(self.response1.getResponse(), self.__SQLICRUD.getResponses(1,0)[0].getResponse())
-        self.assertEqual(self.response2.getResponse(), self.__SQLICRUD.getResponses(1,1)[0].getResponse())
+        self.assertEqual(self.response1.getResponse(), self.__SQLICRUD.getResponses(1, 0)[0].getResponse())
+        self.assertEqual(self.response2.getResponse(), self.__SQLICRUD.getResponses(1, 1)[0].getResponse())
 
     def test_wrong_create_payload(self):
         self.assertNotEqual('abdTest', self.__SQLICRUD.getSQLIPayloads(1, 0)[0].getPayload())
         with self.assertRaises(Exception):
-            self.__SQLICRUD.createPayload(SQLIPayloadEntity(payload='a',type='b',vuln_descriptor='a'))
+            self.__SQLICRUD.createPayload(SQLIPayloadEntity(payload='a', type='b', vuln_descriptor='a'))
 
     def test_get_payloads_pagination(self):
         self.assertEqual(len(self.__SQLICRUD.getSQLIPayloads(2, 0)), 2)
 
     def test_get_by_id(self):
-        self.assertEqual('abcTest', self.__SQLICRUD.getPayloadByID(self.sqli1ID).getPayload())
-        self.assertEqual('defTest', self.__SQLICRUD.getPayloadByID(self.sqli2ID).getPayload())
+        self.assertEqual(self.sqli1.getPayload(), self.__SQLICRUD.getPayloadByID(self.sqli1ID).getPayload())
+        self.assertEqual(self.sqli2.getPayload(), self.__SQLICRUD.getPayloadByID(self.sqli2ID).getPayload())
 
     def test_wrong_get_by_id(self):
         with self.assertRaises(Exception):
-            self.__SQLICRUD.getPayloadByID(self.sqli2ID+self.sqli1ID)
+            self.__SQLICRUD.getPayloadByID(self.sqli2ID + self.sqli1ID)
 
     def test_get_payloads_by_type(self):
-        self.assertEqual(1,len(self.__SQLICRUD.getPayloadsByType(type=self.sqli1.getType())))
+        self.assertEqual(1, len(self.__SQLICRUD.getPayloadsByType(type=self.sqli1.getType())))
 
     def test_get_payloads_types(self):
         for type in self.__SQLICRUD.getPayloadTypes():
@@ -88,7 +89,7 @@ class TestSQLICRUD(unittest.TestCase):
 
     def test_update_payload_wrong_id(self):
         with self.assertRaises(Exception) as cm:
-            self.__SQLICRUD.updatePayload(SQLIPayloadEntity(self.sqli2ID+self.sqli1ID, 'a', 'b', self.vuln2ID))
+            self.__SQLICRUD.updatePayload(SQLIPayloadEntity(self.sqli2ID + self.sqli1ID, 'a', 'b', self.vuln2ID))
 
     def test_update_response(self):
         response3 = ResponseEntity("error3")
@@ -127,10 +128,10 @@ class TestRXSSCRUD(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.__RXSSCRUD = RXSSCrud.getInstance('D:\DB\TestVulnServiceDB.db')
+        cls.__RXSSCRUD = RXSSCrud.getInstance('C:\DB\TestVulnServiceDB.db')
         cls.__RXSSCRUD.dropTable()
         cls.__RXSSCRUD.createTable()
-        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('D:\DB\TestVulnServiceDB.db')
+        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('C:\DB\TestVulnServiceDB.db')
 
     @classmethod
     def tearDownClass(cls):
@@ -139,8 +140,8 @@ class TestRXSSCRUD(unittest.TestCase):
         cls.__vulnDescriptor = None  # vulnDescriptor will only be closed by the last class using it to avoid programming error
 
     def setUp(self):
-        vuln1 = VulnerabilityDescriptionObject(name='Testname1', severity=1, description='abc', recommendations='aaa')
-        vuln2 = VulnerabilityDescriptionObject(name='Testname2', severity=2, description='def', recommendations='bbb')
+        vuln1 = VulnerabilityDescriptionEntity(name='Testname1', severity=1, description='abc', recommendations='aaa')
+        vuln2 = VulnerabilityDescriptionEntity(name='Testname2', severity=2, description='def', recommendations='bbb')
         self.vuln1ID = self.__vulnDescriptor.createVulnerabilityDescription(vuln1).getVulnID()
         self.vuln2ID = self.__vulnDescriptor.createVulnerabilityDescription(vuln2).getVulnID()
         self.rxss1 = RXSSPayloadEntity(payload='abcTest', vuln_descriptor=self.vuln1ID)
@@ -159,7 +160,7 @@ class TestRXSSCRUD(unittest.TestCase):
     def test_wrong_create_payload(self):
         self.assertNotEqual('abdTest', self.__RXSSCRUD.getRXSSPayloads(1, 0)[0].getPayload())
         with self.assertRaises(Exception):
-            self.__RXSSCRUD.createPayload(RXSSPayloadEntity(payload='a',vuln_descriptor='a'))
+            self.__RXSSCRUD.createPayload(RXSSPayloadEntity(payload='a', vuln_descriptor='a'))
 
     def test_get_payloads_pagination(self):
         self.assertEqual(len(self.__RXSSCRUD.getRXSSPayloads(2, 0)), 2)
@@ -170,7 +171,7 @@ class TestRXSSCRUD(unittest.TestCase):
 
     def test_wrong_read_by_id(self):
         with self.assertRaises(Exception):
-            self.__RXSSCRUD.getPayloadByID(self.rxss2ID+self.rxss1ID)
+            self.__RXSSCRUD.getPayloadByID(self.rxss2ID + self.rxss1ID)
 
     def test_create_correct_number_of_payloads(self):
         self.assertEqual(2, len(self.__RXSSCRUD.getRXSSPayloads()))
@@ -181,7 +182,7 @@ class TestRXSSCRUD(unittest.TestCase):
 
     def test_update_wrong_id(self):
         with self.assertRaises(Exception) as cm:
-            self.__RXSSCRUD.updatePayload(RXSSPayloadEntity(self.rxss2ID+self.rxss1ID, 'a', self.vuln2ID))
+            self.__RXSSCRUD.updatePayload(RXSSPayloadEntity(self.rxss2ID + self.rxss1ID, 'a', self.vuln2ID))
 
     def test_delete_by_id(self):
         self.__RXSSCRUD.deletePayloadByID(self.rxss1ID)
@@ -202,8 +203,8 @@ class TestVulnerabilitiesCRUD(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.__VulnCrud = VulnerabilitiesCRUD.getInstance('D:\DB\TestVulnServiceDB.db')
-        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('D:\DB\TestVulnServiceDB.db')
+        cls.__VulnCrud = VulnerabilitiesCRUD.getInstance('C:\DB\TestVulnServiceDB.db')
+        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('C:\DB\TestVulnServiceDB.db')
         cls.timestamp = datetime.now()
         cls.__VulnCrud.createTable(cls.timestamp)
 
@@ -215,16 +216,18 @@ class TestVulnerabilitiesCRUD(unittest.TestCase):
         cls.__vulnDescriptor = None  # vulnDescriptor will only be closed by the last class using it to avoid programming error
 
     def setUp(self):
-        vuln_description1 = VulnerabilityDescriptionObject(name='Testname1', severity=1, description='abc',
+        vuln_description1 = VulnerabilityDescriptionEntity(name='Testname1', severity=1, description='abc',
                                                            recommendations='aaa')
-        vuln_description2 = VulnerabilityDescriptionObject(name='Testname2', severity=2, description='def',
+        vuln_description2 = VulnerabilityDescriptionEntity(name='Testname2', severity=2, description='def',
                                                            recommendations='bbb')
         self.vuln1DescID = self.__vulnDescriptor.createVulnerabilityDescription(vuln_description1).getVulnID()
         self.vuln2DescID = self.__vulnDescriptor.createVulnerabilityDescription(vuln_description2).getVulnID()
-        self.vuln1 = SimpleVulnerabilityEntity(vuln_descriptor=self.vuln1DescID, url='http://www.something.com', payload='abcTest',
-                                          requestB64='aa+=')
-        self.vuln2 = SimpleVulnerabilityEntity(vuln_descriptor=self.vuln2DescID, url='http://www.anothersomething.com', payload='defTest',
-                                          requestB64='bb==')
+        self.vuln1 = SimpleVulnerabilityEntity(vuln_descriptor=self.vuln1DescID, url='http://www.something.com',
+                                               payload='abcTest',
+                                               requestB64='aa+=')
+        self.vuln2 = SimpleVulnerabilityEntity(vuln_descriptor=self.vuln2DescID, url='http://www.anothersomething.com',
+                                               payload='defTest',
+                                               requestB64='bb==')
         self.vuln1ID = self.__VulnCrud.createVulnerability(self.vuln1, self.timestamp).getID()
         self.vuln2ID = self.__VulnCrud.createVulnerability(self.vuln2, self.timestamp).getID()
 
@@ -239,7 +242,8 @@ class TestVulnerabilitiesCRUD(unittest.TestCase):
     def test_wrong_create_vulnerability(self):
         self.assertNotEqual('abdTest', self.__VulnCrud.getVulns(self.timestamp, 1, 0)[0].getPayload())
         with self.assertRaises(Exception):
-            self.__VulnCrud.createVulnerability(SimpleVulnerabilityEntity(vuln_descriptor='a', url='http://www.something.com', payload='abcTest',
+            self.__VulnCrud.createVulnerability(
+                SimpleVulnerabilityEntity(vuln_descriptor='a', url='http://www.something.com', payload='abcTest',
                                           requestB64='aa+='))
 
     def test_get_vulnerabilities_pagination(self):
@@ -251,20 +255,23 @@ class TestVulnerabilitiesCRUD(unittest.TestCase):
 
     def test_wrong_read_by_id(self):
         with self.assertRaises(Exception):
-            self.__VulnCrud.getVulnByID(self.vuln2ID+self.vuln1ID, self.timestamp)
+            self.__VulnCrud.getVulnByID(self.vuln2ID + self.vuln1ID, self.timestamp)
 
     def test_create_correct_number_of_vulnerabilities(self):
         self.assertEqual(2, len(self.__VulnCrud.getVulns(self.timestamp)))
 
     def test_update(self):
         self.__VulnCrud.updateVuln(SimpleVulnerabilityEntity(id=self.vuln2ID, vuln_descriptor=self.vuln2DescID, \
-                                                             url='http://www.something.com', payload='testUpdate', requestB64='aa+='), self.timestamp)
+                                                             url='http://www.something.com', payload='testUpdate',
+                                                             requestB64='aa+='), self.timestamp)
         self.assertEqual('testUpdate', self.__VulnCrud.getVulnByID(self.vuln2ID, self.timestamp).getPayload())
 
     def test_update_wrong_id(self):
         with self.assertRaises(Exception) as cm:
-            self.__VulnCrud.updateVuln(SimpleVulnerabilityEntity(id=self.vuln2ID+self.vuln1ID, vuln_descriptor=self.vuln2DescID, \
-                                                                 url='http://www.something.com', payload='testUpdate', requestB64='aa+='), self.timestamp)
+            self.__VulnCrud.updateVuln(
+                SimpleVulnerabilityEntity(id=self.vuln2ID + self.vuln1ID, vuln_descriptor=self.vuln2DescID, \
+                                          url='http://www.something.com', payload='testUpdate', requestB64='aa+='),
+                self.timestamp)
 
     def test_delete_by_id(self):
         self.__VulnCrud.deleteVulnByID(self.vuln1ID, self.timestamp)
@@ -295,9 +302,9 @@ class TestVulnerabilitiesDescriptionCRUD(unittest.TestCase):
         cls.__vulnDescriptor = None
 
     def setUp(self):
-        vuln_description1 = VulnerabilityDescriptionObject(name='Testname1', severity=1, description='abcTest',
+        vuln_description1 = VulnerabilityDescriptionEntity(name='Testname1', severity=1, description='abcTest',
                                                            recommendations='aaa')
-        vuln_description2 = VulnerabilityDescriptionObject(name='Testname2', severity=2, description='defTest',
+        vuln_description2 = VulnerabilityDescriptionEntity(name='Testname2', severity=2, description='defTest',
                                                            recommendations='bbb')
         self.vuln1DescID = self.__vulnDescriptor.createVulnerabilityDescription(vuln_description1).getVulnID()
         self.vuln2DescID = self.__vulnDescriptor.createVulnerabilityDescription(vuln_description2).getVulnID()
@@ -321,22 +328,23 @@ class TestVulnerabilitiesDescriptionCRUD(unittest.TestCase):
 
     def test_wrong_read_by_id(self):
         with self.assertRaises(Exception):
-            self.__vulnDescriptor.getVulnByID(self.vuln2DescID+self.vuln1DescID)
+            self.__vulnDescriptor.getVulnByID(self.vuln2DescID + self.vuln1DescID)
 
     def test_create_correct_number_of_vulnerabilities(self):
         self.assertEqual(2, len(self.__vulnDescriptor.getVulns()))
 
     def test_update(self):
         self.__vulnDescriptor.updateVuln(
-            VulnerabilityDescriptionObject(vuln_id=self.vuln2DescID, name='Testname2', severity=2, description='testUpdate',
+            VulnerabilityDescriptionEntity(vuln_id=self.vuln2DescID, name='Testname2', severity=2,
+                                           description='testUpdate',
                                            recommendations='bbb'))
         self.assertEqual('testUpdate', self.__vulnDescriptor.getVulnByID(self.vuln2DescID).getDescription())
 
     def test_update_wrong_id(self):
         with self.assertRaises(Exception) as cm:
             self.__vulnDescriptor.updateVuln(
-                VulnerabilityDescriptionObject(vuln_id=self.vuln2DescID+self.vuln1DescID, name='Testname2', \
-                                               severity=2, description='testUpdate',recommendations='bbb'))
+                VulnerabilityDescriptionEntity(vuln_id=self.vuln2DescID + self.vuln1DescID, name='Testname2', \
+                                               severity=2, description='testUpdate', recommendations='bbb'))
 
     def test_delete_by_id(self):
         self.__vulnDescriptor.deleteVulnByID(self.vuln1DescID)

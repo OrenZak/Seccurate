@@ -8,7 +8,9 @@ For configuration file:
     1. SQLDB = Vulns_Objects
     2. Path to prod DB - 'C:\DB\VulnsDB.db'
 """
-class VulnerabilitiesCRUD(): # this class job is to CRUD vulnerbilities objects from/to the db
+
+
+class VulnerabilitiesCRUD():  # this class job is to CRUD vulnerbilities objects from/to the db
     __instance = None
     __tables = []
 
@@ -24,7 +26,8 @@ class VulnerabilitiesCRUD(): # this class job is to CRUD vulnerbilities objects 
 
     def createTable(self, timestamp):
         """Creates the Vulns_Objects table if it doesn't exist"""
-        self.validateTimestamp(timestamp) #TODO: check if every DB interaction should be sorrounded with try and rollback in case of failure
+        self.validateTimestamp(
+            timestamp)  # TODO: check if every DB interaction should be sorrounded with try and rollback in case of failure
         table_name = "Vulns_Objects_" + self.getNormalizedTimestamp(timestamp)
         if table_name in VulnerabilitiesCRUD.__tables:
             raise Exception("Table Vulns_Objects_%s already exists, cannot create new table with same name" \
@@ -32,7 +35,7 @@ class VulnerabilitiesCRUD(): # this class job is to CRUD vulnerbilities objects 
         self.__cursor.execute("PRAGMA foreign_keys=on")
         self.__cursor.execute("CREATE TABLE IF NOT EXISTS " + table_name + "(id TEXT PRIMARY KEY, \
         vuln_descriptor TEXT REFERENCES Vulnerability_Types(vuln_ID) ON DELETE CASCADE,\
-                        url TEXT not null, payload TEXT not null, requestB64 TEXT not null)") #Vulnerability types name should be supplied in configuration
+                        url TEXT not null, payload TEXT not null, requestB64 TEXT not null)")  # Vulnerability types name should be supplied in configuration
         self.__db.commit()
         self.__tables.append(table_name)
 
@@ -58,7 +61,8 @@ class VulnerabilitiesCRUD(): # this class job is to CRUD vulnerbilities objects 
         """
         self.validateTimestamp(timestamp)
         table_name = self.getTableName(timestamp)
-        self.__cursor.execute("""SELECT * from %s ORDER BY id ASC LIMIT %d OFFSET %d""" % (table_name, size, page*size))
+        self.__cursor.execute(
+            """SELECT * from %s ORDER BY id ASC LIMIT %d OFFSET %d""" % (table_name, size, page * size))
         vulns_list = []
         for vuln in self.__cursor.fetchall():
             vulnEntity = SimpleVulnerabilityEntity(vuln[0], vuln[1], vuln[2], vuln[3], vuln[4])
@@ -73,12 +77,12 @@ class VulnerabilitiesCRUD(): # this class job is to CRUD vulnerbilities objects 
         self.validateTimestamp(timestamp)
         table_name = self.getTableName(timestamp)
         self.__cursor.execute("""SELECT * from %s where id = '%s'""" % (table_name, id))
-        item =self.__cursor.fetchone()
+        item = self.__cursor.fetchone()
         if (item is None):
             raise Exception("No such vulnerability with id %s" % id)
-        return SimpleVulnerabilityEntity(item[0],item[1],item[2], item[3], item[4])
+        return SimpleVulnerabilityEntity(item[0], item[1], item[2], item[3], item[4])
 
-    def updateVuln(self,vuln, timestamp):
+    def updateVuln(self, vuln, timestamp):
         """
         :param payload: new payload with existing id
         :return: the new vuln successfully updated in VulnerabilitiesObjects format
@@ -87,8 +91,10 @@ class VulnerabilitiesCRUD(): # this class job is to CRUD vulnerbilities objects 
         table_name = self.getTableName(timestamp)
         if self.getVulnByID(vuln.getID(), timestamp) is None:
             raise Exception("no such vulnerability")
-        self.__cursor.execute("""update %s set vuln_descriptor='%s', url='%s', payload='%s', requestB64='%s' where id='%s'""" % \
-                              (table_name, vuln.getVulnDescriptor(), vuln.getURL(), vuln.getPayload(), vuln.getRequestB64(), vuln.getID()))
+        self.__cursor.execute(
+            """update %s set vuln_descriptor='%s', url='%s', payload='%s', requestB64='%s' where id='%s'""" % \
+            (
+            table_name, vuln.getVulnDescriptor(), vuln.getURL(), vuln.getPayload(), vuln.getRequestB64(), vuln.getID()))
         self.__db.commit()
         return vuln
 
@@ -129,7 +135,7 @@ class VulnerabilitiesCRUD(): # this class job is to CRUD vulnerbilities objects 
         return table_name
 
     def getNormalizedTimestamp(self, timestamp):
-        return str(timestamp).replace(' ', '').replace('-','').replace(':','').replace('.','')
+        return str(timestamp).replace(' ', '').replace('-', '').replace(':', '').replace('.', '')
 
     @staticmethod
     def getInstance(db):

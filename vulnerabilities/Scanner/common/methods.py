@@ -1,12 +1,13 @@
 import urllib
 
+
 # this function gets forms list and the relevant url
-#the function return all input types and parameters from the form
+# the function return all input types and parameters from the form
 def GetFormInputFields(url, form):
     inputnames = {}
     inputnonames = []
     # print form.attrs['action']
-    #self.urlform = urljoin(url, form.attrs['action'])
+    # self.urlform = urljoin(url, form.attrs['action'])
     try:
         method = form.attrs['method']
     except:
@@ -51,17 +52,20 @@ def GetFormInputFields(url, form):
     for textarea in textareas:
         if textarea.has_attr('name'):
             inputnames[textarea.attrs['name']] = textarea.text
+    ####### Handle button element #######
+    buttons = form.findAll(name='button')
+    for button in buttons:
+        if button.has_attr('name'):
+            if button.has_attr('value'):
+                inputnames[button.attrs['name']] = button.attrs['value']
     return (method, inputnames, inputnonames)
 
+
 # this function gets relevant data and return the body of the relevant request from the form
-#TODO we need to refactor this function
-def ParseForms(inputname,inputnames,xssfixedparameters,payload,inputnonames):
+# TODO we need to refactor this function
+def ParseForms(inputname, inputnames, payload, inputnonames):
     originalvalue = inputnames[inputname]
     inputnames[inputname] = payload
-    for fixedinputname in xssfixedparameters:
-        for inputname0 in inputnames:
-            if fixedinputname == inputname0:
-                inputnames[inputname0] = xssfixedparameters[fixedinputname]
 
     data = urllib.urlencode(inputnames)
     removefirstchar = len(data) == 0
@@ -69,13 +73,14 @@ def ParseForms(inputname,inputnames,xssfixedparameters,payload,inputnonames):
         data = data + "&" + inputnoname
     if removefirstchar:
         data = data[1::]
-    #print "[*] Url: " + self.urlform
-    #print "[*] Data: " + data.encode('utf-8') + "\n\n"
+    # print "[*] Url: " + self.urlform
+    # print "[*] Data: " + data.encode('utf-8') + "\n\n"
     # exit()
     inputnames[inputname] = originalvalue
     return data
 
-def ParseFormsSQLI(inputname,inputnames,payload,inputnonames):
+
+def ParseFormsSQLI(inputname, inputnames, payload, inputnonames):
     originalvalue = inputnames[inputname]
     inputnames[inputname] = payload
     data = urllib.urlencode(inputnames)
@@ -84,12 +89,13 @@ def ParseFormsSQLI(inputname,inputnames,payload,inputnonames):
         data = data + "&" + inputnoname
     if removefirstchar:
         data = data[1::]
-    #print "[*] Url: " + self.urlform
-    #print "[*] Data: " + data.encode('utf-8') + "\n\n"
+    # print "[*] Url: " + self.urlform
+    # print "[*] Data: " + data.encode('utf-8') + "\n\n"
     # exit()
     inputnames[inputname] = originalvalue
     return data
 
- ##this function gets a list of urls and create a list of Page Entities
-def parseURLs(self,url_list):
+
+##this function gets a list of urls and create a list of Page Entities
+def parseURLs(self, url_list):
     return

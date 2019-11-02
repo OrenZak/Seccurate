@@ -2,6 +2,7 @@ from ClientController import SocketIOClient
 import socketio
 
 from LogicService import LogicService
+import ConfigParser
 
 # sio = socketio.Client()
 #
@@ -50,7 +51,11 @@ from LogicService import LogicService
 #     return
 
 if __name__ == '__main__':
+    config = ConfigParser.RawConfigParser()
+    config.read('..\common\config.properties')
+
+    URL = config.get('SocketIOServerInfo', 'hostname')
     logicService = LogicService()
     c = SocketIOClient(logicService)
-    c.connectToServer("http://127.0.0.1:8000")
+    c.connectToServer(URL)
     #sio.emit('scan results', {'data': 'results'})

@@ -40,10 +40,7 @@ class SQLICrud(): # this class job is to CRUD SQLI payload objects from/to the d
         self.__cursor.execute("""insert into SQLI_Payloads values(?,?,?,?)""",
                               (id, payload.getPayload(), payload.getType(), payload.getVulnDescriptor()))
         self.__db.commit()
-        #self.__cursor.execute("""select id from SQLI_Payloads order by id desc limit 1""")
-        #id = self.__cursor.fetchone()[0]
         payload.setID(id)
-        self.__db.commit()
         return payload
 
     def createResponse(self, response):
