@@ -38,10 +38,11 @@ class TestSQLIAlgorithm(unittest.TestCase):
         cls.__br.form['login'] = 'bee'
         cls.__br.form['password'] = 'bug'
         cls.__br.submit()
-        #cookie_value_string = ""
-        #for cookie in cls.cj:
-        #    cookie_value_string += str(cookie)+";"
-        cls.__session_entity = SessionEntity('Cookie', [cookie for cookie in cls.cj])#cookie_value_string)
+        cookie_value_string = ""
+        for cookie in cls.cj:
+            cookie_value_string += str(cookie.name) + "=" + str(cookie.value) + ";";# + "=" + cookie.domain + ";"
+        #cls.__session_entity = SessionEntity('Cookie', [cookie for cookie in cls.cj])#cookie_value_string)
+        cls.__session_entity = SessionEntity('Cookie', cookie_value_string[:-1])
         cls.__sqlAlgorithm = SQLIAlgorithm(db_type='test', session_entity=cls.__session_entity, vuln_table_name=cls.__table_name)
 
     @classmethod

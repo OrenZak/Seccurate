@@ -13,6 +13,7 @@ import ConfigParser
 from VulnerabilitiesObjects import SimpleVulnerabilityEntity
 from VulnerabilitiesCRUD import VulnerabilitiesCRUD
 import base64
+from cookielib import Cookie
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -125,8 +126,14 @@ class SQLIAlgorithm():
 
     def updateAuthenticationMethod(self):
         if (self.__session_entity.getType() == self.cookie):
-            for cookie in self.__session_entity.getValue():#.split(";"):
-                self.cookie_jar.set_cookie(cookie)
+            for cookie in self.__session_entity.getValue().split(";"):
+                #self.cookie_jar.set_cookie(cookie)
+                self.cookie_jar.set_cookie(Cookie(version=0, name=str(cookie).split('=')[0], value=str(cookie).split('=')[1],
+                                          expires=365, port=None, port_specified=False, domain='localhost.local',#str(cookie).split('=')[2],
+                                                  domain_specified=False,
+                                          domain_initial_dot=False, path='/', path_specified=True, secure=True,
+                                          discard=False, comment=None, comment_url=None, rest={'HttpOnly': False},
+                                          rfc2109=False))
         elif (self.__session_entity.getType() == self.baseAuth):
             self.br.addheaders.append(('Authorization', self.__session_entity.getValue()))
 
