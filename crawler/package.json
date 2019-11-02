@@ -1,0 +1,26 @@
+{
+  "name": "crawler",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "esm": "^3.2.25",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "morgan": "~1.9.1",
+    "request": "^2.88.0",
+    "simplecrawler": "^1.1.8",
+    "socket.io": "^2.3.0",
+    "sqlite3": "^4.1.0",
+    "url": "^0.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.2"
+  }
+}
