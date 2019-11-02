@@ -161,16 +161,16 @@ function createHash(queueItem) {
     .digest("hex");
 }
 
-loginInfo = {
-  form: {
-    login: "bee",
-    password: "bug",
-    security: 0,
-    form: "submit"
-  },
-  formAction: "login.php"
-}
-startCrawl("http://192.168.64.2/bWAPP/login.php", loginInfo);
+// loginInfo = {
+//   form: {
+//     login: "bee",
+//     password: "bug",
+//     security: 0,
+//     form: "submit"
+//   },
+//   formAction: "login.php"
+// }
+// startCrawl("http://192.168.64.2/bWAPP/login.php", loginInfo);
 
 // {
 //   "url": "http://192.168.64.2/bWAPP/login.php",
