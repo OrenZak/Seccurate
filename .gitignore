@@ -5,3 +5,5 @@ install/
 venv3/
 
 */node_modules
+
+.vscode/
