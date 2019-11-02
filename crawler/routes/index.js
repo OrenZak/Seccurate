@@ -1,22 +1,17 @@
 var express = require("express");
 var router = express.Router();
 const crawler = require("../src/crawler");
+const config = require("../config")
 
-/* GET start Crawler */
-router.get("/crawl", function(req, res, next) {
-  const mainUrl = req.query.url;
-  crawler.startCrawl(mainUrl);
-  res.render("index", { title: `Crawler started on: ${mainUrl}` });
-});
-
-router.post("/scan_config ", function(req, res, next) {
+/* POST set crawler config */
+router.post("/scan_config", function(req, res, next) {
   try {
-    const config = {
-      'interval':  req.query.interval || 2000, // 2 seconds
-      'maxConcurrency': req.query.maxConcurrency || 3,
-      'maxDepth': req.query.maxDepth || 3
-    };
-    crawler.setConfig(config);
+    crawler.setConfig({
+      'interval':  req.query.interval || config.crawler.interval,
+      'maxConcurrency': req.query.maxConcurrency || config.crawler.maxConcurrency,
+      'maxDepth': req.query.maxDepth || config.crawler.maxDepth,
+      'timeout': req.query.timeout || config.crawler.timeout
+    });
     res.sendStatus(200);
   } catch (err) {
     res.status(400).send(err);

@@ -12,9 +12,9 @@ function start(server) {
     console.log(`SocketIO - connection`);
 
     socket.on(ACTIONS.START_CRAWL, async function(data) {
-      console.log(`Start crawling on main url: ${data.url}`);
+      console.log(`Start crawling on:`, JSON.stringify(data));
       socket.join(data.url);
-      startCrawl(data.url);
+      startCrawl(data.url, data.loginInfo);
     });
 
     socket.on(ACTIONS.DISCONNECT, async function() {
