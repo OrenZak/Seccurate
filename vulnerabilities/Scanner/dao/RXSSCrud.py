@@ -17,7 +17,7 @@ class RXSSCrud(): # this class job is to CRUD RXSS payload objects from/to the d
         self.config = ConfigParser.RawConfigParser()
         #self.config.read('..\\common\\config.properties')
         self.config.read(
-            'C:\\Users\\Guy Shakked\\PycharmProjects\\Seccurate\\vulnerabilities\\Scanner\\common\\config.properties')
+            '..\common\config.properties')
         self.__db = sqlite3.connect(self.config.get('VulnServiceDB', db_type))
         #self.__db = sqlite3.connect(db)
         print ("connected to DB")

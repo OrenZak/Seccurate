@@ -1,4 +1,5 @@
 # encoding=utf8
+import ConfigParser
 import base64
 import sys
 
@@ -84,22 +85,38 @@ class JShandle(QMainWindow):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, pageEntities=None, sessionEntity=None, dbName=None, *args, **kwargs):
+    def __init__(self, table_name=None, db_type=None, dbName=None, *args,
+                 **kwargs):
         self.app = QApplication(sys.argv)
         self.app.setApplicationName(QString("Chrome"))
         self.app.setApplicationVersion(QString("53.0.2785.113"))
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setWindowTitle("ScarpSite")
         self.browser = QWebView()
-        self.__pageEntities = pageEntities
-        self.__sessionEntity = sessionEntity
         self.html = self.browser.page().mainFrame().toHtml().toUtf8()
         self.soup = BeautifulSoup(str(self.html), 'html.parser')
         self.networkAccessManager = QNetworkAccessManager()
         self.cookieJar = QNetworkCookieJar()
-        self.__VulnCrud = VulnerabilitiesCRUD.getInstance('C:\DB\TestVulnServiceDB.db')
-        self.__RXSSVulnDescription = None  # TODO add after guy implements the method
+        self.__VulnCrud = VulnerabilitiesCRUD.getInstance(db_type)
+        self.__RXSSVulnDescription = RXSSCrud.getInstance(db_type)
         self.__dbName = dbName
+        self.__tableName = table_name
+        self.get_configuration_properties()
+
+    def get_configuration_properties(self):
+        self.config = ConfigParser.RawConfigParser()
+        self.config.read('..\common\config.properties')
+        # means for authentication
+        self.cookie = self.config.get('Authentication', 'Cookie')
+        self.baseAuth = self.config.get('Authentication', 'BasicAuthentication')
+
+        # form_attributes_indices
+        self.method_index = int(self.config.get('FormAttributes', 'method'))
+        self.inputnames_index = int(self.config.get('FormAttributes', 'inputnames'))
+        self.inputnonames_index = int(self.config.get('FormAttributes', 'inputnonames'))
+
+        # get rxss description key
+        self.descriptionKey = self.config.get('RXSS', 'description_key')
 
     def setcookies(self, domain):
         self.networkAccessManager = QNetworkAccessManager()
@@ -121,18 +138,17 @@ class MainWindow(QMainWindow):
         # print "[*] Cookies from file: " +str(list)
         self.cookieJar.setAllCookies(cookieList)
 
-    def StartScan(self):
-        for pageEntity in self.__pageEntities:
-            self.url = pageEntity.getURL()
-            self.domain = urlparse(self.url).hostname
-            self.browser.loadFinished.connect(self.__urlLoadFinished)
-            self.browser.page().setNetworkAccessManager(self.networkAccessManager)
-            self.browser.page().userAgentForUrl(QUrl(self.url))
-            curURL = QUrl(self.url)
-            self.browser.load(curURL)
-            self.setCentralWidget(self.browser)
-            self.show()
-            self.app.exec_()
+    def ScanPage(self, pageEntity=None, sessionEntity=None):
+        self.url = pageEntity.getURL()
+        self.domain = urlparse(self.url).hostname
+        self.browser.loadFinished.connect(self.__urlLoadFinished)
+        self.browser.page().setNetworkAccessManager(self.networkAccessManager)
+        self.browser.page().userAgentForUrl(QUrl(self.url))
+        curURL = QUrl(self.url)
+        self.browser.load(curURL)
+        self.setCentralWidget(self.browser)
+        self.show()
+        self.app.exec_()
 
     def __urlLoadFinished(self):
         self.browser.loadFinished.disconnect(self.__urlLoadFinished)
@@ -220,7 +236,7 @@ class MainWindow(QMainWindow):
                                     self.event = "**XSS Detected After Rendering** method: " + method + " payload " + response + " URL : " + self.urlform + " payload: " + data + "\n"
                                     request = str(method) + "\n" + "url = " + self.urlform + "\n" + "fullpayload = "
                                     data
-                                    self.addEvent(vuln_descriptor="TODO get it somehow", url=self.urlform,
+                                    self.addEvent(vuln_descriptor=self.descriptionKey, url=self.urlform,
                                                   payload=response,
                                                   requestB64=base64.b64encode(request))
                                 else:  # False Positive
@@ -313,7 +329,11 @@ class MainWindow(QMainWindow):
                                     print "**Response Before Rendering** method: GET Maybe XSS: payload " + response + " return in the response, URL: " + self.urlform + " payload: " + data + "\n"
                                     if response in self.MainWindowJShandle.htmlresponse:
                                         self.event = "**XSS Detected method: GET : payload " + response + " return in the response, URL: " + self.urlform + " payload: " + data + "\n"
-                                        # self.addEvent()
+                                        request = str(
+                                            "GET") + "\n" + "url = " + self.urlform + "\n" + "fullpayload = " + data
+                                        self.addEvent(vuln_descriptor=self.descriptionKey, url=self.urlform,
+                                                      payload=response,
+                                                      requestB64=base64.b64encode(request))
                                     else:
                                         print "***Identified False Positive*** method: GET payload " + response + " URL: " + self.urlform + " payload: " + data + "\n"
                         except Exception as e:
@@ -331,10 +351,10 @@ class MainWindow(QMainWindow):
         self.soup = BeautifulSoup(str(self.html), 'html.parser')
         self.ScanForms()
 
-    def addEvent(self, vuln_descriptorID=None, url=None,
+    def addEvent(self, vuln_descriptor=None, url=None,
                  payload=None,
                  requestB64=None):
-        simpleVulnerability = SimpleVulnerabilityEntity(vuln_descriptor=vuln_descriptorID, url=url,
+        simpleVulnerability = SimpleVulnerabilityEntity(name=vuln_descriptor, url=url,
                                                         payload=payload,
                                                         requestB64=requestB64)
         createdVuln = self.__VulnCrud.createVulnerability(simpleVulnerability, self.__dbName)

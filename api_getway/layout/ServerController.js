@@ -1,24 +1,19 @@
 var app = require('express')();
 var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+var socketManager = require('./socketManager')
+var LogicService = require('../logic/logicService')
+var logicService = new LogicService();
+var Boundary = require('../layout/urlBoundary');
+var b = new Boundary();
 
-// set up Restfull listener
+socketManager.start(http);
+// set up Restful listener
 http.listen(3000, function () {
     console.log('listening on *:3000');
 });
 
 app.get('/', function (req, res) {
     res.send('<h1>Hello world</h1>');
+    console.log("works");
 });
 
-
-// handle socket io connetion
-io.on('connection', function (socket) {
-    console.log('a user connected');
-    socket.on('disconnect', function () {
-        console.log('user disconnected');
-    });
-    socket.on('scan results', function (vulnerabilityBoundary) {
-
-    });
-});

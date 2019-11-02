@@ -6,8 +6,8 @@ from SessionObject import SessionEntity
 
 class ScanBoundary:
 
-    def __init__(self, pageEntityies=None, sessionEntity=None, algorithmType=None, dbName=None):
-        self.__pageEntityies = pageEntityies
+    def __init__(self, pageEntity=None, sessionEntity=None, algorithmType=None, dbName=None):
+        self.__pageEntity = pageEntity
         self.__sessionEntity = sessionEntity
         self.__algoType = algorithmType
         self.__dbName = dbName
@@ -30,11 +30,11 @@ class ScanBoundary:
     def setAlgorithmType(self, algoType=None):
         self.__algoType = algoType
 
-    def getPageEntityies(self):
-        return self.__pageEntityies
+    def getPageEntity(self):
+        return self.__pageEntity
 
-    def setPageEntityies(self, pageEntityies=None):
-        self.__pageEntityies = pageEntityies
+    def setPageEntity(self, pageEntity=None):
+        self.__pageEntity = pageEntity
 
     def serialize(self):
         return None
@@ -42,13 +42,10 @@ class ScanBoundary:
     @staticmethod
     def deserialize(serializedConfigScan):
         deserialized = json.loads(serializedConfigScan)
-        deserializedPageEntityies = deserialized["pages"]
+        deserializedPageEntity = deserialized["page"]
         deserializedSessionEntity = deserialized["sessionData"]
         deserializedAlgoType = deserialized["algoType"]
         deserializedDbName = deserialized["dbName"]
         sessionEntity = SessionEntity(deserializedSessionEntity["type"], str(deserializedSessionEntity["value"]))
-        pageEntities = []
-        for page in deserializedPageEntityies:
-            newPage = PageEntity(page["url"], page["pageHash"])
-            pageEntities.append(newPage)
-        return ScanBoundary(pageEntities, sessionEntity, deserializedAlgoType, deserializedDbName)
+        newPageEntity = PageEntity(deserializedPageEntity["url"], deserializedPageEntity["pageHash"])
+        return ScanBoundary(newPageEntity, sessionEntity, deserializedAlgoType, deserializedDbName)
