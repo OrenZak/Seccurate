@@ -20,13 +20,14 @@ pageEntity2 = PageEntity(url="http://alesev.co.il/xss2.php", pageHash=123)
 pageEntity3 = PageEntity(url="http://alesev.co.il/xss3.php", pageHash=123)
 sessionEntity = SessionEntity(type="cookie", value="sessionID=blablalba")
 
-# app = QApplication(sys.argv)
-# app.setApplicationName(QString("Chrome"))
-# app.setApplicationVersion(QString("53.0.2785.113"))
-vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('test')
-rxssDescription = VulnerabilityDescriptionEntity(name='rxss', severity=2, description='defTest',
-                                                 recommendations='bbb')
-vulnDescriptor.createVulnerabilityDescription(rxssDescription)
+# vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('test')
+# vulnDescriptor.dropTable()
+# vulnDescriptor.createTable()
+
+# vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('test')
+# rxssDescription = VulnerabilityDescriptionEntity(name="rxss", severity=2, description='defTest', recommendations='bbb')
+# vulnDescriptor.createVulnerabilityDescription(rxssDescription)
+
 logicService = LogicService(db_type="test")
 logicService.configNewScan("test")
 rxssalgo = MainWindow(db_type="test", dbName="test")
