@@ -5,7 +5,7 @@ const ACTIONS = {
     DISCONNECT: "disconnect",
     PAGE_FETCHED: "page_fetched",
     CRAWLER_DONE: "crawler_done",
-    SCAN_RESULTS: "scan_results"
+    SCAN_RESULTS: "scan_page"
 
 
 };
@@ -14,7 +14,8 @@ const EVENTS = {
     START_CRAWL: "crawl",
     CONFIG_DATABASE: "config_database",
     GET_RESULTS: "get_results",
-    UPDATE_PAYLOADS: "update_payloads"
+    UPDATE_PAYLOADS: "update_payloads",
+    SCAN_PAGE:"scan_page"
 };
 
 function startCrawl(urlBoundary) {
@@ -34,6 +35,10 @@ function updatePayloads(payloadBoundary) {
 
 }
 
+function scanPage(pageBoundary){
+    io.emit(EVENTS.SCAN_PAGE,pageBoundary);
+}
+
 function start(server) {
     io = require("socket.io")(server);
     io.on(ACTIONS.CONNECTION, async function (socket, next, a) {
@@ -43,6 +48,7 @@ function start(server) {
         });
         socket.on(ACTIONS.PAGE_FETCHED, async function (pageBoundary) {
             console.log("received page");
+            //scanPage(pageBoundary);
         });
         socket.on(ACTIONS.PAGE_FETCHED, async function () {
             console.log("crawler done his job");

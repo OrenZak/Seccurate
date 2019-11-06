@@ -38,11 +38,13 @@ class SocketIOClient():
         clientLogicService.configNewScan(dbBoundary.getDbName())
         return
 
-    @sio.on('start_scan')
+    @sio.on('scan_page')
     def startScan(scanParams):  # start scan method, the server needs to provide urls to scan
         configScanBoundary = ScanBoundary.deserialize(scanParams)
-        clientLogicService.startScan(pageEntities=configScanBoundary.getPageEntityies(),
-                                     sessionEntity=configScanBoundary.getSessionEntity())
+        clientLogicService.startScan(pageEntity=configScanBoundary.getPageEntity(),
+                                     sessionEntity=configScanBoundary.setSessionEntity(),
+                                     algoType=configScanBoundary.getAlgorithmType(), db_type="prod",
+                                     vuln_table_name=configScanBoundary.getDbName())
 
         return
 
