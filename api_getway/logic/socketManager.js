@@ -1,5 +1,6 @@
 events = require("events");
 
+
 const ACTIONS = {
     CONNECTION: "connection",
     DISCONNECT: "disconnect",
@@ -15,8 +16,10 @@ const EVENTS = {
     CONFIG_DATABASE: "config_database",
     GET_RESULTS: "get_results",
     UPDATE_PAYLOADS: "update_payloads",
-    SCAN_PAGE:"scan_page"
+    SCAN_PAGE: "scan_page"
 };
+
+let io = undefined;
 
 function startCrawl(urlBoundary) {
     io.emit(EVENTS.START_CRAWL, urlBoundary.serialize());
@@ -35,8 +38,8 @@ function updatePayloads(payloadBoundary) {
 
 }
 
-function scanPage(pageBoundary){
-    io.emit(EVENTS.SCAN_PAGE,pageBoundary);
+function scanPage(pageBoundary) {
+    io.emit(EVENTS.SCAN_PAGE, pageBoundary);
 }
 
 function start(server) {
