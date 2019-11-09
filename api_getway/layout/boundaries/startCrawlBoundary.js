@@ -1,4 +1,4 @@
-class CrawlBoundary {
+class StartCrawlBoundary {
     constructor(url, loginInfo) {
         this.url = url;
         this.loginInfo = loginInfo;
@@ -26,8 +26,8 @@ class CrawlBoundary {
 
     static deserialize(crawlBoundary) {
         var deserialized = JSON.parse(crawlBoundary);
-        return new CrawlBoundary(deserialized.url, deserialized.loginInfo);
+        return new StartCrawlBoundary(deserialized.url, deserialized.loginInfo);
     }
 }
 
-module.exports = CrawlBoundary;
+module.exports = StartCrawlBoundary;

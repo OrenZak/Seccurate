@@ -42,10 +42,8 @@ class ScanBoundary:
     @staticmethod
     def deserialize(serializedConfigScan):
         deserialized = json.loads(serializedConfigScan)
-        deserializedPageEntity = deserialized["page"]
-        deserializedSessionEntity = deserialized["sessionData"]
         deserializedAlgoType = deserialized["algoType"]
         deserializedDbName = deserialized["dbName"]
-        sessionEntity = SessionEntity(deserializedSessionEntity["type"], str(deserializedSessionEntity["value"]))
-        newPageEntity = PageEntity(deserializedPageEntity["url"], deserializedPageEntity["pageHash"])
+        sessionEntity = SessionEntity(deserialized["type"], str(deserialized["value"]))
+        newPageEntity = PageEntity(deserialized["url"], deserialized["pageHash"])
         return ScanBoundary(newPageEntity, sessionEntity, deserializedAlgoType, deserializedDbName)

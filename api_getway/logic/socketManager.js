@@ -1,4 +1,6 @@
 events = require("events");
+var CrawlerPageBoundary = require('./boundaries/crawlerPageBoundary');
+var VulnerabilityPageBoundary = require('./boundaries/vulnerabilityPageBoundary');
 
 
 const ACTIONS = {
@@ -21,16 +23,16 @@ const EVENTS = {
 
 let io = undefined;
 
-function startCrawl(urlBoundary) {
-    io.emit(EVENTS.START_CRAWL, urlBoundary.serialize());
+function startCrawl(crawlBoundary) {
+    io.emit(EVENTS.START_CRAWL, crawlBoundary.serialize());
 }
 
-function configDatabase(configDbBoundary) {
-    io.emit(EVENTS.CONFIG_DATABASE, configDbBoundary.serialize());
+function configDatabase(vulnerabilityConfigBoundary) {
+    io.emit(EVENTS.CONFIG_DATABASE, vulnerabilityConfigBoundary.serialize());
 }
 
-function getResults() {
-    io.emit(EVENTS.GET_RESULTS);
+function getResults(vulnerabilityGetResultsRequestBoundary) {
+    io.emit(EVENTS.GET_RESULTS, vulnerabilityGetResultsRequestBoundary);
 }
 
 function updatePayloads(payloadBoundary) {
@@ -39,7 +41,7 @@ function updatePayloads(payloadBoundary) {
 }
 
 function scanPage(pageBoundary) {
-    io.emit(EVENTS.SCAN_PAGE, pageBoundary);
+    io.emit(EVENTS.SCAN_PAGE, pageBoundary.serialize());
 }
 
 function start(server) {
@@ -51,13 +53,21 @@ function start(server) {
         });
         socket.on(ACTIONS.PAGE_FETCHED, async function (pageBoundary) {
             console.log("received page");
-            //scanPage(pageBoundary);
+            //TODO should we save the page in a db?
+            //TODO get somehow tableName and current scan algoType
+            crawlerPageboundary = CrawlerPageBoundary.deserialize(pageBoundary);
+            tableName = "";
+            algoType = "";
+            vulnerabilityPageBoundary = VulnerabilityPageBoundary(crawlerPageboundary.url, crawlerPageboundary.pageHash, crawlerPageboundary.type, crawlerPageboundary.value, algoType, tableName);
+            scanPage(vulnerabilityPageBoundary);
         });
-        socket.on(ACTIONS.PAGE_FETCHED, async function () {
-            console.log("crawler done his job");
-        });
-        socket.on(ACTIONS.SCAN_RESULTS, async function (scanResultsBoundary) {
+        socket.on(ACTIONS.SCAN_RESULTS, async function (results) {
             console.log("received scan results");
+            var parsedResults = [];
+            results.forEach(element => {
+                parsedResults.push(element);
+            });
+            //TODO send the array somehow
         });
     });
 }

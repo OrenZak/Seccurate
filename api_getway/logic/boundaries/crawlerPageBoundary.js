@@ -1,4 +1,4 @@
-class PageScanBoundary {
+class CrawlerPageScanBoundary {
     constructor(url, pageHash, sessionType, sessionValue) {
         this.url = url;
         this.pageHash = pageHash;
@@ -44,8 +44,8 @@ class PageScanBoundary {
 
     static deserialize(pageBoundary) {
         var deserialized = JSON.parse(pageBoundary);
-        return new PageScanBoundary(deserialized.url, deserialized.pageHash, deserialized.type, deserialized.value);
+        return new CrawlerPageScanBoundary(deserialized.url, deserialized.pageHash, deserialized.type, deserialized.value);
     }
 }
 
-module.exports = PageScanBoundary;
+module.exports = CrawlerPageScanBoundary;
