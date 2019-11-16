@@ -21,29 +21,11 @@ class LogicService {
         let dbName = "";
         let crawlerConfigBoundary = new CrawlerConfigScanBoundary(interval, maxConcurrency, maxDepth, timeout);
         let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(dbName, scanType);
-        request.post(`${globals.CRAWLER_MICROSERVICE}/scan_config`,crawlerConfigBoundary.serialize(),function(err,httpResponse,body){
-            console.log(`statusCode: ${httpResponse.statusCode}`);
-        });
         // INIT crawler micro service scan configuration
-        let options = {
-            hostname: globals.CRAWLER_MICROSERVICE.split(':')[0],
-            port: globals.CRAWLER_MICROSERVICE.split(':')[1],
-            path: '',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': scanConfigBoundary.serialize().length
-            }
-        };
-        let reqToCrawler = https.request(options, (res) => {
-            console.log(`statusCode: ${res.statusCode}`);
-
-            res.on('data', (d) => {
-                console.log(d);
-            })
+        request.post(`${globals.CRAWLER_MICROSERVICE}/scan_config`, crawlerConfigBoundary.serialize(), function (err, httpResponse, body) {
+            //console.log(`statusCode: ${httpResponse.status}`);
+            console.log(err, body, httpResponse);
         });
-        reqToCrawler.write(crawlerConfigBoundary.serialize());
-        reqToCrawler.end();
         // INIT vulnerability micro service scan configuration
         socketManager.configDatabase(vulnerabilityConfigBoundary);
 
