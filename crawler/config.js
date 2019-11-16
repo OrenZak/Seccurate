@@ -5,5 +5,8 @@ module.exports = {
       'maxConcurrency': 3,
       'maxDepth': 10,
       'timeout': 10000 // 10sec
+    },
+    paths: {
+      API_GETWAY: 'http://192.168.1.16:3000'
     }
 }

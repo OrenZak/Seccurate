@@ -12,6 +12,7 @@ router.post("/scan_config", function(req, res, next) {
       'maxDepth': req.query.maxDepth || config.crawler.maxDepth,
       'timeout': req.query.timeout || config.crawler.timeout
     });
+    console.log('Scan Config - 200');
     res.sendStatus(200);
   } catch (err) {
     res.status(400).send(err);
