@@ -7,7 +7,7 @@ class DAO {
         this.db = mysql.connect({
             host: 'localhost',
             user: 'root',
-            password: '18031997',
+            //password: '18031997',
             database: db
         })
     }

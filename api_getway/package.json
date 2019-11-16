@@ -5,7 +5,8 @@
   "dependencies": {
     "express": "^4.16.1",
     "socket.io": "^2.3.0",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "mysql2": "^2.0.0"
   },
   "devDependencies": {
     "mocha": "^6.2.2"
