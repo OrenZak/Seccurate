@@ -52,8 +52,7 @@ class ScanConfigBoundary {
     }
 
     static deserialize(scanConfigBoundary) {
-        var deserialized = JSON.parse(scanConfigBoundary);
-        return new ScanConfigBoundary(deserialized.interval, deserialized.maxConcurrency, deserialized.maxDepth, deserialized.timeout,deserialized.scanType);
+        return new ScanConfigBoundary(scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout,scanConfigBoundary.scanType);
     }
 }
 

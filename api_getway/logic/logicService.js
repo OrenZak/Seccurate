@@ -1,4 +1,5 @@
-const https = require('https')
+const https = require('https');
+const request = require('request');
 const globals = require('../common/globals');
 var socketManager = require('./socketManager');
 var CrawlerConfigScanBoundary = require('./boundaries/crawlerConfigScanBoundary');
@@ -18,13 +19,16 @@ class LogicService {
     async scanConfig(interval, maxConcurrency, maxDepth, timeout, scanType) {
         // TODO save new raw info in the db
         let dbName = "";
-        let crawlerConfigBoundary = CrawlerConfigScanBoundary(interval, maxConcurrency, maxDepth, timeout);
-        let vulnerabilityConfigBoundary = VulnerabilityConfigScanBoundary(dbName, scanType);
+        let crawlerConfigBoundary = new CrawlerConfigScanBoundary(interval, maxConcurrency, maxDepth, timeout);
+        let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(dbName, scanType);
+        request.post(`${globals.CRAWLER_MICROSERVICE}/scan_config`,crawlerConfigBoundary.serialize(),function(err,httpResponse,body){
+            console.log(`statusCode: ${httpResponse.statusCode}`);
+        });
         // INIT crawler micro service scan configuration
         let options = {
             hostname: globals.CRAWLER_MICROSERVICE.split(':')[0],
             port: globals.CRAWLER_MICROSERVICE.split(':')[1],
-            path: '/start_config',
+            path: '',
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
