@@ -1,4 +1,4 @@
-const { eventEmitter, startCrawl, EVENTS } = require("./crawler");
+const { eventEmitter, startCrawl, setConfig , EVENTS } = require("./crawler");
 const { paths } = require('../config'); 
 
 const ACTIONS = {
@@ -11,7 +11,7 @@ const ACTIONS = {
 api_getway = require("socket.io-client")(paths.API_GETWAY);
 api_getway.on(ACTIONS.START_CRAWL, async function(data) {
   console.log(`Start crawling on:`, JSON.stringify(data));
-  socket.join(data.url);
+  setConfig(data.config)
   startCrawl(data.url, data.loginInfo);
 });
 
@@ -32,6 +32,4 @@ eventEmitter.on(EVENTS.CRAWLER_DONE, ({ mainUrl }) => {
     }
   });
 
-module.exports = {
-  start
-};
+module.exports = {};
