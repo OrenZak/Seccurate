@@ -1,12 +1,20 @@
-const https = require('https')
+const https = require('https');
+const request = require('request');
 const globals = require('../common/globals');
 var socketManager = require('./socketManager');
 var CrawlerConfigScanBoundary = require('./boundaries/crawlerConfigScanBoundary');
 var VulnerabilityConfigScanBoundary = require('./boundaries/vulnerabilityConfigBoundary');
 var VulnerabilityGetResultsRequestBoundary = require('./boundaries/vulnerabilityGetResultsRequestBoundary');
+var ConfigurationHistoryDao = require('../dao/scanConfigurationCRUD');
+var SavedConfigurarionDao = require('../dao/savedScanConfigurationCRUD')
+var ScansDao = require('../dao/scansCRUD');
+var ConfigEntity = require('../data/ConfigurationEntity');
+var SavedConfigEntity = require('../data/SavedConfigurationEntity')
+var ScanEntity = require('../data/scanEntity');
 
 class LogicService {
     constructor(server) {
+        this.configurationHistoryDao = new ConfigurationHistoryDao("test");
         console.log('created');
 
     }
@@ -15,39 +23,39 @@ class LogicService {
         socketManager.start(server);
     }
 
-    async scanConfig(interval, maxConcurrency, maxDepth, timeout, scanType) {
-        // TODO save new raw info in the db
-        let dbName = "";
-        let crawlerConfigBoundary = CrawlerConfigScanBoundary(interval, maxConcurrency, maxDepth, timeout);
-        let vulnerabilityConfigBoundary = VulnerabilityConfigScanBoundary(dbName, scanType);
-        // INIT crawler micro service scan configuration
-        let options = {
-            hostname: globals.CRAWLER_MICROSERVICE.split(':')[0],
-            port: globals.CRAWLER_MICROSERVICE.split(':')[1],
-            path: '/start_config',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': scanConfigBoundary.serialize().length
-            }
-        };
-        let reqToCrawler = https.request(options, (res) => {
-            console.log(`statusCode: ${res.statusCode}`);
-
-            res.on('data', (d) => {
-                console.log(d);
-            })
-        });
-        reqToCrawler.write(crawlerConfigBoundary.serialize());
-        reqToCrawler.end();
-        // INIT vulnerability micro service scan configuration
-        socketManager.configDatabase(vulnerabilityConfigBoundary);
-
+    async scanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save) {
+        let dbName = 'test';
+        let configEntity = new ConfigEntity(null, maxDepth, timeout, interval, maxConcurrency, scanType, JSON.stringify(loginInfo), url);
+        let configHistoryValue = this.configurationHistoryDao.insertValue(configEntity);
+        if (save) {
+            let savedConfigDao = new SavedConfigurarionDao(dbName);
+            let savedConfigEntity = new SavedConfigEntity(null, maxDepth, timeout, interval, maxConcurrency);
+            savedConfigDao.insertValue(savedConfigEntity);
+        }
+        let scansDao = new ScansDao(dbName);
+        let scanEntity = new ScanEntity(name, Date.now(), configHistoryValue.getID());
+        scansDao.insertValue(scanEntity);
+        return configHistoryValue.getID();
     }
 
-    async startCrawl(crawlBoundary) {
-        socketManager.startCrawl(crawlBoundary)
-        // TODO - do we need to save it somehow ? talk with guy
+    async startCrawl(id) {
+        this.configurationHistoryDao.getValue(id, (err, value) => {
+            if (err) {
+                console.log(err);
+            } else {
+                let config = {
+                    interval: value[0]["interval_crawler"],
+                    maxConcurrency: value[0]["maxConcurrency"],
+                    maxDepth: value[0]["maxDepth"],
+                    timeout: value[0]["timeout"]
+                };
+                let crawlerConfigBoundary = new CrawlerConfigScanBoundary(config, value[0]["vulnsScanned"], value[0]["loginPage"], JSON.parse(value[0]["credentials"]));
+                let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(value[0]["id"], value[0]["vulnsScanned"]);
+                socketManager.startCrawl(crawlerConfigBoundary);
+                // INIT vulnerability micro service scan configuration
+                socketManager.configDatabase(vulnerabilityConfigBoundary);
+            }
+        });
     }
 
     async getResults(scanName) {

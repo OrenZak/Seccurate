@@ -1,4 +1,5 @@
-const { eventEmitter, startCrawl, EVENTS } = require("./crawler");
+const { eventEmitter, startCrawl, setConfig , EVENTS } = require("./crawler");
+const { paths } = require('../config'); 
 
 const ACTIONS = {
   CONNECTION: "connection",
@@ -6,27 +7,21 @@ const ACTIONS = {
   START_CRAWL: "crawl"
 };
 
-function start(server) {
-  io = require("socket.io")(server);
-  io.on(ACTIONS.CONNECTION, async function(socket, next, a) {
-    console.log(`SocketIO - connection`);
-
-    socket.on(ACTIONS.START_CRAWL, async function(data) {
-      console.log(`Start crawling on:`, JSON.stringify(data));
-      socket.join(data.url);
-      startCrawl(data.url, data.loginInfo);
-    });
-
-    socket.on(ACTIONS.DISCONNECT, async function() {
-      console.log("socket disconnected");
-    });
-  });
-}
+// connect to api_getway and listen to start crawler events.
+api_getway = require("socket.io-client")(paths.API_GETWAY);
+api_getway.on('connect', async function() {
+  console.log(`Crawler connected to api getway:`);
+});
+api_getway.on(ACTIONS.START_CRAWL, async function(data) {
+  setConfig(data.config)
+  startCrawl(data.url, data.loginInfo);
+});
 
 // crawler event listener
 eventEmitter.on(EVENTS.PAGE_FETCHED, ({ mainUrl, data }) => {
   try {
-    io.to(mainUrl).emit(EVENTS.PAGE_FETCHED, data);
+    console.log(data)
+    api_getway.emit(EVENTS.PAGE_FETCHED, data);
   } catch (err) {
     console.log(err);
   }
@@ -34,12 +29,10 @@ eventEmitter.on(EVENTS.PAGE_FETCHED, ({ mainUrl, data }) => {
 
 eventEmitter.on(EVENTS.CRAWLER_DONE, ({ mainUrl }) => {
     try {
-      io.to(mainUrl).emit(EVENTS.CRAWLER_DONE);
+      api_getway.emit(EVENTS.CRAWLER_DONE);
     } catch (err) {
       console.log(err);
     }
   });
 
-module.exports = {
-  start
-};
+module.exports = {};

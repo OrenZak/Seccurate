@@ -11,7 +11,7 @@ router.use(express.urlencoded({extended: false}));
 
 const PATHS = {
     HOME: "/",
-    CRAWL: "/crawl",
+    START_SCAN: "/start_scan",
     CONFIG_SCAN: "/config_scan",
     LOGIN: "/login",
     REGISTER: "/register",
@@ -23,16 +23,16 @@ router.get(PATHS.HOME, function (req, res, next) {
     res.status(200).send('<h1>Welcome to Seccurate API Gateway</h1>');
 });
 
-router.post(PATHS.CRAWL, async function (req, res, next) {
-    crawlBoundary = StartCrawlBoundary.deserialize(req.query);
-    logicService.startCrawl(crawlBoundary);
+router.post(PATHS.START_SCAN, async function (req, res, next) {
+    crawlBoundary = StartCrawlBoundary.deserialize(req.body);
+    logicService.startCrawl(crawlBoundary.id);
     res.status(200).send('<h1>Hello world</h1>');
 });
 
 router.post(PATHS.CONFIG_SCAN, async function (req, res, next) {
-    scanConfigBoundary = ScanConfigBoundary.deserialize(req.query);
-    var result = await logicService.scanConfig(scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout, scanConfigBoundary.scanType);
-    res.status(200).send('<h1>Hello world</h1>');
+    scanConfigBoundary = ScanConfigBoundary.deserialize(req.body);
+    var result = await logicService.scanConfig(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save);
+    res.status(200).send(result);
 });
 
 router.post(PATHS.LOGIN, function (req, res, next) {
@@ -44,7 +44,7 @@ router.post(PATHS.REGISTER, function (req, res, next) {
 });
 
 router.post(PATHS.ADD_PAYLOADS, function (req, res, next) {
-    logicService
+    logicService.addPayload(req.query);
     res.status(200).send('<h1>Hello world</h1>');
 });
 

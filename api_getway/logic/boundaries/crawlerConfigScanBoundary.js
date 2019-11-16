@@ -1,50 +1,41 @@
 class CrawlerConfigScanBoundary {
-    constructor(interval, maxConcurrency, maxDepth, timeout) {
-        this.interval = interval;
-        this.maxConcurrency = maxConcurrency;
-        this.maxDepth = maxDepth;
-        this.timeout = timeout;
+    constructor(config, scanType, url, loginInfo) {
+        this.config = config;
+        this.scanType = scanType;
+        this.url = url;
+        this.loginInfo = loginInfo;
     }
 
-    get Interval() {
-        return this.interval
+    get Config() {
+        return this.config
     }
 
-    set Interval(interval) {
-        this.interval = interval;
+    set Config(config) {
+        this.config = config;
     }
 
-    get MaxConcurrency() {
-        return this.maxConcurrency
+    get URL() {
+        return this.url
     }
 
-    set MaxConcurrency(maxConcurrency) {
-        this.maxConcurrency = maxConcurrency;
+    set URL(url) {
+        this.url = url;
     }
 
-    get MaxDepth() {
-        return this.maxDepth
+    get LoginInfo() {
+        return this.loginInfo
     }
 
-    set MaxDepth(maxDepth) {
-        this.maxDepth = maxDepth;
-    }
-
-    get Timeout() {
-        return this.timeout
-    }
-
-    set Timeout(timeout) {
-        this.timeout = timeout;
+    set LoginInfo(loginInfo) {
+        this.loginInfo = loginInfo;
     }
 
     serialize() {
-        return JSON.stringify(this);
+        return this;
     }
 
-    static deserialize(crawlerConfigScanBoundary) {
-        var deserialized = JSON.parse(crawlerConfigScanBoundary);
-        return new CrawlerConfigScanBoundary(deserialized.interval, deserialized.maxConcurrency, deserialized.maxDepth, deserialized.timeout);
+    static deserialize(scanConfigBoundary) {
+        return new CrawlerConfigScanBoundary(scanConfigBoundary.config, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo);
     }
 }
 

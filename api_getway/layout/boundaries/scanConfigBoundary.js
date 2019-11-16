@@ -1,50 +1,52 @@
 class ScanConfigBoundary {
-    constructor(interval, maxConcurrency, maxDepth, timeout, scanType) {
-        this.interval = interval;
-        this.maxConcurrency = maxConcurrency;
-        this.maxDepth = maxDepth;
-        this.timeout = timeout;
+    constructor(config, scanType, url, loginInfo, name, save) {
+        this.config = config;
         this.scanType = scanType;
+        this.url = url;
+        this.loginInfo = loginInfo;
+        this.name = name;
+        this.save = save;
     }
 
-    get Interval() {
-        return this.interval
+
+    get Config() {
+        return this.config
     }
 
-    set Interval(interval) {
-        this.interval = interval;
+    set Config(config) {
+        this.config = config;
     }
 
-    get ScanType() {
-        return this.scanType
+    get URL() {
+        return this.url
     }
 
-    set ScanType(scanType) {
-        this.scanType = scanType;
+    set URL(url) {
+        this.url = url;
     }
 
-    get MaxConcurrency() {
-        return this.maxConcurrency
+    get LoginInfo() {
+        return this.loginInfo
     }
 
-    set MaxConcurrency(maxConcurrency) {
-        this.maxConcurrency = maxConcurrency;
+    set LoginInfo(loginInfo) {
+        this.loginInfo = loginInfo;
     }
 
-    get MaxDepth() {
-        return this.maxDepth
+    get Name() {
+        return this.name
     }
 
-    set MaxDepth(maxDepth) {
-        this.maxDepth = maxDepth;
+    set Name(name) {
+        this.name = name
     }
 
-    get Timeout() {
-        return this.timeout
+    get Save() {
+        return this.save
     }
 
-    set Timeout(timeout) {
-        this.timeout = timeout;
+    set Save(save) {
+        this.save = save;
     }
 
     serialize() {
@@ -52,8 +54,7 @@ class ScanConfigBoundary {
     }
 
     static deserialize(scanConfigBoundary) {
-        var deserialized = JSON.parse(scanConfigBoundary);
-        return new ScanConfigBoundary(deserialized.interval, deserialized.maxConcurrency, deserialized.maxDepth, deserialized.timeout,deserialized.scanType);
+        return new ScanConfigBoundary(scanConfigBoundary.config, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save);
     }
 }
 

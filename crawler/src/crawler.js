@@ -46,10 +46,12 @@ function startCrawl(mainUrl, loginInfo) {
     console.log(`New page: ${queueItem.url}`);
     const hash = createHash(queueItem)
 
+    const urlCookies = getCookies(crawler, queueItem.url);
     doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
-      fetchedUrl: queueItem.url,
-      cookies: getCookies(crawler, queueItem.url),
-      hash: hash,
+      url: queueItem.url,
+      cookies: urlCookies,
+      type: urlCookies ? 'Cookie' : 'Basic',
+      pageHash: hash,
     });
   });
 
@@ -134,13 +136,12 @@ function startAfterLogin(crawler, loginInfo, mainUrl) {
 }
 
 function getCookies(crawler, url) {
-  let cookiesRes = [];
+  let cookiesRes = '';
   crawler.cookies.cookies.forEach(cookie => {
     if (cookie.value != 'deleted' && (cookie.domain === '*' || url.contains(cookie.domain))) {
-      cookiesRes.push(cookie);
+      cookiesRes += cookie.name+'='+cookie.value+';'
     }
   });
-
   return cookiesRes;
 }
 

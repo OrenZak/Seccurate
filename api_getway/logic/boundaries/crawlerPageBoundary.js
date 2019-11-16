@@ -39,12 +39,11 @@ class CrawlerPageScanBoundary {
     }
 
     serialize() {
-        return JSON.stringify(this);
+        return this;
     }
 
     static deserialize(pageBoundary) {
-        var deserialized = JSON.parse(pageBoundary);
-        return new CrawlerPageScanBoundary(deserialized.url, deserialized.pageHash, deserialized.type, deserialized.value);
+        return new CrawlerPageScanBoundary(pageBoundary.url, pageBoundary.pageHash, pageBoundary.type, pageBoundary.value);
     }
 }
 

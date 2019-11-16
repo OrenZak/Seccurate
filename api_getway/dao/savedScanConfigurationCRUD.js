@@ -7,7 +7,7 @@ class SavedConfigurationCRUD {
             host: 'localhost',
             port: 3306,
             user: 'root',
-            password: '18031997',
+            //password: '18031997',
             database: db
         })
         this.conn.connect(function(err) {
@@ -18,12 +18,12 @@ class SavedConfigurationCRUD {
             }
         })
         this.table_name = 'SavedConfigurations'//TODO: should be read from configuration
-        //this.createTable()
+        this.createTable()
     }
 
     createTable() {
-        const sql = `CREATE TABLE IF NOT EXISTS ?? (id VARCHAR(100) PRIMARY KEY, maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, maxConcurrency INTEGER)`
-        this.conn.query(sql, [this.table_name], function(err) {
+        const sql = `CREATE TABLE IF NOT EXISTS ?? (id VARCHAR(100) PRIMARY KEY, maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, maxConcurrency INTEGER, UNIQUE KEY unique_scan (maxDepth,timeout,interval_crawler,maxConcurrency))`
+        this.conn.query(sql, [this.table_name], async function(err) {
             if (err) {
                 console.log(err)
             }
@@ -35,7 +35,7 @@ class SavedConfigurationCRUD {
         const id = new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('')+Math.floor(Math.random()*100000)
         const sql = `INSERT INTO ?? VALUES (?,?,?,?,?)`
         //TODO: I assume that all three extra values are here. This should be checked in a different layer
-        this.conn.query(sql, [this.table_name, id, value.getMaxDepth(), value.getTimeout(), value.getInterval(), value.getMaxConcurrency()], (err) => {
+        this.conn.query(sql, [this.table_name, id, value.getMaxDepth(), value.getTimeout(), value.getInterval(), value.getMaxConcurrency()], async (err) => {
             if (err) {
                 console.log(err)
             }
@@ -45,13 +45,13 @@ class SavedConfigurationCRUD {
     }
 
     updateValue(new_value) {
-        this.getValue(new_value.getID(), function (err, res) {
+        this.getValue(new_value.getID(), async function (err, res) {
             if (err) {
-                throw new Error('No such value ' + value_id + '\n' + err)
+                throw new Error('No such value ' + new_value.getID() + '\n' + err)
             }
         })
         const sql = `UPDATE ?? SET maxDepth=?, timeout=?, interval_crawler=?, maxConcurrency=? WHERE id=?`
-        this.conn.query(sql,[this.table_name, new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(), new_value.getMaxConcurrency(), new_value.getID()], (err) => {
+        this.conn.query(sql,[this.table_name, new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(), new_value.getMaxConcurrency(), new_value.getID()], async (err) => {
             if (err) {
                 console.log(err)
             }
@@ -61,7 +61,7 @@ class SavedConfigurationCRUD {
 
     getValue(value_id, callback) {
         const sql = `SELECT * FROM ?? WHERE id=?`
-        this.conn.query(sql,[this.table_name, value_id], function (err, result) {
+        this.conn.query(sql,[this.table_name, value_id], async function (err, result) {
             if (!err) {
                 callback(null, result)
             }
@@ -73,7 +73,7 @@ class SavedConfigurationCRUD {
 
     getAll(callback, page=0, size=10) {
         const sql = `SELECT * from ?? ORDER BY id ASC LIMIT ?,?`
-        this.conn.query(sql, [this.table_name, page*size, (page*size)+size], function(err, results) {
+        this.conn.query(sql, [this.table_name, page*size, (page*size)+size], async function(err, results) {
             if (!err) {
                 callback(null, results)
             }
@@ -83,14 +83,14 @@ class SavedConfigurationCRUD {
         })
     }
     
-    deleteValue(value_id){
-        this.getValue(new_value.getID(), this.table_name, function (err, res) {
+    deleteValue(value){
+        this.getValue(value.getID(), this.table_name, async function (err, res) {
             if (err) {
-                throw new Error('No such value ' + value_id + '\n' + err)
+                throw new Error('No such value ' + value.getID() + '\n' + err)
             }
         })
         const sql = `DELETE FROM ?? WHERE id=?`
-        this.conn.query(sql, [this.table_name, value_id, (err) => {
+        this.conn.query(sql, [this.table_name, value.getID(), async (err) => {
             if (err) {
                 console.log(err)
             }
@@ -99,7 +99,7 @@ class SavedConfigurationCRUD {
 
     deleteAll() {
         const sql = `DELETE FROM ??`
-        this.conn.query(sql, [this.table_name], (err) => {
+        this.conn.query(sql, [this.table_name], async (err) => {
             if (err) {
                 console.log(err)
             }
@@ -108,7 +108,7 @@ class SavedConfigurationCRUD {
 
     dropTable() {
         const sql = `DROP TABLE ??`
-        return this.conn.query(sql, [this.table_name], (err) => {
+        return this.conn.query(sql, [this.table_name], async (err) => {
             if (err) {
                 console.log(err)
             }
@@ -127,44 +127,44 @@ class SavedConfigurationCRUD {
 module.exports = SavedConfigurationCRUD
 
 //console.log('Config'+new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('')+Math.random()*100000)
-var entity1 = new configurationEntity(null, 6,6,6,6)
-var entity2 = new configurationEntity(null, 5, 5, 5, 5)
-connection = new SavedConfigurationCRUD('test')
-connection.createTable()
-var value1 = connection.insertValue(entity1)
-var value2 = connection.insertValue(entity2)
-console.log('out - value1 interval is ' + value1.getInterval())
-console.log('out - value2 interval is ' + value2.getInterval())
-value2.setInterval(4)
-var new_value2 = connection.updateValue(value2)
-console.log('after update - value2 interval is ' + new_value2.getInterval())
-connection.getAll(function(err, data) {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        console.log(data)
-        console.log('length is ' + data.length)
-    }
-})
-connection.getValue(value1.getID(), (err, data) => {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        Object.keys(data[0]).forEach(element => {
-            console.log(element + ': ' + data[0][element])
-        })
-    }
-})
-/*connection.deleteAll()
-connection.getAll((err, res) => {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        console.log('new length is ' + res.length)
-    }
-})*/
-//connection.dropTable()
-connection.closeConnection()
+// var entity1 = new configurationEntity(null, 6,6,6,6)
+// var entity2 = new configurationEntity(null, 5, 5, 5, 5)
+// connection = new SavedConfigurationCRUD('test')
+// connection.createTable()
+// var value1 = connection.insertValue(entity1)
+// var value2 = connection.insertValue(entity2)
+// console.log('out - value1 interval is ' + value1.getInterval())
+// console.log('out - value2 interval is ' + value2.getInterval())
+// value2.setInterval(4)
+// var new_value2 = connection.updateValue(value2)
+// console.log('after update - value2 interval is ' + new_value2.getInterval())
+// connection.getAll(function(err, data) {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         console.log(data)
+//         console.log('length is ' + data.length)
+//     }
+// })
+// connection.getValue(value1.getID(), (err, data) => {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         Object.keys(data[0]).forEach(element => {
+//             console.log(element + ': ' + data[0][element])
+//         })
+//     }
+// })
+// /*connection.deleteAll()
+// connection.getAll((err, res) => {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         console.log('new length is ' + res.length)
+//     }
+// })*/
+// //connection.dropTable()
+// connection.closeConnection()
