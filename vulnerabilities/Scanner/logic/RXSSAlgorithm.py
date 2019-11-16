@@ -3,7 +3,7 @@ import ConfigParser
 import base64
 import sys
 
-from RXSSCrud import RXSSCrud
+import RXSSCrud
 #from VulnerabilitiesCRUD import VulnerabilitiesCRUD
 import VulnerabilitiesCRUD
 from VulnerabilitiesObjects import SimpleVulnerabilityEntity
@@ -98,8 +98,8 @@ class MainWindow(QMainWindow):
         self.soup = BeautifulSoup(str(self.html), 'html.parser')
         self.networkAccessManager = QNetworkAccessManager()
         self.cookieJar = QNetworkCookieJar()
-        self.__VulnCrud = VulnerabilitiesCRUD.getInstance(db_type)
-        self.__RXSSVulnDescription = RXSSCrud.getInstance(db_type)
+        self.__VulnCrud = VulnerabilitiesCRUD
+        self.__RXSSVulnDescription = RXSSCrud
         self.__dbName = dbName
         self.__tableName = table_name
         self.get_configuration_properties()
