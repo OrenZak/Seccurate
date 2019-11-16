@@ -5,6 +5,9 @@ var socketManager = require('./socketManager');
 var CrawlerConfigScanBoundary = require('./boundaries/crawlerConfigScanBoundary');
 var VulnerabilityConfigScanBoundary = require('./boundaries/vulnerabilityConfigBoundary');
 var VulnerabilityGetResultsRequestBoundary = require('./boundaries/vulnerabilityGetResultsRequestBoundary');
+var ConfigurationHistoryDao = require('../dao/scanConfigurationCRUD');
+var SavedConfigurarionDao = require('../dao/savedScanConfigurationCRUD')
+var ScansDao = require('../dao/scansCRUD');
 
 class LogicService {
     constructor(server) {
@@ -16,9 +19,18 @@ class LogicService {
         socketManager.start(server);
     }
 
-    async scanConfig(interval, maxConcurrency, maxDepth, timeout, scanType) {
+    async scanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save) {
         // TODO save new raw info in the db
-        let dbName = "";
+        let dbName = "test";//change later
+        let configurationHistoryDao = new ConfigurationHistoryDao(dbName);
+        configurationHistoryDao.insertValue
+        return id;
+
+    }
+
+    async startCrawl(crawlBoundary) {
+        socketManager.startCrawl(crawlBoundary)
+        // fix later
         let crawlerConfigBoundary = new CrawlerConfigScanBoundary(interval, maxConcurrency, maxDepth, timeout);
         let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(dbName, scanType);
         // INIT crawler micro service scan configuration
@@ -28,11 +40,6 @@ class LogicService {
         });
         // INIT vulnerability micro service scan configuration
         socketManager.configDatabase(vulnerabilityConfigBoundary);
-
-    }
-
-    async startCrawl(crawlBoundary) {
-        socketManager.startCrawl(crawlBoundary)
         // TODO - do we need to save it somehow ? talk with guy
     }
 

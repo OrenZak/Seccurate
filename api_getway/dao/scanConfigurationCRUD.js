@@ -18,7 +18,7 @@ class ScanConfigHistoryCRUD {
             }
         })
         this.table_name = 'ConfigurationsHistory'//TODO: should be read from configuration
-        //this.createTable()
+        this.createTable()
     }
 
     createTable() {

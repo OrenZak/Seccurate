@@ -1,23 +1,14 @@
 class StartCrawlBoundary {
-    constructor(url, loginInfo) {
-        this.url = url;
-        this.loginInfo = loginInfo;
+    constructor(id) {
+        this.id = id;
     }
 
-    get URL() {
-        return this.url
+    get ID() {
+        return this.id;
     }
 
-    set URL(url) {
-        this.url = url;
-    }
-
-    get LoginInfo() {
-        return this.loginInfo
-    }
-
-    set LoginInfo(loginInfo) {
-        this.loginInfo = loginInfo;
+    set ID(id) {
+        this.id = id;
     }
 
     serialize() {
@@ -25,8 +16,7 @@ class StartCrawlBoundary {
     }
 
     static deserialize(crawlBoundary) {
-        var deserialized = JSON.parse(crawlBoundary);
-        return new StartCrawlBoundary(deserialized.url, deserialized.loginInfo);
+        return new StartCrawlBoundary(crawlBoundary.id);
     }
 }
 
