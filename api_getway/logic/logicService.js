@@ -25,7 +25,7 @@ class LogicService {
 
     async scanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save) {
         let dbName = 'test';
-        let configEntity = new ConfigEntity (null, maxDepth, timeout, interval, maxConcurrency, scanType, loginInfo, url);
+        let configEntity = new ConfigEntity(null, maxDepth, timeout, interval, maxConcurrency, scanType, JSON.stringify(loginInfo), url);
         let configHistoryValue = this.configurationHistoryDao.insertValue(configEntity);
         if (save) {
             let savedConfigDao = new SavedConfigurarionDao(dbName);
@@ -42,11 +42,15 @@ class LogicService {
         this.configurationHistoryDao.getValue(id, (err, value) => {
             if (err) {
                 console.log(err);
-            }
-            else {
-                let config = {interval:value.getInterval(), maxConcurrency: value.getMaxConcurrency(), maxDepth: value.getMaxDepth(), timeout: value.getTimeout()};
-                let crawlerConfigBoundary = new CrawlerConfigScanBoundary(config, value.getVulnsScanned(), value.getLoginPage(), value.getCredentials());
-                let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(value.getID(), value.getVulnsScanned());
+            } else {
+                let config = {
+                    interval: value[0]["interval_crawler"],
+                    maxConcurrency: value[0]["maxConcurrency"],
+                    maxDepth: value[0]["maxDepth"],
+                    timeout: value[0]["timeout"]
+                };
+                let crawlerConfigBoundary = new CrawlerConfigScanBoundary(config, value[0]["vulnsScanned"], value[0]["loginPage"], JSON.parse(value[0]["credentials"]));
+                let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(value[0]["id"], value[0]["vulnsScanned"]);
                 socketManager.startCrawl(crawlerConfigBoundary);
                 // INIT vulnerability micro service scan configuration
                 socketManager.configDatabase(vulnerabilityConfigBoundary);

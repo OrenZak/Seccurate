@@ -31,7 +31,7 @@ class CrawlerConfigScanBoundary {
     }
 
     serialize() {
-        return JSON.stringify(this);
+        return this;
     }
 
     static deserialize(scanConfigBoundary) {
