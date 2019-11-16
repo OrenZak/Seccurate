@@ -31,7 +31,7 @@ router.post(PATHS.START_SCAN, async function (req, res, next) {
 
 router.post(PATHS.CONFIG_SCAN, async function (req, res, next) {
     scanConfigBoundary = ScanConfigBoundary.deserialize(req.body);
-    var result = await logicService.scanConfig(scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout, scanConfigBoundary.scanType);
+    var result = await logicService.scanConfig(scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save);
     res.status(200).send('<h1>Hello world</h1>');
 });
 
