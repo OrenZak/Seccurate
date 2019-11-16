@@ -27,7 +27,7 @@ class SocketIOClient():
     def configNewScan(dbNameBoundary):  # set up a scan, needs to create a new db in the logic service
         global clientLogicService
         dbBoundary = ConfigDatabaseBoundary.deserialize(dbNameBoundary)
-        clientLogicService.configNewScan(dbBoundary.getDbName())
+        clientLogicService.configNewScan(dbBoundary.getDbName(), dbBoundary.getScanType())
         return
 
     @sio.on('scan_page')
