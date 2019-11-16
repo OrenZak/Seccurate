@@ -1,9 +1,12 @@
 class CrawlerConfigScanBoundary {
-    constructor(interval, maxConcurrency, maxDepth, timeout) {
+    constructor(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo) {
         this.interval = interval;
         this.maxConcurrency = maxConcurrency;
         this.maxDepth = maxDepth;
         this.timeout = timeout;
+        this.scanType = scanType;
+        this.url = url;
+        this.loginInfo = loginInfo;
     }
 
     get Interval() {
@@ -12,6 +15,14 @@ class CrawlerConfigScanBoundary {
 
     set Interval(interval) {
         this.interval = interval;
+    }
+
+    get ScanType() {
+        return this.scanType
+    }
+
+    set ScanType(scanType) {
+        this.scanType = scanType;
     }
 
     get MaxConcurrency() {
@@ -38,13 +49,28 @@ class CrawlerConfigScanBoundary {
         this.timeout = timeout;
     }
 
+    get URL() {
+        return this.url
+    }
+
+    set URL(url) {
+        this.url = url;
+    }
+
+    get LoginInfo() {
+        return this.loginInfo
+    }
+
+    set LoginInfo(loginInfo) {
+        this.loginInfo = loginInfo;
+    }
+
     serialize() {
         return JSON.stringify(this);
     }
 
-    static deserialize(crawlerConfigScanBoundary) {
-        var deserialized = JSON.parse(crawlerConfigScanBoundary);
-        return new CrawlerConfigScanBoundary(deserialized.interval, deserialized.maxConcurrency, deserialized.maxDepth, deserialized.timeout);
+    static deserialize(scanConfigBoundary) {
+        return new CrawlerConfigScanBoundary(scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout,scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo);
     }
 }
 

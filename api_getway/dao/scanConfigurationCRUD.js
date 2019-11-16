@@ -51,7 +51,7 @@ class ScanConfigHistoryCRUD {
             })
         }
         value.setID(id)
-        return value
+        return value;
     }
 
     updateValue(new_value) {
