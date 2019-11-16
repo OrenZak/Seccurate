@@ -18,7 +18,7 @@ class SavedConfigurationCRUD {
             }
         })
         this.table_name = 'SavedConfigurations'//TODO: should be read from configuration
-        //this.createTable()
+        this.createTable()
     }
 
     createTable() {

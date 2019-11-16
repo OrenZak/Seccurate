@@ -28,7 +28,7 @@ class ScansDataCRUD {
             }
         })
         this.table_name = globals.SCAN_CRUD_TABLE;
-        //this.createTable()
+        this.createTable()
     }
 
     createTable() {
