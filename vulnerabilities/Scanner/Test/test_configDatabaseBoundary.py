@@ -7,7 +7,8 @@ class TestConfigDatabaseBoundary(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.dbName = "db1"
-        cls.serializedScanConfig = '{"name":"db1"} '
+        cls.scanType = "ALL"
+        cls.serializedScanConfig = '{"dbName":"db1", "scanType":"ALL"} '
         cls.pageBoudanry = ConfigDatabaseBoundary(cls.dbName)
 
     @classmethod
@@ -18,6 +19,7 @@ class TestConfigDatabaseBoundary(TestCase):
         serializedConfigDatabaseBoundary = ConfigDatabaseBoundary.deserialize(self.serializedScanConfig)
         self.assertEqual(self.dbName, serializedConfigDatabaseBoundary.getDbName(),
                          "Failed Deserialize database name")
+        self.assertEqual(self.scanType, serializedConfigDatabaseBoundary.getScanType(), "Failed Deserialize scan Type")
 
 
 if __name__ == '__main__':

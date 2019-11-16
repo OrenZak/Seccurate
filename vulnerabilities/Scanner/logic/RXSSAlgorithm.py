@@ -4,7 +4,8 @@ import base64
 import sys
 
 from RXSSCrud import RXSSCrud
-from VulnerabilitiesCRUD import VulnerabilitiesCRUD
+#from VulnerabilitiesCRUD import VulnerabilitiesCRUD
+import VulnerabilitiesCRUD
 from VulnerabilitiesObjects import SimpleVulnerabilityEntity
 from methods import GetFormInputFields, ParseForms
 

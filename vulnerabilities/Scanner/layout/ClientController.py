@@ -12,28 +12,20 @@ class SocketIOClient():
     sio = socketio.Client()
 
     def __init__(self, logicService):
+        global clientLogicService
         clientLogicService = logicService
 
     def connectToServer(self, serverURL):
+        global clientLogicService
         self.severURL = serverURL
         sio.connect(serverURL)
 
     def disconnectFromServer(self):
         sio.disconnect()
 
-    @sio.event
-    def connect(aaa):  # auto event - invoked when the connection is completed
-        print("I'm connected!")
-        print('my sid is', sio.sid)
-        return
-
-    @sio.event
-    def disconnect(self):  # auto event - invoked when the client disconnected from the server
-        print("I'm disconnected!")
-        return
-
     @sio.on('config_database')
     def configNewScan(dbNameBoundary):  # set up a scan, needs to create a new db in the logic service
+        global clientLogicService
         dbBoundary = ConfigDatabaseBoundary.deserialize(dbNameBoundary)
         clientLogicService.configNewScan(dbBoundary.getDbName())
         return

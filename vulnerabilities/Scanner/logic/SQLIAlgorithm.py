@@ -1,6 +1,6 @@
 import sys
 from methods import GetFormInputFields, ParseFormsSQLI
-from SQLICrud import SQLICrud
+import SQLICrud
 from bs4 import BeautifulSoup
 from urllib import urlencode
 from urlparse import urlparse, urljoin
@@ -11,7 +11,7 @@ import re
 import time
 import ConfigParser
 from VulnerabilitiesObjects import SimpleVulnerabilityEntity
-from VulnerabilitiesCRUD import VulnerabilitiesCRUD
+import VulnerabilitiesCRUD
 import base64
 from cookielib import Cookie
 
@@ -24,9 +24,9 @@ class SQLIAlgorithm():
     def __init__(self, db_type,
                  vuln_table_name):  # , page_entities=None, session_entity=None):  # db, links=None, cookie_jar=None):
         # self.sqliDBInstance = SQLICrud.getInstance(db)
-        self.sqliDBInstance = SQLICrud.getInstance(db_type)
+        self.sqliDBInstance = SQLICrud
         self.__vuln_table_name = vuln_table_name
-        self.vuln_db_instance = VulnerabilitiesCRUD.getInstance(db_type)
+        self.vuln_db_instance = VulnerabilitiesCRUD
         """if page_entities:
             self.page_entities_backlog = page_entities
         else:

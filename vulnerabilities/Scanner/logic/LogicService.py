@@ -1,11 +1,11 @@
 from RXSSAlgorithm import MainWindow
 from SQLIAlgorithm import SQLIAlgorithm
-from VulnerabilitiesCRUD import VulnerabilitiesCRUD
+import VulnerabilitiesCRUD
 
 
 class LogicService():
     def __init__(self, db_type):
-        self.__VulnCrud = VulnerabilitiesCRUD.getInstance(db_type)
+        self.__VulnCrud = VulnerabilitiesCRUD
         return
 
     def configNewScan(self, dbName):  # Config new db u
