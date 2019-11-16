@@ -53,12 +53,9 @@ function start(server) {
         });
         socket.on(ACTIONS.PAGE_FETCHED, async function (pageBoundary) {
             console.log("received page");
-            //TODO should we save the page in a db?
-            //TODO get somehow tableName and current scan algoType
+            //TODO should we save the page in a db
             crawlerPageboundary = CrawlerPageBoundary.deserialize(pageBoundary);
-            tableName = "";
-            algoType = "";
-            vulnerabilityPageBoundary = VulnerabilityPageBoundary(crawlerPageboundary.url, crawlerPageboundary.pageHash, crawlerPageboundary.type, crawlerPageboundary.value, algoType, tableName);
+            vulnerabilityPageBoundary = new VulnerabilityPageBoundary(crawlerPageboundary.url, crawlerPageboundary.pageHash, crawlerPageboundary.type, crawlerPageboundary.value);
             scanPage(vulnerabilityPageBoundary);
         });
         socket.on(ACTIONS.SCAN_RESULTS, async function (results) {

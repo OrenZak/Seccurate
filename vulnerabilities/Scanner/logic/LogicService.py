@@ -8,21 +8,20 @@ class LogicService():
         self.__VulnCrud = VulnerabilitiesCRUD
         return
 
-    def configNewScan(self, dbName):  # Config new db u
+    def configNewScan(self, dbName, scanType):  # Config new db u
         self.__VulnCrud.createTable(dbName)
         self.__dbName = dbName
+        self.__scanType = scanType
         return
 
-    def startScan(self, pageEntity=None, sessionEntity=None,
-                  algoType=None):#, db_type=None, vuln_table_name=None):  # start scan by using the client info data
-        if algoType == "ALL":
+    def startScan(self, pageEntity=None, sessionEntity=None):#, db_type=None, vuln_table_name=None):  # start scan by using the client info data
+        if self.__scanType == "ALL":
             self.__scanForRXSS(pageEntity=pageEntity, sessionEntity=sessionEntity)
             self.__scanForSqlInjection(pageEntity=pageEntity, sessionEntity=sessionEntity)
-        elif algoType == "SQLI":
+        elif self.__scanType == "SQLI":
             self.__scanForSqlInjection()
-        elif algoType == "RXSS":
+        elif self.__scanType == "RXSS":
             self.__scanForRXSS()
-
         return
 
     def retriveScanResults(self, clientInfo):  # retrive scan results given client Info
