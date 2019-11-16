@@ -1,9 +1,6 @@
 class ScanConfigBoundary {
-    constructor(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save) {
-        this.interval = interval;
-        this.maxConcurrency = maxConcurrency;
-        this.maxDepth = maxDepth;
-        this.timeout = timeout;
+    constructor(config, scanType, url, loginInfo, name, save) {
+        this.config = config;
         this.scanType = scanType;
         this.url = url;
         this.loginInfo = loginInfo;
@@ -11,44 +8,13 @@ class ScanConfigBoundary {
         this.save = save;
     }
 
-    get Interval() {
-        return this.interval
+
+    get Config() {
+        return this.config
     }
 
-    set Interval(interval) {
-        this.interval = interval;
-    }
-
-    get ScanType() {
-        return this.scanType
-    }
-
-    set ScanType(scanType) {
-        this.scanType = scanType;
-    }
-
-    get MaxConcurrency() {
-        return this.maxConcurrency
-    }
-
-    set MaxConcurrency(maxConcurrency) {
-        this.maxConcurrency = maxConcurrency;
-    }
-
-    get MaxDepth() {
-        return this.maxDepth
-    }
-
-    set MaxDepth(maxDepth) {
-        this.maxDepth = maxDepth;
-    }
-
-    get Timeout() {
-        return this.timeout
-    }
-
-    set Timeout(timeout) {
-        this.timeout = timeout;
+    set Config(config) {
+        this.config = config;
     }
 
     get URL() {
@@ -88,7 +54,7 @@ class ScanConfigBoundary {
     }
 
     static deserialize(scanConfigBoundary) {
-        return new ScanConfigBoundary(scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout,scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save);
+        return new ScanConfigBoundary(scanConfigBoundary.config, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save);
     }
 }
 
