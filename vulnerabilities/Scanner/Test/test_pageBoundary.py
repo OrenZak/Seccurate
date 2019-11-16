@@ -13,11 +13,9 @@ class TestPageBoundry(TestCase):
         URL2 = "http://testURL2.com"
         cls.pageEntity1 = PageEntity(URL1, 1111)
         cls.sessionEntity = SessionEntity(type="cookie", value="sessionid=1234")
-        cls.algoType = "ALL"
-        cls.dbName = "db1"
         cls.serializedScanConfig = '{"page":{"url":"http://testURL.com","pageHash":1111},"sessionData":{' \
-                                   '"type":"cookie","value":"sessionid=1234"},"algoType":"ALL","dbName":"db1"} '
-        cls.pageBoudnry = ScanBoundary(cls.pageEntity1, cls.sessionEntity, cls.algoType, cls.dbName)
+                                   '"type":"cookie","value":"sessionid=1234"}} '
+        cls.pageBoudnry = ScanBoundary(cls.pageEntity1, cls.sessionEntity)
 
     @classmethod
     def tearDownClass(cls):
@@ -31,11 +29,6 @@ class TestPageBoundry(TestCase):
                          "Failed Deserialize session Entity type")
         self.assertEqual(self.sessionEntity.getValue(), serializedScanConfigBoundary.getSessionEntity().getValue(),
                          "Failed Deserialize session Entity value")
-        self.assertEqual(self.algoType, serializedScanConfigBoundary.getAlgorithmType(),
-                         "Failed Deserialize algorithm type value")
-        self.assertEqual(self.dbName, serializedScanConfigBoundary.getDbName(),
-                         "Failed Deserialize database Name value")
-
 
 if __name__ == '__main__':
     suite = TestSuite()

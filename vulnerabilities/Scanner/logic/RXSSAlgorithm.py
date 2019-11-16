@@ -86,7 +86,7 @@ class JShandle(QMainWindow):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, table_name=None, db_type=None, dbName=None, *args,
+    def __init__(self, table_name=None, db_type=None,  *args,
                  **kwargs):
         self.app = QApplication(sys.argv)
         self.app.setApplicationName(QString("Chrome"))
@@ -100,9 +100,11 @@ class MainWindow(QMainWindow):
         self.cookieJar = QNetworkCookieJar()
         self.__VulnCrud = VulnerabilitiesCRUD
         self.__RXSSVulnDescription = RXSSCrud
-        self.__dbName = dbName
         self.__tableName = table_name
         self.get_configuration_properties()
+
+    def setTableName(self,tableName):
+        self.__tableName = tableName
 
     def get_configuration_properties(self):
         self.config = ConfigParser.RawConfigParser()
@@ -158,6 +160,7 @@ class MainWindow(QMainWindow):
         self.ScanPageLinks()
         self.scarplinks()
         self.app.closeAllWindows()
+        self.app.quit()
 
     def extractLinksFromURL(self):
         links = self.soup.findAll(name='a')

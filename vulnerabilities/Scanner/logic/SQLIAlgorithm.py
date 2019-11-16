@@ -14,6 +14,7 @@ from VulnerabilitiesObjects import SimpleVulnerabilityEntity
 import VulnerabilitiesCRUD
 import base64
 from cookielib import Cookie
+import cookielib
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -125,13 +126,16 @@ class SQLIAlgorithm():
 
     def updateAuthenticationMethod(self, sessionEntity):
         if (sessionEntity.getType() == self.cookie):  # TODO: should it be self.COOKIE?
-            for cookie in sessionEntity.getValue().split(";"):
-                # self.cookie_jar.set_cookie(cookie)
-                self.cookie_jar.set_cookie(
-                    Cookie(version=0, name=str(cookie).split('=')[0], value=str(cookie).split('=')[1], expires=365,
-                           port=None, port_specified=False, domain='localhost.local', # str(cookie).split('=')[2],
-                           domain_specified=False, domain_initial_dot=False, path='/', path_specified=True, secure=True,
-                           discard=False, comment=None, comment_url=None, rest={'HttpOnly': False}, rfc2109=False))
+            cookie = cookielib.Cookie(sessionEntity.getValue())
+            self.cookie_jar.set_cookie(cookie)
+            #for cookie in sessionEntity.getValue().split(";"):
+                #cookie = cookielib.Cookie(sessionEntity.getValue())
+                #self.cookie_jar.set_cookie(cookie)
+                # self.cookie_jar.set_cookie
+                #     Cookie(version=0, name=str(cookie).split('=')[0], value=str(cookie).split('=')[1], expires=365,
+                #            port=None, port_specified=False, domain='localhost.local', # str(cookie).split('=')[2],
+                #            domain_specified=False, domain_initial_dot=False, path='/', path_specified=True, secure=True,
+                #            discard=False, comment=None, comment_url=None, rest={'HttpOnly': False}, rfc2109=False))
         elif (sessionEntity.getType() == self.baseAuth):
             self.br.addheaders.append(('Authorization', sessionEntity.getValue()))
 
