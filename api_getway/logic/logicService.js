@@ -1,4 +1,5 @@
-const https = require('https')
+const https = require('https');
+const request = require('request');
 const globals = require('../common/globals');
 var socketManager = require('./socketManager');
 var CrawlerConfigScanBoundary = require('./boundaries/crawlerConfigScanBoundary');
@@ -18,28 +19,13 @@ class LogicService {
     async scanConfig(interval, maxConcurrency, maxDepth, timeout, scanType) {
         // TODO save new raw info in the db
         let dbName = "";
-        let crawlerConfigBoundary = CrawlerConfigScanBoundary(interval, maxConcurrency, maxDepth, timeout);
-        let vulnerabilityConfigBoundary = VulnerabilityConfigScanBoundary(dbName, scanType);
+        let crawlerConfigBoundary = new CrawlerConfigScanBoundary(interval, maxConcurrency, maxDepth, timeout);
+        let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(dbName, scanType);
         // INIT crawler micro service scan configuration
-        let options = {
-            hostname: globals.CRAWLER_MICROSERVICE.split(':')[0],
-            port: globals.CRAWLER_MICROSERVICE.split(':')[1],
-            path: '/start_config',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': scanConfigBoundary.serialize().length
-            }
-        };
-        let reqToCrawler = https.request(options, (res) => {
-            console.log(`statusCode: ${res.statusCode}`);
-
-            res.on('data', (d) => {
-                console.log(d);
-            })
+        request.post(`${globals.CRAWLER_MICROSERVICE}/scan_config`, crawlerConfigBoundary.serialize(), function (err, httpResponse, body) {
+            //console.log(`statusCode: ${httpResponse.status}`);
+            console.log(err, body, httpResponse);
         });
-        reqToCrawler.write(crawlerConfigBoundary.serialize());
-        reqToCrawler.end();
         // INIT vulnerability micro service scan configuration
         socketManager.configDatabase(vulnerabilityConfigBoundary);
 
