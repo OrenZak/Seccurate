@@ -21,21 +21,22 @@ sys.setdefaultencoding('utf8')
 
 class SQLIAlgorithm():
 
-    def __init__(self, db_type, vuln_table_name, page_entities=None, session_entity=None):  # db, links=None, cookie_jar=None):
+    def __init__(self, db_type,
+                 vuln_table_name):  # , page_entities=None, session_entity=None):  # db, links=None, cookie_jar=None):
         # self.sqliDBInstance = SQLICrud.getInstance(db)
         self.sqliDBInstance = SQLICrud.getInstance(db_type)
         self.__vuln_table_name = vuln_table_name
         self.vuln_db_instance = VulnerabilitiesCRUD.getInstance(db_type)
-        if page_entities:
+        """if page_entities:
             self.page_entities_backlog = page_entities
         else:
             self.page_entities_backlog = []
         self.page_entities_chosen_to_scan = []
-        self.page_entities_scanned = []
+        self.page_entities_scanned = []"""
         # if page_entities is not None:
         #    self.update_links(page_entities)
         # self.__cookie_jar = cookie_jar
-        self.__session_entity = session_entity
+        # self.__session_entity = session_entity
         self.get_configuration_properties()
         self.init_mechanize()
 
@@ -69,7 +70,7 @@ class SQLIAlgorithm():
         self.injection_types = [self.config.get('SQLITypes', option) for option in self.config.options('SQLITypes')]
         self.error_based = self.config.get('SQLITypes', 'error_based')
 
-    def update_links(self, page_entities):
+    """def update_links(self, page_entities):
         for page_entity in page_entities:
             url = page_entity.getURL()
             if url not in [page_entity.getURL() for page_entity in self.page_entities_backlog] and url not in [
@@ -78,7 +79,7 @@ class SQLIAlgorithm():
                 self.page_entities_backlog.append(page_entity)
 
     def update_session_entity(self, session_entity):
-        self.__session_entity = session_entity
+        self.__session_entity = session_entity"""
 
     def init_mechanize(self):
         self.br = mechanize.Browser()
@@ -105,59 +106,55 @@ class SQLIAlgorithm():
         self.br.addheaders = [('User-agent', 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 \
         (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34')]
 
-    def start_scan(self):
-        self.updateAuthenticationMethod()
-        forms, links = self.get_injection_points()
+    def start_scan(self, pageEntity, sessionEntity):
+        self.updateAuthenticationMethod(sessionEntity)
+        forms, links = self.get_injection_points(pageEntity)
         self.error_based_payloads = self.get_payloads_by_type(payload_type=self.error_based)
         self.error_based_responses = self.get_error_based_responses()
         for page_entity in links:
             for link in links.get(page_entity):
                 self.inject_to_links(link, page_entity)
-                # self.injectToLink(links[link])
         for page_entity in forms:
             for form in forms.get(page_entity):
-                self.inject_to_form(forms[page_entity][form], page_entity)
-        self.update_scanned_pages()
+                self.inject_to_form(forms[page_entity][form], page_entity)  # self.update_scanned_pages()
 
-    def update_scanned_pages(self):  # TODO: should it be updated per page so that if it crashes won't be done twice?
+    """def update_scanned_pages(self):  # TODO: should it be updated per page so that if it crashes won't be done twice?
         for page_entity in self.page_entities_chosen_to_scan:
             self.page_entities_scanned.append(page_entity)
-            self.page_entities_chosen_to_scan.remove(page_entity)
+            self.page_entities_chosen_to_scan.remove(page_entity)"""
 
-    def updateAuthenticationMethod(self):
-        if (self.__session_entity.getType() == self.cookie):
-            for cookie in self.__session_entity.getValue().split(";"):
-                #self.cookie_jar.set_cookie(cookie)
-                self.cookie_jar.set_cookie(Cookie(version=0, name=str(cookie).split('=')[0], value=str(cookie).split('=')[1],
-                                          expires=365, port=None, port_specified=False, domain='localhost.local',#str(cookie).split('=')[2],
-                                                  domain_specified=False,
-                                          domain_initial_dot=False, path='/', path_specified=True, secure=True,
-                                          discard=False, comment=None, comment_url=None, rest={'HttpOnly': False},
-                                          rfc2109=False))
-        elif (self.__session_entity.getType() == self.baseAuth):
-            self.br.addheaders.append(('Authorization', self.__session_entity.getValue()))
+    def updateAuthenticationMethod(self, sessionEntity):
+        if (sessionEntity.getType() == self.cookie):  # TODO: should it be self.COOKIE?
+            for cookie in sessionEntity.getValue().split(";"):
+                # self.cookie_jar.set_cookie(cookie)
+                self.cookie_jar.set_cookie(
+                    Cookie(version=0, name=str(cookie).split('=')[0], value=str(cookie).split('=')[1], expires=365,
+                           port=None, port_specified=False, domain='localhost.local', # str(cookie).split('=')[2],
+                           domain_specified=False, domain_initial_dot=False, path='/', path_specified=True, secure=True,
+                           discard=False, comment=None, comment_url=None, rest={'HttpOnly': False}, rfc2109=False))
+        elif (sessionEntity.getType() == self.baseAuth):
+            self.br.addheaders.append(('Authorization', sessionEntity.getValue()))
 
-    def get_injection_points(self):
+    def get_injection_points(self, pageEntity):
         """return dictionary containing a url and its form/parsed link objects"""
         forms = {}
         links = {}
-        for page_entity in self.page_entities_backlog:
-            url = page_entity.getURL()
-            domain = urlparse(url).hostname
-            soup = self.get_soup_from_url(url)
-            links_list = self.extract_links(url, domain, soup)
-            forms_list = self.extract_forms(soup)
-            links[page_entity] = links_list
-            forms[page_entity] = {}
-            for form in forms_list:
-                (method, inputnames, inputnonames) = GetFormInputFields(url, form)
-                str_inputnames = {}
-                for k, v in inputnames.iteritems():
-                    str_inputnames[k] = unicode(v).encode('utf-8')
-                inputnames = str_inputnames
-                forms[page_entity][form] = (method, inputnames, inputnonames)
-            self.page_entities_chosen_to_scan.append(page_entity)
-            self.page_entities_backlog.remove(page_entity)
+        url = pageEntity.getURL()
+        domain = urlparse(url).hostname
+        soup = self.get_soup_from_url(url)
+        links_list = self.extract_links(url, domain, soup)
+        forms_list = self.extract_forms(soup)
+        links[pageEntity] = links_list
+        forms[pageEntity] = {}
+        for form in forms_list:
+            (method, inputnames, inputnonames) = GetFormInputFields(url, form)
+            str_inputnames = {}
+            for k, v in inputnames.iteritems():
+                str_inputnames[k] = unicode(v).encode('utf-8')
+            inputnames = str_inputnames
+            forms[pageEntity][form] = (method, inputnames, inputnonames)
+        # self.page_entities_chosen_to_scan.append(pageEntity)
+        # self.page_entities_backlog.remove(pageEntity)
         return forms, links
 
     def get_soup_from_url(self, url):
@@ -205,19 +202,19 @@ class SQLIAlgorithm():
         non_vulnerable_inputnames = form_attributes[self.inputnames_index]
         i = 0
         while i < self.injection_types_count and non_vulnerable_inputnames != {}:
-            non_vulnerable_inputnames = self.inject_to_inputnames(
-                injection_type=self.injection_types[i], non_vulnerable_inputnames=non_vulnerable_inputnames,
-                page_entity=page_entity, form_attributes=form_attributes)
+            non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=self.injection_types[i],
+                non_vulnerable_inputnames=non_vulnerable_inputnames, page_entity=page_entity,
+                form_attributes=form_attributes)
             i += 1
 
     def inject_to_links(self, link, page_entity):
         all_inputnames = self.get_link_input_names(link)
         non_vulnerable_inputnames = all_inputnames
-        i=0
+        i = 0
         while i < self.injection_types_count and non_vulnerable_inputnames != {}:
-            non_vulnerable_inputnames = self.inject_to_inputnames(
-                injection_type=self.injection_types[i], non_vulnerable_inputnames=non_vulnerable_inputnames,
-                page_entity=page_entity, link_attributes=all_inputnames)
+            non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=self.injection_types[i],
+                non_vulnerable_inputnames=non_vulnerable_inputnames, page_entity=page_entity,
+                link_attributes=all_inputnames)
             i += 1
 
     def inject_to_inputnames(self, injection_type, non_vulnerable_inputnames, page_entity, form_attributes=None,
@@ -266,8 +263,8 @@ class SQLIAlgorithm():
                     vulnerable = True
                     break
                 else:
-                    print (inputname + " not vulnerable to payload " + splitted_payload[1])
-                    #non_vulnerable_inputnames.append(inputname)
+                    print (inputname + " not vulnerable to payload " + splitted_payload[
+                        1])  # non_vulnerable_inputnames.append(inputname)
             if not vulnerable:
                 final_non_vulnerable_input_names.append(inputname)
         return final_non_vulnerable_input_names
@@ -311,10 +308,8 @@ class SQLIAlgorithm():
 
                 event = "<h1>[-]Error:<h1><h2>URL:</h2> " + url + "<br><h2>Data:</h2> " + data.encode(
                     'utf-8') + "<br><h2>Error: </h2>" + str(e) + "<br><br><br><br>"
-                print(event)
-                # print "[+] ***Original HTML response***\n    Maybe XSS: payload "+response+" return in the response, \
-                # URL: "+self.urlform+" payload: "+data+"\n\n"
-                #self.add_event()
+                print(
+                    event)  # print "[+] ***Original HTML response***\n    Maybe XSS: payload "+response+" return in the response, \  # URL: "+self.urlform+" payload: "+data+"\n\n"  # self.add_event()
         else:
             try:
                 # Get Response From the Server
@@ -325,8 +320,7 @@ class SQLIAlgorithm():
                 check_r = False
                 event = "<h1>[-]Error:<h1><h2>URL:</h2> " + url + "?" + data.encode(
                     'utf-8') + "<br><h2>Error: </h2>" + str(e) + "<br><br><br><br>"
-                print(event)
-                #self.add_event()
+                print(event)  # self.add_event()
         if check_r:
             # self.UpdateCookiesMechanizetoQt()
             htmlresponse = unicode(r.read(), 'utf-8')
@@ -350,8 +344,8 @@ class SQLIAlgorithm():
 
     def validate_error_based(self, regular_result, error_result,
                              regular_imitating_result):  # , url, form_attributes, splitted_payload):
-        if regular_result[self.hash_index] == regular_imitating_result[self.hash_index] \
-                and regular_result[self.hash_index] != error_result[self.hash_index]:
+        if regular_result[self.hash_index] == regular_imitating_result[self.hash_index] and regular_result[
+            self.hash_index] != error_result[self.hash_index]:
             return True
         else:
             diff = self.get_diff_response_content(regular_result[self.response_index],
@@ -391,10 +385,7 @@ class SQLIAlgorithm():
     def add_event(self, name=None, url=None, payload=None, requestB64=None):
         simpleVulnerability = SimpleVulnerabilityEntity(name=name, url=url, payload=payload, requestB64=requestB64)
         createdVuln = self.vuln_db_instance.createVulnerability(simpleVulnerability, self.__vuln_table_name)
-        print(createdVuln.getRequestB64())
-        #f = open("Results.html", "a")
-        #f.write(self.event)
-        #f.close()
+        print(createdVuln.getRequestB64())  # f = open("Results.html", "a")  # f.write(self.event)  # f.close()
 
     """def add_event(self):
         f = open("Results.html", "a")
@@ -458,8 +449,6 @@ regular_imitating_result = self.get_url_open_results(form_attributes[self.method
                 non_vulnerable_inputnames.pop(inputname, None)
             else:
                 print (inputname + " not vulnerable to payload " + error_payload)"""
-
-
 
 """s = SQLIAlgorithm()
 br = mechanize.Browser()

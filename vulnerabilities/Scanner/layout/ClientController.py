@@ -43,8 +43,8 @@ class SocketIOClient():
         configScanBoundary = ScanBoundary.deserialize(scanParams)
         clientLogicService.startScan(pageEntity=configScanBoundary.getPageEntity(),
                                      sessionEntity=configScanBoundary.setSessionEntity(),
-                                     algoType=configScanBoundary.getAlgorithmType(), db_type="prod",
-                                     vuln_table_name=configScanBoundary.getDbName())
+                                     algoType=configScanBoundary.getAlgorithmType())#, db_type="prod",
+                                     #vuln_table_name=configScanBoundary.getDbName())
 
         return
 

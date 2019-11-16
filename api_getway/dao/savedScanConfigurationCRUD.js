@@ -23,7 +23,7 @@ class SavedConfigurationCRUD {
 
     createTable() {
         const sql = `CREATE TABLE IF NOT EXISTS ?? (id VARCHAR(100) PRIMARY KEY, maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, maxConcurrency INTEGER)`
-        this.conn.query(sql, [this.table_name], function(err) {
+        this.conn.query(sql, [this.table_name], async function(err) {
             if (err) {
                 console.log(err)
             }
@@ -35,7 +35,7 @@ class SavedConfigurationCRUD {
         const id = new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('')+Math.floor(Math.random()*100000)
         const sql = `INSERT INTO ?? VALUES (?,?,?,?,?)`
         //TODO: I assume that all three extra values are here. This should be checked in a different layer
-        this.conn.query(sql, [this.table_name, id, value.getMaxDepth(), value.getTimeout(), value.getInterval(), value.getMaxConcurrency()], (err) => {
+        this.conn.query(sql, [this.table_name, id, value.getMaxDepth(), value.getTimeout(), value.getInterval(), value.getMaxConcurrency()], async (err) => {
             if (err) {
                 console.log(err)
             }
@@ -45,13 +45,13 @@ class SavedConfigurationCRUD {
     }
 
     updateValue(new_value) {
-        this.getValue(new_value.getID(), function (err, res) {
+        this.getValue(new_value.getID(), async function (err, res) {
             if (err) {
-                throw new Error('No such value ' + value_id + '\n' + err)
+                throw new Error('No such value ' + new_value.getID() + '\n' + err)
             }
         })
         const sql = `UPDATE ?? SET maxDepth=?, timeout=?, interval_crawler=?, maxConcurrency=? WHERE id=?`
-        this.conn.query(sql,[this.table_name, new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(), new_value.getMaxConcurrency(), new_value.getID()], (err) => {
+        this.conn.query(sql,[this.table_name, new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(), new_value.getMaxConcurrency(), new_value.getID()], async (err) => {
             if (err) {
                 console.log(err)
             }
@@ -61,7 +61,7 @@ class SavedConfigurationCRUD {
 
     getValue(value_id, callback) {
         const sql = `SELECT * FROM ?? WHERE id=?`
-        this.conn.query(sql,[this.table_name, value_id], function (err, result) {
+        this.conn.query(sql,[this.table_name, value_id], async function (err, result) {
             if (!err) {
                 callback(null, result)
             }
@@ -73,7 +73,7 @@ class SavedConfigurationCRUD {
 
     getAll(callback, page=0, size=10) {
         const sql = `SELECT * from ?? ORDER BY id ASC LIMIT ?,?`
-        this.conn.query(sql, [this.table_name, page*size, (page*size)+size], function(err, results) {
+        this.conn.query(sql, [this.table_name, page*size, (page*size)+size], async function(err, results) {
             if (!err) {
                 callback(null, results)
             }
@@ -83,14 +83,14 @@ class SavedConfigurationCRUD {
         })
     }
     
-    deleteValue(value_id){
-        this.getValue(new_value.getID(), this.table_name, function (err, res) {
+    deleteValue(value){
+        this.getValue(value.getID(), this.table_name, async function (err, res) {
             if (err) {
-                throw new Error('No such value ' + value_id + '\n' + err)
+                throw new Error('No such value ' + value.getID() + '\n' + err)
             }
         })
         const sql = `DELETE FROM ?? WHERE id=?`
-        this.conn.query(sql, [this.table_name, value_id, (err) => {
+        this.conn.query(sql, [this.table_name, value.getID(), async (err) => {
             if (err) {
                 console.log(err)
             }
@@ -99,7 +99,7 @@ class SavedConfigurationCRUD {
 
     deleteAll() {
         const sql = `DELETE FROM ??`
-        this.conn.query(sql, [this.table_name], (err) => {
+        this.conn.query(sql, [this.table_name], async (err) => {
             if (err) {
                 console.log(err)
             }
@@ -108,7 +108,7 @@ class SavedConfigurationCRUD {
 
     dropTable() {
         const sql = `DROP TABLE ??`
-        return this.conn.query(sql, [this.table_name], (err) => {
+        return this.conn.query(sql, [this.table_name], async (err) => {
             if (err) {
                 console.log(err)
             }
