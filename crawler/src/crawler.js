@@ -49,7 +49,7 @@ function startCrawl(mainUrl, loginInfo) {
     const urlCookies = getCookies(crawler, queueItem.url);
     doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
       url: queueItem.url,
-      cookies: urlCookies,
+      value: urlCookies,
       type: urlCookies ? 'Cookie' : 'Basic',
       pageHash: hash,
     });
