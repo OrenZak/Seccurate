@@ -24,6 +24,7 @@ class LogicService {
     }
 
     async scanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save) {
+        let dbName = 'test';
         let configEntity = new ConfigEntity (null, maxDepth, timeout, interval, maxConcurrency, scanType, loginInfo, url);
         let configHistoryValue = this.configurationHistoryDao.insertValue(configEntity);
         if (save) {
@@ -43,7 +44,8 @@ class LogicService {
                 console.log(err);
             }
             else {
-                let crawlerConfigBoundary = new CrawlerConfigScanBoundary(value.getInterval(), value.getMaxConcurrency(), value.getMaxDepth(), value.getTimeout(), value.getVulnsScanned(), value.getLoginPage(), value.getCredentials());
+                let config = {interval:value.getInterval(), maxConcurrency: value.getMaxConcurrency(), maxDepth: value.getMaxDepth(), timeout: value.getTimeout()};
+                let crawlerConfigBoundary = new CrawlerConfigScanBoundary(config, value.getVulnsScanned(), value.getLoginPage(), value.getCredentials());
                 let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(value.getID(), value.getVulnsScanned());
                 socketManager.startCrawl(crawlerConfigBoundary);
                 // INIT vulnerability micro service scan configuration

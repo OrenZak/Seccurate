@@ -131,51 +131,51 @@ class ScansDataCRUD {
 
 module.exports = ScansDataCRUD
 
-var configCRUD = new configurationCRUD('test');
-var id1;
-var id2;
-var connection = new ScansDataCRUD('test');
-connection.createTable();
-configCRUD.getAll(function (err, data) {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        //Object.keys(data[0]).forEach(element => {
-        //    console.log(element + ': ' + data[0][element])
-        //})
-        connection.insertValue(new configurationEntity('abc', Date.now()-5, data[0]['id']));
-        connection.insertValue(new configurationEntity('def', Date.now(), data[1]['id']));
-        //console.log("id1 is " + id1);
-    }
-})
-connection.getAll(function(err, data) {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        console.log(data)
-        console.log('length is ' + data.length)
-    }
-})
-/*connection.getValue(value1, (err, data) => {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        Object.keys(data[0]).forEach(element => {
-            console.log(element + ': ' + data[0][element])
-        })
-    }
-})*/
-//connection.deleteAll()
-/*connection.getAll((err, res) => {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        console.log('new length is ' + res.length)
-    }
-})*/
-//connection.dropTable()
-//connection.closeConnection()
+// var configCRUD = new configurationCRUD('test');
+// var id1;
+// var id2;
+// var connection = new ScansDataCRUD('test');
+// connection.createTable();
+// configCRUD.getAll(function (err, data) {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         //Object.keys(data[0]).forEach(element => {
+//         //    console.log(element + ': ' + data[0][element])
+//         //})
+//         connection.insertValue(new configurationEntity('abc', Date.now()-5, data[0]['id']));
+//         connection.insertValue(new configurationEntity('def', Date.now(), data[1]['id']));
+//         //console.log("id1 is " + id1);
+//     }
+// })
+// connection.getAll(function(err, data) {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         console.log(data)
+//         console.log('length is ' + data.length)
+//     }
+// })
+// /*connection.getValue(value1, (err, data) => {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         Object.keys(data[0]).forEach(element => {
+//             console.log(element + ': ' + data[0][element])
+//         })
+//     }
+// })*/
+// //connection.deleteAll()
+// /*connection.getAll((err, res) => {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         console.log('new length is ' + res.length)
+//     }
+// })*/
+// //connection.dropTable()
+// //connection.closeConnection()

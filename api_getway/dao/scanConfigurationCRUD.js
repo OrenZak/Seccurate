@@ -147,44 +147,44 @@ class ScanConfigHistoryCRUD {
 module.exports = ScanConfigHistoryCRUD;
 
 //console.log('Config'+new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('')+Math.random()*100000)
-var entity1 = new configurationEntity(null, 6,6,6,6, 'a;b')
-var entity2 = new configurationEntity(null, 5, 5, 5, 5, 'a;b', 'login;password', 'abcde')
-connection = new ScanConfigHistoryCRUD('test')
-connection.createTable()
-var value1 = connection.insertValue(entity1)
-var value2 = connection.insertValue(entity2)
-console.log('out - value1 credentials are ' + value1.getCredentials())
-console.log('out - value2 credentials are ' + value2.getCredentials())
-value2.setCredentials('login;password')
-var new_value2 = connection.updateValue(value2)
-console.log('after update - value2 credentials are ' + new_value2.getCredentials())
-connection.getAll(function(err, data) {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        console.log(data)
-        console.log('length is ' + data.length)
-    }
-})
-connection.getValue(value1.getID(), (err, data) => {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        Object.keys(data[0]).forEach(element => {
-            console.log(element + ': ' + data[0][element])
-        })
-    }
-})
-/*connection.deleteAll()
-connection.getAll((err, res) => {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        console.log('new length is ' + res.length)
-    }
-})*/
-//connection.dropTable()
-connection.closeConnection()
+// var entity1 = new configurationEntity(null, 6,6,6,6, 'a;b')
+// var entity2 = new configurationEntity(null, 5, 5, 5, 5, 'a;b', 'login;password', 'abcde')
+// connection = new ScanConfigHistoryCRUD('test')
+// connection.createTable()
+// var value1 = connection.insertValue(entity1)
+// var value2 = connection.insertValue(entity2)
+// console.log('out - value1 credentials are ' + value1.getCredentials())
+// console.log('out - value2 credentials are ' + value2.getCredentials())
+// value2.setCredentials('login;password')
+// var new_value2 = connection.updateValue(value2)
+// console.log('after update - value2 credentials are ' + new_value2.getCredentials())
+// connection.getAll(function(err, data) {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         console.log(data)
+//         console.log('length is ' + data.length)
+//     }
+// })
+// connection.getValue(value1.getID(), (err, data) => {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         Object.keys(data[0]).forEach(element => {
+//             console.log(element + ': ' + data[0][element])
+//         })
+//     }
+// })
+// /*connection.deleteAll()
+// connection.getAll((err, res) => {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         console.log('new length is ' + res.length)
+//     }
+// })*/
+// //connection.dropTable()
+// connection.closeConnection()

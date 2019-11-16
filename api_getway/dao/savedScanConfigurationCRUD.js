@@ -127,44 +127,44 @@ class SavedConfigurationCRUD {
 module.exports = SavedConfigurationCRUD
 
 //console.log('Config'+new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('')+Math.random()*100000)
-var entity1 = new configurationEntity(null, 6,6,6,6)
-var entity2 = new configurationEntity(null, 5, 5, 5, 5)
-connection = new SavedConfigurationCRUD('test')
-connection.createTable()
-var value1 = connection.insertValue(entity1)
-var value2 = connection.insertValue(entity2)
-console.log('out - value1 interval is ' + value1.getInterval())
-console.log('out - value2 interval is ' + value2.getInterval())
-value2.setInterval(4)
-var new_value2 = connection.updateValue(value2)
-console.log('after update - value2 interval is ' + new_value2.getInterval())
-connection.getAll(function(err, data) {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        console.log(data)
-        console.log('length is ' + data.length)
-    }
-})
-connection.getValue(value1.getID(), (err, data) => {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        Object.keys(data[0]).forEach(element => {
-            console.log(element + ': ' + data[0][element])
-        })
-    }
-})
-/*connection.deleteAll()
-connection.getAll((err, res) => {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        console.log('new length is ' + res.length)
-    }
-})*/
-//connection.dropTable()
-connection.closeConnection()
+// var entity1 = new configurationEntity(null, 6,6,6,6)
+// var entity2 = new configurationEntity(null, 5, 5, 5, 5)
+// connection = new SavedConfigurationCRUD('test')
+// connection.createTable()
+// var value1 = connection.insertValue(entity1)
+// var value2 = connection.insertValue(entity2)
+// console.log('out - value1 interval is ' + value1.getInterval())
+// console.log('out - value2 interval is ' + value2.getInterval())
+// value2.setInterval(4)
+// var new_value2 = connection.updateValue(value2)
+// console.log('after update - value2 interval is ' + new_value2.getInterval())
+// connection.getAll(function(err, data) {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         console.log(data)
+//         console.log('length is ' + data.length)
+//     }
+// })
+// connection.getValue(value1.getID(), (err, data) => {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         Object.keys(data[0]).forEach(element => {
+//             console.log(element + ': ' + data[0][element])
+//         })
+//     }
+// })
+// /*connection.deleteAll()
+// connection.getAll((err, res) => {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         console.log('new length is ' + res.length)
+//     }
+// })*/
+// //connection.dropTable()
+// connection.closeConnection()
