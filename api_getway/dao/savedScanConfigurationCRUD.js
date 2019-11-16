@@ -22,7 +22,7 @@ class SavedConfigurationCRUD {
     }
 
     createTable() {
-        const sql = `CREATE TABLE IF NOT EXISTS ?? (id VARCHAR(100) PRIMARY KEY, maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, maxConcurrency INTEGER)`
+        const sql = `CREATE TABLE IF NOT EXISTS ?? (id VARCHAR(100) PRIMARY KEY, maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, maxConcurrency INTEGER, UNIQUE KEY unique_scan (maxDepth,timeout,interval_crawler,maxConcurrency))`
         this.conn.query(sql, [this.table_name], async function(err) {
             if (err) {
                 console.log(err)
