@@ -7,6 +7,6 @@ module.exports = {
       'timeout': 10000 // 10sec
     },
     paths: {
-      API_GETWAY: 'http://192.168.1.16:3000'
+      API_GETWAY: 'http://192.168.1.26:3000'
     }
 }

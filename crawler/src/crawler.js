@@ -51,7 +51,7 @@ function startCrawl(mainUrl, loginInfo) {
       url: queueItem.url,
       cookies: urlCookies,
       type: urlCookies ? 'Cookie' : 'Basic',
-      page_hash: hash,
+      pageHash: hash,
     });
   });
 
@@ -136,7 +136,7 @@ function startAfterLogin(crawler, loginInfo, mainUrl) {
 }
 
 function getCookies(crawler, url) {
-  let cookiesRes;
+  let cookiesRes = '';
   crawler.cookies.cookies.forEach(cookie => {
     if (cookie.value != 'deleted' && (cookie.domain === '*' || url.contains(cookie.domain))) {
       cookiesRes += cookie.name+'='+cookie.value+';'

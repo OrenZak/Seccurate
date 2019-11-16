@@ -9,8 +9,10 @@ const ACTIONS = {
 
 // connect to api_getway and listen to start crawler events.
 api_getway = require("socket.io-client")(paths.API_GETWAY);
+api_getway.on('connect', async function() {
+  console.log(`Crawler connected to api getway:`);
+});
 api_getway.on(ACTIONS.START_CRAWL, async function(data) {
-  console.log(`Start crawling on:`, JSON.stringify(data));
   setConfig(data.config)
   startCrawl(data.url, data.loginInfo);
 });
@@ -18,6 +20,7 @@ api_getway.on(ACTIONS.START_CRAWL, async function(data) {
 // crawler event listener
 eventEmitter.on(EVENTS.PAGE_FETCHED, ({ mainUrl, data }) => {
   try {
+    console.log(data)
     api_getway.emit(EVENTS.PAGE_FETCHED, data);
   } catch (err) {
     console.log(err);
