@@ -36,7 +36,7 @@ function startCrawl(mainUrl, loginInfo) {
   crawler.decodeResponses = true;
   crawler.parseHTMLComments = false;
   crawler.allowInitialDomainChange = false;
-  crawler.parseScriptTags = false;
+  crawler.parseScriptTags = true;
   crawler.respectRobotsTxt = false;
   crawler.filterByDomain = true;
   crawler.scanSubdomains = false;
@@ -45,12 +45,11 @@ function startCrawl(mainUrl, loginInfo) {
   crawler.on("fetchcomplete", function(queueItem, responseBuffer, response) {
     console.log(`New page: ${queueItem.url}`);
     const hash = createHash(queueItem)
-
     const urlCookies = getCookies(crawler, queueItem.url);
     doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
       url: queueItem.url,
-      value: urlCookies,
-      type: urlCookies ? 'Cookie' : 'Basic',
+      cookies: urlCookies, 
+      type: urlCookies.length > 0 ? 'Cookie' : 'Basic',
       pageHash: hash,
     });
   });
@@ -136,10 +135,10 @@ function startAfterLogin(crawler, loginInfo, mainUrl) {
 }
 
 function getCookies(crawler, url) {
-  let cookiesRes = '';
+  let cookiesRes = [];
   crawler.cookies.cookies.forEach(cookie => {
     if (cookie.value != 'deleted' && (cookie.domain === '*' || url.contains(cookie.domain))) {
-      cookiesRes += cookie.name+'='+cookie.value+';'
+      cookiesRes.push(cookie)
     }
   });
   return cookiesRes;
