@@ -27,6 +27,7 @@ def createPayload(payload):
     id = str(datetime.now()).replace('-', '').replace(' ', '').replace(':', '').replace('.', '')
     with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
         cursor = db.cursor()
+        cursor.execute("PRAGMA foreign_keys=on")
         cursor.execute("""insert into SQLI_Payloads values(?,?,?)""",
                               (id, payload.getPayload(), payload.getType()))
         db.commit()
@@ -48,6 +49,7 @@ def getSQLIPayloads(size=10, page=0):
     """
     with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
         cursor = db.cursor()
+        cursor.execute("PRAGMA foreign_keys=on")
         cursor.execute("""SELECT * from SQLI_Payloads ORDER BY id ASC LIMIT %d OFFSET %d""" % (size, page*size))
         payload_list = []
         for payload in cursor.fetchall():
@@ -58,6 +60,7 @@ def getSQLIPayloads(size=10, page=0):
 def getPayloadsByType(type, size=10, page=0):
     with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
         cursor = db.cursor()
+        cursor.execute("PRAGMA foreign_keys=on")
         cursor.execute("""SELECT * from SQLI_Payloads where type='%s' ORDER BY id ASC LIMIT %d OFFSET %d""" % (type,size,page*size))
         payload_list = []
         for payload in cursor.fetchall():
@@ -68,6 +71,7 @@ def getPayloadsByType(type, size=10, page=0):
 def getPayloadTypes():
     with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
         cursor = db.cursor()
+        cursor.execute("PRAGMA foreign_keys=on")
         cursor.execute("SELECT DISTINCT type from SQLI_Payloads")
         types_list = []
         for type in cursor.fetchall():
@@ -90,6 +94,7 @@ def getPayloadByID(id):
     """
     with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
         cursor = db.cursor()
+        cursor.execute("PRAGMA foreign_keys=on")
         cursor.execute("""SELECT * from SQLI_Payloads where id = '%s'""" % id)
         item =cursor.fetchone()
         if (item is None):
@@ -105,6 +110,7 @@ def updatePayload(payload):
         raise Exception("no such payload")
     with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
         cursor = db.cursor()
+        cursor.execute("PRAGMA foreign_keys=on")
         cursor.execute("""update SQLI_Payloads set payload='%s', type='%s' where id='%s'""" \
                               % (payload.getPayload(), payload.getType(), payload.getID()))
         db.commit()
@@ -123,6 +129,7 @@ def deletePayloadByID(id):
         raise Exception("no such vulnerability")
     with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
         cursor = db.cursor()
+        cursor.execute("PRAGMA foreign_keys=on")
         cursor.execute("""delete from SQLI_Payloads where id='%s'""" % id)
         db.commit()
 

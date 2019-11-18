@@ -1,9 +1,9 @@
 import unittest
-from SQLICrud import SQLICrud
-from RXSSCrud import RXSSCrud
-from VulnerabilitiesCRUD import VulnerabilitiesCRUD
+import SQLICrud
+import RXSSCrud
+import VulnerabilitiesCRUD
 from VulnerabilityDescriptionObject import VulnerabilityDescriptionEntity
-from VulnerabilityDescriptionCRUD import VulnerabilityDescriptionCRUD
+import VulnerabilityDescriptionCRUD
 from PayloadObjects import SQLIPayloadEntity, RXSSPayloadEntity
 from VulnerabilitiesObjects import SimpleVulnerabilityEntity
 from datetime import datetime
@@ -14,25 +14,22 @@ class TestSQLICRUD(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.__SQLICRUD = SQLICrud.getInstance('test')
+        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD
+        cls.__vulnDescriptor.dropTable()
+        cls.__vulnDescriptor.createTable()
+        cls.__SQLICRUD = SQLICrud
         cls.__SQLICRUD.dropPayloadsTable()
         cls.__SQLICRUD.dropResponsesTable()
         cls.__SQLICRUD.createSQLITable()
-        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('test')
-        cls.__vulnDescriptor.dropTable()
-        cls.__vulnDescriptor.createTable()
 
     @classmethod
     def tearDownClass(cls):
-        cls.__SQLICRUD.closeConnection()
         cls.__SQLICRUD = None
-        cls.__vulnDescriptor = None  # vulnDescriptor will only be closed by the last class using it to avoid programming error
+        cls.__vulnDescriptor = None
 
     def setUp(self):
         vuln1 = VulnerabilityDescriptionEntity(name='error-based', severity=1, description='abc', recommendations='aaa')
         vuln2 = VulnerabilityDescriptionEntity(name='time-based', severity=2, description='def', recommendations='bbb')
-        #self.vuln1ID = self.__vulnDescriptor.createVulnerabilityDescription(vuln1).getVulnID()
-        #self.vuln2ID = self.__vulnDescriptor.createVulnerabilityDescription(vuln2).getVulnID()
         self.__vulnDescriptor.createVulnerabilityDescription(vuln1)
         self.__vulnDescriptor.createVulnerabilityDescription(vuln2)
         self.sqli1 = SQLIPayloadEntity(payload="'; WAITFOR DELAY '00:00:05.000'", type='error-based')
@@ -115,8 +112,11 @@ class TestSQLICRUD(unittest.TestCase):
 
     def test_foreign_key_deletion(self):
         self.__vulnDescriptor.deleteVulnByName(self.sqli1.getType())
+        #TODO: delete cascade won't work because you need a connection to sqlcrud table for it to enforce fk constraint...
+        #print(self.__vulnDescriptor.getVulnByName(self.sqli1.getType()))
         with self.assertRaises(Exception):
-            self.__SQLICRUD.getPayloadByID(self.sqli1ID)
+             self.__SQLICRUD.getPayloadByID(self.sqli1ID)
+        #print(self.__SQLICRUD.getPayloadByID(self.sqli1ID).getType())
 
     def doCleanups(self):
         pass
@@ -129,16 +129,15 @@ class TestRXSSCRUD(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.__RXSSCRUD = RXSSCrud.getInstance('test')
+        cls.__RXSSCRUD = RXSSCrud
         cls.__RXSSCRUD.dropTable()
         cls.__RXSSCRUD.createTable()
-        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('test')
+        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD
 
     @classmethod
     def tearDownClass(cls):
-        cls.__RXSSCRUD.closeConnection()
         cls.__RXSSCRUD = None
-        cls.__vulnDescriptor = None  # vulnDescriptor will only be closed by the last class using it to avoid programming error
+        cls.__vulnDescriptor = None
 
     def setUp(self):
         self.rxss1 = RXSSPayloadEntity(payload='abcTest')
@@ -199,25 +198,22 @@ class TestVulnerabilitiesCRUD(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.__VulnCrud = VulnerabilitiesCRUD.getInstance('test')
-        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('test')
+        cls.__VulnCrud = VulnerabilitiesCRUD
+        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD
         cls.table_name = 'vulns' + str(datetime.now()).replace('-', '').replace(' ', '').replace(':', '').replace('.', '')
         cls.__VulnCrud.createTable(cls.table_name)
 
     @classmethod
     def tearDownClass(cls):
         cls.__VulnCrud.dropTable(cls.table_name)
-        cls.__VulnCrud.closeConnection()
         cls.__VulnCrud = None
-        cls.__vulnDescriptor = None  # vulnDescriptor will only be closed by the last class using it to avoid programming error
+        cls.__vulnDescriptor = None
 
     def setUp(self):
         vuln_description1 = VulnerabilityDescriptionEntity(name='error-based', severity=1, description='abc',
                                                            recommendations='aaa')
         vuln_description2 = VulnerabilityDescriptionEntity(name='RXSS', severity=2, description='def',
                                                            recommendations='bbb')
-        #self.vuln1DescID = self.__vulnDescriptor.createVulnerabilityDescription(vuln_description1).getVulnID()
-        #self.vuln2DescID = self.__vulnDescriptor.createVulnerabilityDescription(vuln_description2).getVulnID()
         self.__vulnDescriptor.createVulnerabilityDescription(vuln_description1)
         self.__vulnDescriptor.createVulnerabilityDescription(vuln_description2)
         self.vuln1 = SimpleVulnerabilityEntity(name='error-based', url='http://www.something.com', payload='abcTest',
@@ -288,13 +284,12 @@ class TestVulnerabilitiesDescriptionCRUD(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('test')
+        cls.__vulnDescriptor = VulnerabilityDescriptionCRUD
         cls.__vulnDescriptor.dropTable()
         cls.__vulnDescriptor.createTable()
 
     @classmethod
     def tearDownClass(cls):
-        cls.__vulnDescriptor.closeConnection()
         cls.__vulnDescriptor = None
 
     def setUp(self):

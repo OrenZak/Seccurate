@@ -8,9 +8,9 @@ class LogicService():
         self.__VulnCrud = VulnerabilitiesCRUD
         return
 
-    def configNewScan(self, dbName, scanType):  # Config new db u
-        self.__VulnCrud.createTable(dbName)
-        self.__dbName = dbName
+    def configNewScan(self, tableName, scanType):  # Config new db u
+        self.__VulnCrud.createTable(tableName)
+        self.__tableName = tableName
         self.__scanType = scanType
         return
 
@@ -19,9 +19,9 @@ class LogicService():
             self.__scanForRXSS(pageEntity=pageEntity, sessionEntity=sessionEntity)
             self.__scanForSqlInjection(pageEntity=pageEntity, sessionEntity=sessionEntity)
         elif self.__scanType == "SQLI":
-            self.__scanForSqlInjection()
+            self.__scanForSqlInjection(pageEntity=pageEntity,sessionEntity=sessionEntity)
         elif self.__scanType == "RXSS":
-            self.__scanForRXSS()
+            self.__scanForRXSS(pageEntity=pageEntity,sessionEntity=sessionEntity)
         return
 
     def retriveScanResults(self, clientInfo):  # retrive scan results given client Info
@@ -31,7 +31,8 @@ class LogicService():
         return
 
     def __scanForRXSS(self, pageEntity=None, sessionEntity=None):
-        rxssalgo = MainWindow(db_type='test', vuln_table_name=self.__dbName)
+        #rxssalgo = MainWindow(db_type='test', table_name=self.__tableName)
+        rxssalgo = MainWindow(db_type='test', table_name=self.__tableName)
         rxssalgo.ScanPage(pageEntity=pageEntity,
                           sessionEntity=sessionEntity)
         return
@@ -39,6 +40,6 @@ class LogicService():
     # TODO: zur I expect to get here the vulnerabilities table_name. is it the db_name that you get in configscan? and what about type of db - prod or test?
     # TODO : i ut it here for you, pls check, you also need to change the algoritm to get page and session per page
     def __scanForSqlInjection(self, pageEntity=None, sessionEntity=None):
-        sqli_algo = SQLIAlgorithm(db_type='test', vuln_table_name=self.__dbName)
+        sqli_algo = SQLIAlgorithm(db_type='test', vuln_table_name=self.__tableName)
         sqli_algo.start_scan(pageEntity=pageEntity, sessionEntity=sessionEntity)
         return
