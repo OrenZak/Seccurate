@@ -12,7 +12,7 @@ def createTable():
     with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
         cursor = db.cursor()
         cursor.execute('CREATE TABLE IF NOT EXISTS RXSS_Payloads(id TEXT PRIMARY KEY,\
-         payload TEXT unique not null)')
+         payload TEXT unique not null, expected_result TEXT not null)')
         db.commit()
 
 def createPayload(payload):
@@ -23,7 +23,8 @@ def createPayload(payload):
     id = str(datetime.now()).replace('-', '').replace(' ', '').replace(':', '').replace('.', '')
     with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
         cursor = db.cursor()
-        cursor.execute("""insert into RXSS_Payloads values(?,?)""", (id, payload.getPayload()))
+        cursor.execute("""insert into RXSS_Payloads values(?,?,?)""", (id, payload.getPayload(),
+                                                                       payload.getExpectedResult()))
         db.commit()
     payload.setID(id)
     return payload
@@ -40,7 +41,7 @@ def getRXSSPayloads(size=10, page=0):
             """SELECT * from RXSS_Payloads ORDER BY id ASC LIMIT %d OFFSET %d""" % (size, page * size))
         payload_list = []
         for payload in cursor.fetchall():
-            rxss_payload = RXSSPayloadEntity(payload[0], payload[1])
+            rxss_payload = RXSSPayloadEntity(payload[0], payload[1], payload[2])
             payload_list.append(rxss_payload)
     return payload_list
 
@@ -55,7 +56,7 @@ def getPayloadByID(id):
         item = cursor.fetchone()
         if (item is None):
             raise Exception("No such payload with id %s" % id)
-    return RXSSPayloadEntity(item[0], item[1])
+    return RXSSPayloadEntity(item[0], item[1], item[2])
 
 def updatePayload(payload):
     """
@@ -66,8 +67,8 @@ def updatePayload(payload):
         raise Exception("no such payload")
     with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
         cursor = db.cursor()
-        cursor.execute("""update RXSS_Payloads set payload='%s' where id='%s'""" % (
-        payload.getPayload(), payload.getID()))
+        cursor.execute("""update RXSS_Payloads set payload='%s', expected_result='%s' where id='%s'""" % (
+        payload.getPayload(), payload.getExpectedResult(), payload.getID()))
         db.commit()
     return payload
 

@@ -140,8 +140,8 @@ class TestRXSSCRUD(unittest.TestCase):
         cls.__vulnDescriptor = None
 
     def setUp(self):
-        self.rxss1 = RXSSPayloadEntity(payload='abcTest')
-        self.rxss2 = RXSSPayloadEntity(payload='defTest')
+        self.rxss1 = RXSSPayloadEntity(payload='abcTest', expectedResult='a')
+        self.rxss2 = RXSSPayloadEntity(payload='defTest', expectedResult='b')
         self.rxss1ID = self.__RXSSCRUD.createPayload(self.rxss1).getID()
         self.rxss2ID = self.__RXSSCRUD.createPayload(self.rxss2).getID()
 
@@ -150,8 +150,8 @@ class TestRXSSCRUD(unittest.TestCase):
         self.__vulnDescriptor.deleteAllDataFromTable()
 
     def test_create_payload(self):
-        self.assertEqual(self.rxss1.getPayload(), self.__RXSSCRUD.getRXSSPayloads(1, 0)[0].getPayload())
-        self.assertEqual(self.rxss2.getPayload(), self.__RXSSCRUD.getRXSSPayloads(1, 1)[0].getPayload())
+        self.assertEqual(self.rxss1.getExpectedResult(), self.__RXSSCRUD.getRXSSPayloads(1, 0)[0].getExpectedResult())
+        self.assertEqual(self.rxss2.getExpectedResult(), self.__RXSSCRUD.getRXSSPayloads(1, 1)[0].getExpectedResult())
 
     def test_wrong_create_payload(self):
         self.assertNotEqual('abdTest', self.__RXSSCRUD.getRXSSPayloads(1, 0)[0].getPayload())

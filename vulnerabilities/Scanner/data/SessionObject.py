@@ -15,3 +15,20 @@ class SessionEntity:
 
     def setValue(self, value):
         self.__value = value
+
+    def getValuesList(self):
+        values = []
+        for value in self.__value.split(';'):
+            values.append(value)
+        return values
+
+    def __eq__(self, other):
+        if isinstance(other, SessionEntity):
+            if (self.__type == other.getType()):
+                myValues = self.getValuesList()
+                otherValues = other.getValuesList()
+                return all(value in otherValues for value in myValues)
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

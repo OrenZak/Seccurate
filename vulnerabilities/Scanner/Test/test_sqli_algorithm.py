@@ -10,6 +10,7 @@ import mechanize
 from SessionObject import SessionEntity
 from PageObject import PageEntity
 from datetime import datetime
+from BaseVulnerabilityClass import VulnerabilityUtils
 
 
 class TestSQLIAlgorithm(unittest.TestCase):
@@ -40,7 +41,8 @@ class TestSQLIAlgorithm(unittest.TestCase):
         for cookie in cls.cj:
             cookie_value_string += cookie.name + "=" + cookie.value + "=" + cookie.domain + "=" + cookie.path + ";"
         cls.__session_entity = SessionEntity('Cookie', cookie_value_string[:-1])
-        cls.__sqlAlgorithm = SQLIAlgorithm(db_type='test', vuln_table_name=cls.__table_name)
+        cls.vulnUtils = VulnerabilityUtils(cls.__table_name)
+        cls.__sqlAlgorithm = SQLIAlgorithm(db_type='test')#, vuln_table_name=cls.__table_name)
 
     @classmethod
     def tearDownClass(cls):
@@ -48,6 +50,7 @@ class TestSQLIAlgorithm(unittest.TestCase):
         cls.__vulnsCRUD = None
         cls.__SQLICRUD = None
         cls.__vulnDescriptor = None
+        cls.vulnUtils = None
 
     def setUp(self):
         self.vuln1 = VulnerabilityDescriptionEntity(name='error_based', severity=1, description='abc', recommendations='aaa')
@@ -64,9 +67,9 @@ class TestSQLIAlgorithm(unittest.TestCase):
     def test_different_hash_detection(self):
         regular_response = unicode(self.__br.open("https://www.ynet.co.il").read(), 'utf-8')
         error_response = unicode(self.__br.open("https://www.haaretz.co.il").read(), 'utf-8')
-        regular_result = (regular_response, self.__sqlAlgorithm.hash_page(regular_response), 2)
-        error_result = (error_response, self.__sqlAlgorithm.hash_page(error_response), 2)
-        regular_imitating_result = (regular_response, self.__sqlAlgorithm.hash_page(regular_response), 2)
+        regular_result = (regular_response, self.vulnUtils.hash_page(regular_response), 2)
+        error_result = (error_response, self.vulnUtils.hash_page(error_response), 2)
+        regular_imitating_result = (regular_response, self.vulnUtils.hash_page(regular_response), 2)
         self.assertTrue(
             self.__sqlAlgorithm.validate_error_based(regular_result, error_result, regular_imitating_result))
 
@@ -77,7 +80,9 @@ class TestSQLIAlgorithm(unittest.TestCase):
     def test_scan_sqli(self):
         url = "http://localhost/bwapp/sqli_3.php"
         hash = "aaa"#TODO: change after oren implements hash
-        self.__sqlAlgorithm.start_scan(PageEntity(url=url, pageHash=hash), self.__session_entity)
+        forms, links = self.vulnUtils.get_injection_points(PageEntity(url=url, pageHash=hash), self.__session_entity)
+        self.__sqlAlgorithm.start_scan(PageEntity(url=url, pageHash=hash), forms=forms, links=links, vulnUtils=self.vulnUtils)
+            #(PageEntity(url=url, pageHash=hash), self.__session_entity)
         self.assertEqual(len(VulnerabilitiesCRUD.getVulns(self.__table_name)), 2)
 
     def doCleanups(self):

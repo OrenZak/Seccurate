@@ -18,8 +18,15 @@ class SimplePayloadEntity():
 
 
 class RXSSPayloadEntity(SimplePayloadEntity):
-    def __init__(self, id = None, payload = None):
+    def __init__(self, id = None, payload = None, expectedResult=None):
         SimplePayloadEntity.__init__(self, id, payload)
+        self.__expectedResult = expectedResult
+
+    def getExpectedResult(self):
+        return self.__expectedResult
+
+    def setExpectedResult(self, expectedResult):
+        self.__expectedResult = expectedResult
 
 
 class SQLIPayloadEntity(SimplePayloadEntity):
