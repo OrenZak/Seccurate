@@ -14,10 +14,21 @@ sys.setdefaultencoding('utf8')
 f = open("Results.html", "w")
 f.write("")
 f.close()
-
-pageEntity1 = PageEntity(url="http://alesev.co.il/xss.php", pageHash=123)
-pageEntity2 = PageEntity(url="http://alesev.co.il/xss2.php", pageHash=123)
-pageEntity3 = PageEntity(url="http://alesev.co.il/xss3.php", pageHash=123)
+br = mechanize.Browser()
+br.addheaders = [('User-agent',
+                        'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34')]
+cj = mechanize.CookieJar()
+br.set_cookiejar(cj)
+br.open("http://localhost/bwapp/index.php")
+br.select_form(nr=0)
+br.form['login'] = 'bee'
+br.form['password'] = 'bug'
+br.submit()
+cookie_value_string = ""
+for cookie in cj:
+    cookie_value_string += cookie.name + "=" + cookie.value + "=" + cookie.domain + "=" + cookie.path + ";"
+session_entity = SessionEntity('Cookie', cookie_value_string[:-1])
+pageEntity1 = PageEntity(url="http://localhost/bwapp/htmli_post.php", pageHash=123)
 sessionEntity = SessionEntity(type="cookie", value="sessionID=blablalba")
 
 # vulnDescriptor = VulnerabilityDescriptionCRUD.getInstance('test')
@@ -32,10 +43,6 @@ logicService = LogicService(db_type="test")
 logicService.configNewScan("test")
 rxssalgo = MainWindow(db_type="test", dbName="test")
 rxssalgo.ScanPage(pageEntity=pageEntity1,
-                  sessionEntity=sessionEntity)
-rxssalgo.ScanPage(pageEntity=pageEntity2,
-                  sessionEntity=sessionEntity)
-rxssalgo.ScanPage(pageEntity=pageEntity3,
                   sessionEntity=sessionEntity)
 
 # app.exec_()
