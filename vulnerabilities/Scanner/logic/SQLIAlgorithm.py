@@ -33,7 +33,7 @@ class SQLIAlgorithm():
     def get_configuration_properties(self):
         self.config = ConfigParser.RawConfigParser()
         self.config.read(
-            'C:\\Users\\Guy Shakked\\PycharmProjects\\Seccurate\\vulnerabilities\\Scanner\\common\\config.properties')
+            '..\common\config.properties')
         # means for authentication
         self.cookie = self.config.get('Authentication', 'Cookie')
         self.baseAuth = self.config.get('Authentication', 'BasicAuthentication')
