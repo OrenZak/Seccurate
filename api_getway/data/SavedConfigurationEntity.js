@@ -1,11 +1,12 @@
 
 class SavedConfigurationEntity {
-    constructor(id=null, max_depth, timeout, interval, max_concurrency) {
+    constructor(id=null, max_depth, timeout, interval, max_concurrency, default_scan) {
         this.id=id
         this.max_depth = max_depth
         this.timeout = timeout
         this.interval = interval
         this.max_concurrency = max_concurrency
+        this.default_scan = default_scan
     }
 
     getID() {
@@ -54,6 +55,14 @@ class SavedConfigurationEntity {
 
     setVulnsScanned(vulns_scanned) {
         this.vulns_scanned = vulns_scanned
+    }
+
+    getDefaultScan() {
+        return this.default_scan
+    }
+
+    setDefaultScan(default_scan) {
+        this.default_scan = default_scan
     }
 }
 

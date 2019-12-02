@@ -7,7 +7,7 @@ class ScanConfigHistoryCRUD {
             host: 'localhost',
             port: 3306,
             user: 'root',
-            //password: '18031997',
+            password: '18031997',
             database: db
         })
         this.conn.connect(function(err) {
@@ -22,7 +22,7 @@ class ScanConfigHistoryCRUD {
     }
 
     createTable() {
-        const sql = `CREATE TABLE IF NOT EXISTS ?? (id VARCHAR(100) PRIMARY KEY, maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, maxConcurrency INTEGER, vulnsScanned VARCHAR(100) NOT NULL, credentials VARCHAR(100), loginPage VARCHAR(200))`
+        const sql = `CREATE TABLE IF NOT EXISTS ?? (id VARCHAR(100) PRIMARY KEY, maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, maxConcurrency INTEGER, vulnsScanned VARCHAR(100) NOT NULL, credentials VARCHAR(300), loginPage VARCHAR(200))`
         this.conn.query(sql, [this.table_name], async function(err) {
             if (err) {
                 console.log(err)

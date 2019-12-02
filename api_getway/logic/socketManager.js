@@ -1,6 +1,8 @@
 events = require("events");
 var CrawlerPageBoundary = require('./boundaries/crawlerPageBoundary');
 var VulnerabilityPageBoundary = require('./boundaries/vulnerabilityPageBoundary');
+var pageEntity = require('../data/PageEntity');
+var pageCRUD = require('../dao/PageCRUD')
 
 
 const ACTIONS = {
@@ -55,6 +57,10 @@ function start(server) {
             console.log("received page");
             //TODO should we save the page in a db
             crawlerPageboundary = CrawlerPageBoundary.deserialize(pageBoundary);
+            //page = new pageEntity(crawlerPageboundary.URL, crawlerPageboundary.PageHash, crawlerPageboundary.SessionType, crawlerPageboundary.SessionValue, ???)
+            //pageTableName = ???
+            //p_crud = new pageCRUD('test', ???)
+            //p_crud.insertValue(page, pageTableName);
             vulnerabilityPageBoundary = new VulnerabilityPageBoundary(crawlerPageboundary.url, crawlerPageboundary.pageHash, crawlerPageboundary.type, crawlerPageboundary.value);
             scanPage(vulnerabilityPageBoundary);
         });
