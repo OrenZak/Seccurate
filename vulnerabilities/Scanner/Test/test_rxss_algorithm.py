@@ -57,12 +57,12 @@ class TestRXSSAlgorithm(unittest.TestCase):
         self.vuln1 = VulnerabilityDescriptionEntity(name="rxss", severity=2, description='defTest',
                                                     recommendations='bbb')
         self.vulnDescriptor.createVulnerabilityDescription(self.vuln1)
-        self.rxss1 = RXSSPayloadEntity(payload="<script>console.log(123)</script>", expectedResult="<script>console.log(123)</script>")
+        self.rxss1 = RXSSPayloadEntity(payload="<script>console.log(123)</script>",
+                                       expectedResult="<script>console.log(123)</script>")
         self.rxss1ID = self.RXSSCrud.createPayload(self.rxss1).getID()
 
     def tearDown(self):
-        self.RXSSCrud.deletePayloads()
-        self.RXSSCrud.deleteResponses()
+        self.RXSSCrud.deleteAllDataFromTable
         self.vulnDescriptor.deleteAllDataFromTable()
 
     def test_scan_rxss(self):
@@ -70,7 +70,7 @@ class TestRXSSAlgorithm(unittest.TestCase):
         hash = "aaa"  # TODO: change after oren implements hash
         forms, links = self.vulnUtils.get_injection_points(PageEntity(url=url, pageHash=hash), self.session_entity)
         self.rxssAlgorithm.ScanPage(PageEntity(url=url, pageHash=hash), forms=forms, links=links,
-                                       vulnUtils=self.vulnUtils)
+                                    vulnUtils=self.vulnUtils)
         # (PageEntity(url=url, pageHash=hash), self.__session_entity)
         self.assertEqual(len(VulnerabilitiesCRUD.getVulns(self.__table_name)), 2)
 

@@ -1,13 +1,10 @@
-# encoding=utf8
 import ConfigParser
-import base64
 import sys
 
 import RXSSCrud
-# from VulnerabilitiesCRUD import VulnerabilitiesCRUD
 import VulnerabilitiesCRUD
 from VulnerabilitiesObjects import SimpleVulnerabilityEntity
-from methods import GetFormInputFields, ParseForms
+from methods import ParseForms
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -16,12 +13,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtWebKit import *
 from PyQt4.QtNetwork import *
-import mechanize
-import cookielib
-import json
 import urllib
-from urlparse import urlparse, urljoin
-from bs4 import BeautifulSoup
+from urlparse import urlparse
 
 
 class JShandle(QMainWindow):
@@ -42,7 +35,6 @@ class JShandle(QMainWindow):
 
     def RenderPageFinishedEvent(self):
         self.htmlResponse = self.browser.page().mainFrame().toHtml().toUtf8()
-        # self.updateCookiesQttoMechanize()
         return self.htmlResponse
 
     def updateCookiesMechanizetoQt(self):
@@ -58,32 +50,6 @@ class JShandle(QMainWindow):
             list.append(Mcookie.name + ":" + Mcookie.value)
         self.cookieJar.setAllCookies(QcookieList)
 
-    # def updateCookiesQttoMechanize(self):
-    #     list = []
-    #     self.cj_mechanize = cookielib.LWPCookieJar()
-    #     for Qcookie in self.cookieJar.allCookies():
-    #         ck = cookielib.Cookie(
-    #             version=0,
-    #             name=Qcookie.name().data().decode(),
-    #             value=Qcookie.value().data().decode(),
-    #             port=None,
-    #             port_specified=False,
-    #             domain=str(Qcookie.domain()),
-    #             domain_specified=True,
-    #             domain_initial_dot=False,
-    #             path='/',
-    #             path_specified=True,
-    #             secure=False,
-    #             expires=None,
-    #             discard=False,
-    #             comment=None,
-    #             comment_url=None,
-    #             rest=None
-    #         )
-    #         # print ck
-    #         self.cj_mechanize.set_cookie(ck)
-    #         list.append(Qcookie.name().data().decode() + ":" + Qcookie.value().data().decode())
-
 
 class MainWindow(QMainWindow):
     def __init__(self, table_name=None, db_type=None, *args,
@@ -94,8 +60,6 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setWindowTitle("ScarpSite")
         self.browser = QWebView()
-        # self.html = self.browser.page().mainFrame().toHtml().toUtf8()
-        # self.soup = BeautifulSoup(str(self.html), 'html.parser')
         self.networkAccessManager = QNetworkAccessManager()
         self.cookieJar = QNetworkCookieJar()
         self.__VulnCrud = VulnerabilitiesCRUD
@@ -148,7 +112,7 @@ class MainWindow(QMainWindow):
         self.updateCookiesMechanizetoQt(self.vulnUtils.getCookieJar())
         self.url = pageEntity.getURL()
         self.domain = urlparse(self.url).hostname
-        self.browser.loadFinished.connect(self.__urlLoadFinished)
+        self.browser.loadFinished.connect(self.__onUrlLoaded)
         self.browser.page().setNetworkAccessManager(self.networkAccessManager)
         self.browser.page().userAgentForUrl(QUrl(self.url))
         curURL = QUrl(self.url)
@@ -157,15 +121,11 @@ class MainWindow(QMainWindow):
         self.show()
         self.app.exec_()
 
-    def __urlLoadFinished(self):
-        self.browser.loadFinished.disconnect(self.__urlLoadFinished)
-        # self.html = self.browser.page().mainFrame().toHtml().toUtf8()
-        # self.soup = BeautifulSoup(str(self.html), 'html.parser')
-        # self.InitMechanize()
+    def __onUrlLoaded(self):
+        self.browser.loadFinished.disconnect(self.__onUrlLoaded)
         self.LoadConfigurations()
-        self.ScanPageLinks()
+        self.ScanLinks()
         self.ScanForms()
-        # self.scarplinks()
         self.app.closeAllWindows()
         self.app.quit()
 
@@ -232,8 +192,6 @@ class MainWindow(QMainWindow):
                                              requestB64=requestB64)
 
     def validatePayload(self, payload=None, method=None, data=None, htmlResponse=None, requestB64=None):
-        # self.UpdateCookiesMechanizetoQt()
-        # self.htmlresponse = unicode(htmlResponse.read(), 'utf-8')
         self.htmlResponse = htmlResponse
         self.RenderingHandler()
         if (payload.getExpectedResult() in self.htmlResponse) or payload.getPayload() in self.htmlResponse:
@@ -247,14 +205,11 @@ class MainWindow(QMainWindow):
                 print "***Identified False Positive*** method:" + method + " payload " + payload.getPayload() + " URL: " + self.urlform + " payload: " + data + "\n"
 
     def RenderingHandler(self):
-        # self.browser.hide()
         self.MainWindowJShandle = JShandle()
         self.MainWindowJShandle.RenderPage(self.htmlResponse, self.vulnUtils.getCookieJar(), self.urlform)
         self.MainWindowJShandle.htmlResponse = self.MainWindowJShandle.RenderPageFinishedEvent()
-        # if str(self.cj_mechanize) != str(self.MainWindowJShandle.cj_mechanize):
-        #     self.cj_mechanize = self.MainWindowJShandle.cj_mechanize
 
-    def updateCookiesMechanizetoQt(self,cj_mechanize):
+    def updateCookiesMechanizetoQt(self, cj_mechanize):
         self.cookieJar = QNetworkCookieJar()
         QcookieList = []
         list = []
@@ -266,35 +221,6 @@ class MainWindow(QMainWindow):
             QcookieList.append(Qcookie)
             list.append(Mcookie.name + ":" + Mcookie.value)
         self.cookieJar.setAllCookies(QcookieList)
-
-    # def UpdateCookiesQttoMechanize(self):
-    #     list = []
-    #     self.cj_mechanize = cookielib.LWPCookieJar()
-    #     for Qcookie in self.cookieJar.allCookies():
-    #         # name = Qcookie.name().data().decode()
-    #         # value = Qcookie.value().data().decode()
-    #         # Set cookies from file
-    #         ck = cookielib.Cookie(
-    #             version=0,
-    #             name=Qcookie.name().data().decode(),
-    #             value=Qcookie.value().data().decode(),
-    #             port=None,
-    #             port_specified=False,
-    #             domain=self.domain,
-    #             domain_specified=True,
-    #             domain_initial_dot=False,
-    #             path='/',
-    #             path_specified=True,
-    #             secure=False,
-    #             expires=None,
-    #             discard=False,
-    #             comment=None,
-    #             comment_url=None,
-    #             rest=None
-    #         )
-    #         # print ck
-    #         self.cj_mechanize.set_cookie(ck)
-    #         list.append(Qcookie.name().data().decode() + ":" + Qcookie.value().data().decode())
 
     def GetLinkInputFields(self, link):
         self.urlform = urlparse(link).scheme + "://" + urlparse(link).hostname + urlparse(link).path + urlparse(
@@ -310,8 +236,7 @@ class MainWindow(QMainWindow):
                     inputnames[parameter.split('=')[0]] = ''
             return inputnames
 
-    def ScanPageLinks(self):
-        # self.extractLinksFromURL()
+    def ScanLinks(self):
         for link in self.links:
             inputnames = self.GetLinkInputFields(link)
             if (inputnames != None):
@@ -331,25 +256,11 @@ class MainWindow(QMainWindow):
                         except Exception as e:
                             print "[-] Error happend " + str(e)
 
-    # def scarplinks(self):
-    #     self.browser.loadFinished.connect(self.handleLoadFinished)
-    #     self.browser.page().setNetworkAccessManager(self.networkAccessManager)
-    #     self.browser.load(QUrl(self.url))
-    #     self.handleLoadFinished()
-
-    # def handleLoadFinished(self):
-    #     self.browser.loadFinished.disconnect(self.handleLoadFinished)
-    #     self.html = self.browser.page().mainFrame().toHtml().toUtf8()
-    #     self.soup = BeautifulSoup(str(self.html), 'html.parser')
-    #     self.ScanForms()
-
     def addEvent(self, vuln_descriptor=None, url=None,
                  payload=None,
                  requestB64=None):
         simpleVulnerability = SimpleVulnerabilityEntity(name=vuln_descriptor, url=url,
                                                         payload=payload,
                                                         requestB64=requestB64)
-        createdVuln = self.__VulnCrud.createVulnerability(simpleVulnerability, self.__dbName)
-        f = open("Results.html", "a")
-        f.write(self.event)
-        f.close()
+        createdVuln = self.__VulnCrud.createVulnerability(simpleVulnerability, self.__tableName)
+        print(self.event)

@@ -7,7 +7,6 @@ from BaseVulnerabilityClass import VulnerabilityUtils
 class LogicService():
     def __init__(self, db_type):
         self.__VulnCrud = VulnerabilitiesCRUD
-        # self.vulnUtils = VulnerabilityUtils()
         return
 
     def configNewScan(self, tableName, scanType):  # Config new db u
@@ -36,8 +35,6 @@ class LogicService():
         return
 
     def __scanForRXSS(self, pageEntity=None, forms=None, links=None):  # sessionEntity=None):
-        # rxssalgo = MainWindow(db_type='test', table_name=self.__tableName)
-        # TODO: Zur complete according to changes to rxssalgorithm
         rxssalgo = MainWindow(db_type='test', table_name=self.__tableName)
         rxssalgo.ScanPage(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
         return

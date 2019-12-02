@@ -66,7 +66,10 @@ def GetFormInputFields(url, form):
 def ParseForms(inputname, inputnames, payload, inputnonames):
     originalvalue = inputnames[inputname]
     inputnames[inputname] = payload
-
+    for name in inputnames:
+        if name == inputname:
+            continue
+        inputnames[name] = "1"
     data = urllib.urlencode(inputnames)
     removefirstchar = len(data) == 0
     for inputnoname in inputnonames:
