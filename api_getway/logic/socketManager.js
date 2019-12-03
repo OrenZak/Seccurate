@@ -1,7 +1,6 @@
 events = require("events");
 var CrawlerPageBoundary = require('./boundaries/crawlerPageBoundary');
 var VulnerabilityPageBoundary = require('./boundaries/vulnerabilityPageBoundary');
-var pageEntity = require('../data/PageEntity');
 var pageCRUD = require('../dao/PageCRUD')
 
 
@@ -10,7 +9,8 @@ const ACTIONS = {
     DISCONNECT: "disconnect",
     PAGE_FETCHED: "page_fetched",
     CRAWLER_DONE: "crawler_done",
-    SCAN_RESULTS: "scan_page"
+    SCAN_RESULTS: "scan_page",
+    SCAN_PAGE_DONE:"scan_page_finished"
 
 
 };
@@ -22,6 +22,7 @@ const EVENTS = {
     UPDATE_PAYLOADS: "update_payloads",
     SCAN_PAGE: "scan_page"
 };
+
 
 let io = undefined;
 
@@ -71,6 +72,9 @@ function start(server) {
                 parsedResults.push(element);
             });
             //TODO send the array somehow
+        });
+        socket.on(ACTIONS.SCAN_PAGE_DONE, async function (results) {
+            //TODO add some login for page scan finished-> maybe send the next page or something like that
         });
     });
 }
