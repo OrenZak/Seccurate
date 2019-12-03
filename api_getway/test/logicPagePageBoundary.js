@@ -1,7 +1,7 @@
 const CrawlerPageBoundary = require('../logic/boundaries/crawlerPageBoundary');
 
 var assert = require('assert');
-var jsonScanConfig = '{"url": "http://google.com","pageHash": 311321,"type": "Cookie","value": "SESSIONID=123"}';
+var jsonScanConfig = {url: "http://google.com",pageHash: 311321,type: "Cookie",value: "SESSIONID=123"};
 var type = "Cookie";
 var sessionValue = "SESSIONID=123";
 var pageHash = 311321;
@@ -21,9 +21,9 @@ describe('Test deserialize', function () {
 describe('Test serialize', function () {
     it('Should serialzie to {"url": "http://google.com","pageHash": 311321,"type": "Cookie","value": "SESSIONID=123"}', function () {
         var serialize = boundary.serialize();
-        assert.equal(boundary.url, JSON.parse(serialize).url);
-        assert.equal(boundary.pageHash, JSON.parse(serialize).pageHash);
-        assert.equal(boundary.type, JSON.parse(serialize).type);
-        assert.equal(boundary.value, JSON.parse(serialize).value);
+        assert.equal(boundary.url, serialize.url);
+        assert.equal(boundary.pageHash, serialize.pageHash);
+        assert.equal(boundary.type, serialize.type);
+        assert.equal(boundary.value, serialize.value);
     });
 });

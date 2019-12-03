@@ -35,6 +35,7 @@ class SocketIOClient():
         configScanBoundary = ScanBoundary.deserialize(scanParams)
         clientLogicService.startScan(pageEntity=configScanBoundary.getPageEntity(),
                                      sessionEntity=configScanBoundary.getSessionEntity())
+        sio.emit('scan_page_done')
 
         return
 
