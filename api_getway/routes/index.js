@@ -51,6 +51,7 @@ router.post(PATHS.ADD_PAYLOADS, function (req, res, next) {
 router.post(PATHS.GET_RESULTS, function (req, res, next) {
     getResultsRequestBoundary = GetResultsRequestBoundary.deserialize(req.query);
     scanResults = logicService.getResults(getResultsRequestBoundary.scanName);
+    // TODO this needs to be parse
     res.status(200).send(scanResults);
 });
 
