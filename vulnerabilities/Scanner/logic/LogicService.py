@@ -1,3 +1,6 @@
+from ConfigParser import ConfigParser
+
+import VulnerabilityDescriptionCRUD
 from RXSSAlgorithm import MainWindow
 from SQLIAlgorithm import SQLIAlgorithm
 import VulnerabilitiesCRUD
@@ -6,11 +9,15 @@ from BaseVulnerabilityClass import VulnerabilityUtils
 
 class LogicService():
     def __init__(self, db_type):
-        self.__VulnCrud = VulnerabilitiesCRUD
-        return
+        config = ConfigParser.RawConfigParser()
+        config.read('..\common\config.properties')
+        self.__vulnCrud = VulnerabilitiesCRUD
+        self.__vulnDescriptor = VulnerabilityDescriptionCRUD
+        self.rxssDescriptor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'error_based'))
+        self.sqliErroBasedDescripor = self.__vulnDescriptor.getVulnByName(config.get('RXSS', 'rxss'))
 
     def configNewScan(self, tableName, scanType):  # Config new db u
-        self.__VulnCrud.createTable(tableName)
+        self.__vulnCrud.createTable(tableName)
         self.__tableName = tableName
         self.__scanType = scanType
         self.vulnUtils = VulnerabilityUtils(tableName)
@@ -28,8 +35,9 @@ class LogicService():
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)
         return
 
-    def retriveScanResults(self, clientInfo):  # retrive scan results given client Info
-        return
+    def retriveScanResults(self, getResultEntity):
+        vulnerabilityEntities = self.__vulnCrud.getVulns(getResultEntity.getScanName(), 1000, 0)
+        return vulnerabilityEntities, self.rxssDescriptor, self.sqliErroBasedDescripor
 
     def updatePayloads(self, payloadObject):
         return

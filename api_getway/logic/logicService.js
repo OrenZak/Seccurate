@@ -1,3 +1,5 @@
+import {VULNERABILITY_MICROSERVICE_REST} from "../common/globals";
+
 const https = require('https');
 const request = require('request');
 const globals = require('../common/globals');
@@ -59,8 +61,20 @@ class LogicService {
     }
 
     async getResults(scanName) {
-        var vulnerabilityGetResultsRequestBoundary = VulnerabilityGetResultsRequestBoundary(scanName);
-        socketManager.getResults(vulnerabilityGetResultsRequestBoundary);
+        let vulnerabilityGetResultsRequestBoundary = VulnerabilityGetResultsRequestBoundary(scanName);
+        request.post(VULNERABILITY_MICROSERVICE_REST, {
+            json: {
+                scanName: vulnerabilityGetResultsRequestBoundary.ScanName
+            }
+        }, (error, res, body) => {
+            if (error) {
+                console.error(error);
+                return error;
+            }
+            console.log(`statusCode: ${res.statusCode}`);
+            console.log(body);
+            return body;
+        });
     }
 
     async addPayload(data) {

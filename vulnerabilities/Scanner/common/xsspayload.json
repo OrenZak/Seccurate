@@ -1,4 +1,0 @@
-{
-	"'": ["Error", "SQL", "sql", "Sql","ERROR", "error"],
-	"<script>console.log(123)</script>": ["<script>console.log(123)</script>"]
-}

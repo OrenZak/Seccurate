@@ -1,10 +1,37 @@
 import socketio
-import json
 
+from GetResultsRequestBoundary import GetResultsRequestBoundary
 from PageBoundary import ScanBoundary
-from VulnerabilityBoundary import VulnerabilityBoundary
-from configDatabaseBoundary import ConfigDatabaseBoundary
+from ConfigDatabaseBoundary import ConfigDatabaseBoundary
 
+from flask import Flask, jsonify
+
+from VulnerabilityBoundary import VulnerabilityBoundary
+
+app = Flask(__name__)
+
+
+class RestServer():
+    global clientLogicService
+
+    def __init__(self, logicService):
+        global clientLogicService
+        clientLogicService = logicService
+        app.run()
+
+    @app.route('/get_results', methods=['POST'])
+    def hello(serializedGetResultBoundary):
+        vulnBoundaryList = []
+        vulnerabilityEntities, rxssDescriptorEntity, sqliErroBasedDescriporEntity = clientLogicService.retriveScanResults(GetResultsRequestBoundary.deserialize(serializedGetResultBoundary).getResultsEntity())
+        for vuln in vulnerabilityEntities:
+            if vuln.getName() == rxssDescriptorEntity.getName():
+                vulnBoundary = VulnerabilityBoundary(vulnEntity=vuln,vulnDescriptionEntity=rxssDescriptorEntity)
+            elif vuln.getName() == sqliErroBasedDescriporEntity.getName():
+                vulnBoundary = VulnerabilityBoundary(vulnEntity=vuln,vulnDescriptionEntity=sqliErroBasedDescriporEntity)
+            else:
+                continue
+            vulnBoundaryList.append(vulnBoundary.serialize())
+        return jsonify(vulnBoundaryList)
 
 class SocketIOClient():
     global sio
@@ -36,17 +63,6 @@ class SocketIOClient():
         clientLogicService.startScan(pageEntity=configScanBoundary.getPageEntity(),
                                      sessionEntity=configScanBoundary.getSessionEntity())
         sio.emit('scan_page_done')
-
-        return
-
-    @sio.on('get_results')
-    def sendScanResults(clientInfo):  # we need to get DB name ( which is scan name)
-        vulnerabilityEntities = clientLogicService.retriveScanResults(clientInfo=clientInfo)
-        scanResultBoundary = []
-        for vulnEntity in vulnerabilityEntities:
-            vulnBoundary = VulnerabilityBoundary(vulnEntity=vulnEntity, vulnDescriptionEntity="TODO get here something")
-            scanResultBoundary.append(vulnBoundary.serialize())
-        sio.emit('scan_results', {scanResultBoundary})
         return
 
     @sio.on('update_payloads')

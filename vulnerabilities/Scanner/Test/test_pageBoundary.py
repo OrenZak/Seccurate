@@ -13,8 +13,7 @@ class TestPageBoundry(TestCase):
         URL2 = "http://testURL2.com"
         cls.pageEntity1 = PageEntity(URL1, 1111)
         cls.sessionEntity = SessionEntity(type="cookie", value="sessionid=1234")
-        cls.serializedScanConfig = '{"page":{"url":"http://testURL.com","pageHash":1111},"sessionData":{' \
-                                   '"type":"cookie","value":"sessionid=1234"}} '
+        cls.serializedScanConfig = '{"url":"http://testURL.com","pageHash":1111, "type":"cookie", "value":"sessionid=1234"}'
         cls.pageBoudnry = ScanBoundary(cls.pageEntity1, cls.sessionEntity)
 
     @classmethod
@@ -29,6 +28,7 @@ class TestPageBoundry(TestCase):
                          "Failed Deserialize session Entity type")
         self.assertEqual(self.sessionEntity.getValue(), serializedScanConfigBoundary.getSessionEntity().getValue(),
                          "Failed Deserialize session Entity value")
+
 
 if __name__ == '__main__':
     suite = TestSuite()

@@ -1,6 +1,6 @@
 from unittest import TestCase, TestSuite, TestLoader, TextTestRunner
 
-from configDatabaseBoundary import ConfigDatabaseBoundary
+from ConfigDatabaseBoundary import ConfigDatabaseBoundary
 
 
 class TestConfigDatabaseBoundary(TestCase):
