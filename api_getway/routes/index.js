@@ -50,8 +50,8 @@ router.post(PATHS.ADD_PAYLOADS, function (req, res, next) {
 
 router.post(PATHS.GET_RESULTS, function (req, res, next) {
     getResultsRequestBoundary = GetResultsRequestBoundary.deserialize(req.query);
-    logicService.getResults(getResultsRequestBoundary.scanName);
-    res.status(200).send('<h1>Hello world</h1>');
+    scanResults = logicService.getResults(getResultsRequestBoundary.scanName);
+    res.status(200).send(scanResults);
 });
 
 function setServer(httpServer) {

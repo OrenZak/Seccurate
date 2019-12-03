@@ -4,7 +4,7 @@ import sys
 import RXSSCrud
 import VulnerabilitiesCRUD
 from VulnerabilitiesObjects import SimpleVulnerabilityEntity
-from methods import ParseForms
+from Methods import ParseForms
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -83,7 +83,7 @@ class MainWindow(QMainWindow):
         self.inputnonames_index = int(self.config.get('FormAttributes', 'inputnonames'))
 
         # get rxss description key
-        self.descriptionKey = self.config.get('RXSS', 'description_key')
+        self.descriptionKey = self.config.get('RXSS', 'rxss')
 
     def setcookies(self, domain):
         self.networkAccessManager = QNetworkAccessManager()
@@ -128,39 +128,6 @@ class MainWindow(QMainWindow):
         self.ScanForms()
         self.app.closeAllWindows()
         self.app.quit()
-
-    # def extractLinksFromURL(self):
-    #     links = self.soup.findAll(name='a')
-    #     self.links_array_include_mainUrl = []
-    #     for link in links:
-    #         # print link
-    #         if link.has_attr('href'):
-    #             href_full_link = urljoin(self.url, link['href'])
-    #             if urlparse(href_full_link).hostname == self.domain:
-    #                 self.links_array_include_mainUrl.append(href_full_link)
-    #     self.links_array_include_mainUrl.append(self.url)
-    #     self.links_array_include_mainUrl = list(set(self.links_array_include_mainUrl))
-
-    # def InitMechanize(self):
-    #     self.br = mechanize.Browser()
-    #     self.UpdateCookiesQttoMechanize()
-    #     self.br.set_cookiejar(self.cj_mechanize)
-    #     # Browser options
-    #     self.br.set_handle_equiv(True)
-    #     self.br.set_handle_gzip(True)
-    #     self.br.set_handle_redirect(True)
-    #     self.br.set_handle_referer(True)
-    #     self.br.set_handle_robots(False)
-    #     self.br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(),
-    #                                max_time=1)  # Follows refresh 0 but not hangs on refresh > 1
-    #     # Want debugging messages?
-    #     # br.set_debug_http(True)
-    #     # br.set_debug_redirects(True)
-    #     # br.set_debug_responses(True)
-    #
-    #     # User-Agent
-    #     self.br.addheaders = [('User-agent',
-    #                            'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34')]
 
     def LoadConfigurations(self):
         ALLPAYLOADS = 1000

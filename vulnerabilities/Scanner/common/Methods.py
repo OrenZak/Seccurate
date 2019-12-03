@@ -64,7 +64,6 @@ def GetFormInputFields(url, form):
 # this function gets relevant data and return the body of the relevant request from the form
 # TODO we need to refactor this function
 def ParseForms(inputname, inputnames, payload, inputnonames):
-    originalvalue = inputnames[inputname]
     inputnames[inputname] = payload
     for name in inputnames:
         if name == inputname:
@@ -76,10 +75,6 @@ def ParseForms(inputname, inputnames, payload, inputnonames):
         data = data + "&" + inputnoname
     if removefirstchar:
         data = data[1::]
-    # print "[*] Url: " + self.urlform
-    # print "[*] Data: " + data.encode('utf-8') + "\n\n"
-    # exit()
-    inputnames[inputname] = originalvalue
     return data
 
 

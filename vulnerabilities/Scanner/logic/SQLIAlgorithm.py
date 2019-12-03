@@ -1,5 +1,5 @@
 import sys
-from methods import GetFormInputFields, ParseFormsSQLI
+from Methods import GetFormInputFields, ParseFormsSQLI
 import SQLICrud
 from bs4 import BeautifulSoup
 from urllib import urlencode

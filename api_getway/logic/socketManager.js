@@ -10,7 +10,7 @@ const ACTIONS = {
     PAGE_FETCHED: "page_fetched",
     CRAWLER_DONE: "crawler_done",
     SCAN_RESULTS: "scan_page",
-    SCAN_PAGE_DONE:"scan_page_finished"
+    SCAN_PAGE_DONE: "scan_page_finished"
 
 
 };
@@ -25,9 +25,13 @@ const EVENTS = {
 
 
 let io = undefined;
+let pageQueue = [];
+let isCrawlerScanning = false;
+let isVulnerabilityScanning = false;
 
 function startCrawl(crawlBoundary) {
     io.emit(EVENTS.START_CRAWL, crawlBoundary.serialize());
+    isCrawlerScanning = true;
 }
 
 function configDatabase(vulnerabilityConfigBoundary) {
@@ -57,13 +61,17 @@ function start(server) {
         socket.on(ACTIONS.PAGE_FETCHED, async function (pageBoundary) {
             console.log("received page");
             //TODO should we save the page in a db
-            crawlerPageboundary = CrawlerPageBoundary.deserialize(pageBoundary);
+            let crawlerPageboundary = CrawlerPageBoundary.deserialize(pageBoundary);
             //page = new pageEntity(crawlerPageboundary.URL, crawlerPageboundary.PageHash, crawlerPageboundary.SessionType, crawlerPageboundary.SessionValue, ???)
             //pageTableName = ???
             //p_crud = new pageCRUD('test', ???)
             //p_crud.insertValue(page, pageTableName);
-            vulnerabilityPageBoundary = new VulnerabilityPageBoundary(crawlerPageboundary.url, crawlerPageboundary.pageHash, crawlerPageboundary.type, crawlerPageboundary.value);
-            scanPage(vulnerabilityPageBoundary);
+            let vulnerabilityPageBoundary = new VulnerabilityPageBoundary(crawlerPageboundary.url, crawlerPageboundary.pageHash, crawlerPageboundary.type, crawlerPageboundary.value);
+            if (pageQueue.length == 0 && !isVulnerabilityScanning) {
+                scanPage(vulnerabilityPageBoundary);
+            } else {
+                pageQueue.push(vulnerabilityPageBoundary);
+            }
         });
         socket.on(ACTIONS.SCAN_RESULTS, async function (results) {
             console.log("received scan results");
@@ -74,7 +82,16 @@ function start(server) {
             //TODO send the array somehow
         });
         socket.on(ACTIONS.SCAN_PAGE_DONE, async function (results) {
-            //TODO add some login for page scan finished-> maybe send the next page or something like that
+            if (pageQueue.length > 0) {
+                let vulnerabilityPageBoundary = pageQueue.shift();
+                isVulnerabilityScanning = true;
+                scanPage(vulnerabilityPageBoundary);
+            } else {
+                isVulnerabilityScanning = false;
+            }
+        });
+        socket.on(ACTIONS.CRAWLER_DONE, async function (results) {
+            isCrawlerScanning = false;
         });
     });
 }
