@@ -6,6 +6,10 @@
   height: 80px;
 }
 
+.App-name {
+  height: 80px;
+}
+
 .App-header {
   background-color: #222;
   height: 150px;
