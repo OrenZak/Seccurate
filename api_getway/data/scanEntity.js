@@ -1,8 +1,9 @@
 class ScanEntity {
-    constructor(name, timestamp, configuration) {
+    constructor(name, timestamp, configuration, description) {
         this.name = name;
         this.timestamp = timestamp;
         this.configuration = configuration;
+        this.description = description;
     }
 
     getName() {
@@ -27,6 +28,14 @@ class ScanEntity {
 
     setConfiguration(configuration) {
         this.configuration = configuration;
+    }
+
+    getDescription() {
+        return this.description;
+    }
+
+    setDescription(description) {
+        this.description = description;
     }
 }
 

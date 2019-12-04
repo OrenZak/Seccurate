@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-const configurationEntity = require('../data/scanEntity');
+const scanEntity = require('../data/scanEntity');
 const configurationCRUD = require('./scanConfigurationCRUD');
 const globals = require('../common/globals');
 
@@ -32,8 +32,8 @@ class ScansDataCRUD {
     }
 
     createTable() {
-        const sql = `CREATE TABLE IF NOT EXISTS ?? (name VARCHAR(100), scan_timestamp VARCHAR(30) PRIMARY KEY, configuration VARCHAR(100), FOREIGN KEY(configuration) REFERENCES test.ConfigurationsHistory(id) on delete cascade)`
-        this.conn.query(sql, [this.table_name], async function(err) {
+        const sql = `CREATE TABLE IF NOT EXISTS ?? (name VARCHAR(100), scan_timestamp VARCHAR(30) PRIMARY KEY, description VARCHAR(200), configuration VARCHAR(100), FOREIGN KEY(configuration) REFERENCES test.ConfigurationsHistory(id) on delete cascade)`
+        this.conn.query(sql, [this.table_name], function(err) {
             if (err) {
                 console.log(err)
             }
@@ -41,8 +41,8 @@ class ScansDataCRUD {
     }
 
     insertValue(value) {
-        const sql2 = `INSERT INTO ?? VALUES (?,?,?)`
-        this.conn.query(sql2, [this.table_name, value.getName(), value.getTimestamp(), value.getConfiguration()], async (err) => {
+        const sql2 = `INSERT INTO ?? VALUES (?,?,?,?)`
+        this.conn.query(sql2, [this.table_name, value.getName(), value.getTimestamp(), value.getDescription(), value.getConfiguration()], (err) => {
             if (err) {
                 console.log(err)
             }
@@ -65,7 +65,7 @@ class ScansDataCRUD {
 
     getValue(value_timestamp, callback) {
         const sql = `SELECT * FROM ?? WHERE scan_timestamp=?`
-        this.conn.query(sql,[this.table_name, value_timestamp], async function (err, result) {
+        this.conn.query(sql,[this.table_name, value_timestamp], function (err, result) {
             if (!err) {
                 callback(null, result)
             }
@@ -77,7 +77,7 @@ class ScansDataCRUD {
 
     getAll(callback, page=0, size=20) {
         const sql = `SELECT * from ?? ORDER BY scan_timestamp ASC LIMIT ?,?`
-        this.conn.query(sql, [this.table_name, page*size, (page*size)+size], async function(err, results) {
+        this.conn.query(sql, [this.table_name, page*size, (page*size)+size], function(err, results) {
             if (!err) {
                 callback(null, results)
             }
@@ -88,13 +88,13 @@ class ScansDataCRUD {
     }
     
     deleteValue(value){
-        this.getValue(value.getTimestamp(), this.table_name, async function (err, res) {
+        this.getValue(value.getTimestamp(), this.table_name, function (err, res) {
             if (err) {
                 throw new Error('No such value ' + value.getName() + '\n' + err)
             }
         })
         const sql = `DELETE FROM ?? WHERE scan_timestamp=?`
-        this.conn.query(sql, [this.table_name, value.getTimestamp(), async (err) => {
+        this.conn.query(sql, [this.table_name, value.getTimestamp(), (err) => {
             if (err) {
                 console.log(err)
             }
@@ -103,7 +103,7 @@ class ScansDataCRUD {
 
     deleteAll() {
         const sql = `DELETE FROM ??`
-        this.conn.query(sql, [this.table_name], async (err) => {
+        this.conn.query(sql, [this.table_name], (err) => {
             if (err) {
                 console.log(err)
             }
@@ -112,7 +112,7 @@ class ScansDataCRUD {
 
     dropTable() {
         const sql = `DROP TABLE ??`
-        return this.conn.query(sql, [this.table_name], async (err) => {
+        return this.conn.query(sql, [this.table_name], (err) => {
             if (err) {
                 console.log(err)
             }
@@ -131,51 +131,47 @@ class ScansDataCRUD {
 
 module.exports = ScansDataCRUD
 
-// var configCRUD = new configurationCRUD('test');
-// var id1;
-// var id2;
-// var connection = new ScansDataCRUD('test');
-// connection.createTable();
-// configCRUD.getAll(function (err, data) {
-//     if (err) {
-//         console.log(err)
-//     }
-//     else {
-//         //Object.keys(data[0]).forEach(element => {
-//         //    console.log(element + ': ' + data[0][element])
-//         //})
-//         connection.insertValue(new configurationEntity('abc', Date.now()-5, data[0]['id']));
-//         connection.insertValue(new configurationEntity('def', Date.now(), data[1]['id']));
-//         //console.log("id1 is " + id1);
-//     }
-// })
-// connection.getAll(function(err, data) {
-//     if (err) {
-//         console.log(err)
-//     }
-//     else {
-//         console.log(data)
-//         console.log('length is ' + data.length)
-//     }
-// })
-// /*connection.getValue(value1, (err, data) => {
-//     if (err) {
-//         console.log(err)
-//     }
-//     else {
-//         Object.keys(data[0]).forEach(element => {
-//             console.log(element + ': ' + data[0][element])
-//         })
-//     }
-// })*/
-// //connection.deleteAll()
-// /*connection.getAll((err, res) => {
-//     if (err) {
-//         console.log(err)
-//     }
-//     else {
-//         console.log('new length is ' + res.length)
-//     }
-// })*/
-// //connection.dropTable()
-// //connection.closeConnection()
+var configCRUD = new configurationCRUD('test');
+var id1;
+var id2;
+var connection = new ScansDataCRUD('test');
+connection.createTable();
+configCRUD.getAll(function (err, data) {
+    if (err) {
+        console.log(err)
+    }
+    else {
+        connection.insertValue(new scanEntity('abc', Date.now()-5, data[0]['id'], 'aaa'));
+        connection.insertValue(new scanEntity('def', Date.now(), data[1]['id'], 'bbb'));
+    }
+})
+connection.getAll(function(err, data) {
+    if (err) {
+        console.log(err)
+    }
+    else {
+        console.log(data)
+        console.log('length is ' + data.length)
+    }
+})
+/*connection.getValue(value1, (err, data) => {
+    if (err) {
+        console.log(err)
+    }
+    else {
+        Object.keys(data[0]).forEach(element => {
+            console.log(element + ': ' + data[0][element])
+        })
+    }
+})*/
+//connection.deleteAll()
+/*connection.getAll((err, res) => {
+    if (err) {
+        console.log(err)
+    }
+    else {
+        console.log('new length is ' + res.length)
+    }
+})*/
+//connection.dropTable()
+//connection.closeConnection()
