@@ -41,7 +41,7 @@ class TestSQLIAlgorithm(unittest.TestCase):
         for cookie in cls.cj:
             cookie_value_string += cookie.name + "=" + cookie.value + "=" + cookie.domain + "=" + cookie.path + ";"
         cls.__session_entity = SessionEntity('Cookie', cookie_value_string[:-1])
-        cls.vulnUtils = VulnerabilityUtils(cls.__table_name)
+        #cls.vulnUtils = VulnerabilityUtils(cls.__table_name, 'SQLI')
         cls.__sqlAlgorithm = SQLIAlgorithm(db_type='test')#, vuln_table_name=cls.__table_name)
 
     @classmethod
@@ -50,7 +50,6 @@ class TestSQLIAlgorithm(unittest.TestCase):
         cls.__vulnsCRUD = None
         cls.__SQLICRUD = None
         cls.__vulnDescriptor = None
-        cls.vulnUtils = None
 
     def setUp(self):
         self.vuln1 = VulnerabilityDescriptionEntity(name='error_based', severity=1, description='abc', recommendations='aaa')
@@ -58,11 +57,13 @@ class TestSQLIAlgorithm(unittest.TestCase):
         self.sqli1 = SQLIPayloadEntity(payload="5;;5';;5''", type='error_based')
         self.sqli1ID = self.__SQLICRUD.createPayload(self.sqli1).getID()
         self.response1 = self.__SQLICRUD.createResponse(ResponseEntity("error"))
+        self.vulnUtils = VulnerabilityUtils(self.__table_name, 'SQLI')
 
     def tearDown(self):
         self.__SQLICRUD.deletePayloads()
         self.__SQLICRUD.deleteResponses()
         self.__vulnDescriptor.deleteAllDataFromTable()
+        self.vulnUtils = None
 
     def test_different_hash_detection(self):
         regular_response = unicode(self.__br.open("https://www.ynet.co.il").read(), 'utf-8')
@@ -71,10 +72,10 @@ class TestSQLIAlgorithm(unittest.TestCase):
         error_result = (error_response, self.vulnUtils.hash_page(error_response), 2)
         regular_imitating_result = (regular_response, self.vulnUtils.hash_page(regular_response), 2)
         self.assertTrue(
-            self.__sqlAlgorithm.validate_error_based(regular_result, error_result, regular_imitating_result))
+            self.__sqlAlgorithm.validate_error_based(regular_result, error_result, regular_imitating_result, self.vulnUtils))
 
     def test_get_error_based_responses(self):
-        responses = [response.getResponse() for response in self.__sqlAlgorithm.get_error_based_responses()]
+        responses = [response.getResponse() for response in self.vulnUtils.get_error_based_responses()]
         self.assertIn(self.response1.getResponse(), responses)
 
     def test_scan_sqli(self):

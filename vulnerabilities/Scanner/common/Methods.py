@@ -68,7 +68,9 @@ def ParseForms(inputname, inputnames, payload, inputnonames):
     for name in inputnames:
         if name == inputname:
             continue
-        inputnames[name] = "1"
+        #inputnames[name] = "1"
+        if not inputnames[name]:
+            inputnames[name] = "1"
     data = urllib.urlencode(inputnames)
     removefirstchar = len(data) == 0
     for inputnoname in inputnonames:

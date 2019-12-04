@@ -1,4 +1,4 @@
-from ConfigParser import ConfigParser
+import ConfigParser
 
 import VulnerabilityDescriptionCRUD
 from RXSSAlgorithm import MainWindow
@@ -13,14 +13,15 @@ class LogicService():
         config.read('..\common\config.properties')
         self.__vulnCrud = VulnerabilitiesCRUD
         self.__vulnDescriptor = VulnerabilityDescriptionCRUD
-        self.rxssDescriptor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'error_based'))
-        self.sqliErroBasedDescripor = self.__vulnDescriptor.getVulnByName(config.get('RXSS', 'rxss'))
+        #TODO: Zur I think the way we read configurations is not good. I t doesn't seem right
+        self.sqliErroBasedDescripor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'error_based'))
+        self.rxssDescriptor = self.__vulnDescriptor.getVulnByName(config.get('RXSS', 'rxss'))
 
     def configNewScan(self, tableName, scanType):  # Config new db u
         self.__vulnCrud.createTable(tableName)
         self.__tableName = tableName
         self.__scanType = scanType
-        self.vulnUtils = VulnerabilityUtils(tableName)
+        self.vulnUtils = VulnerabilityUtils(tableName, scanType)
         return
 
     def startScan(self, pageEntity=None,
