@@ -38,11 +38,12 @@ class TestRXSSAlgorithm(unittest.TestCase):
         cls.br.form['login'] = 'bee'
         cls.br.form['password'] = 'bug'
         cls.br.submit()
+        cls.scanType = 'rxss'
         cookie_value_string = ""
         for cookie in cls.cj:
             cookie_value_string += cookie.name + "=" + cookie.value + "=" + cookie.domain + "=" + cookie.path + ";"
         cls.session_entity = SessionEntity('Cookie', cookie_value_string[:-1])
-        cls.vulnUtils = VulnerabilityUtils(cls.__table_name)
+        cls.vulnUtils = VulnerabilityUtils(cls.__table_name,cls.scanType)
         cls.rxssAlgorithm = MainWindow(db_type='test', table_name=cls.__table_name)
 
     @classmethod

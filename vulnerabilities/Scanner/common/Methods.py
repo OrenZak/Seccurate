@@ -1,4 +1,5 @@
 import urllib
+import copy
 
 
 # this function gets forms list and the relevant url
@@ -64,14 +65,14 @@ def GetFormInputFields(url, form):
 # this function gets relevant data and return the body of the relevant request from the form
 # TODO we need to refactor this function
 def ParseForms(inputname, inputnames, payload, inputnonames):
-    inputnames[inputname] = payload
-    for name in inputnames:
+    deepCopyInputNames = copy.deepcopy(inputnames)
+    deepCopyInputNames[inputname] = payload
+    for name in deepCopyInputNames:
         if name == inputname:
             continue
-        #inputnames[name] = "1"
-        if not inputnames[name]:
-            inputnames[name] = "1"
-    data = urllib.urlencode(inputnames)
+        if not deepCopyInputNames[name]:
+            deepCopyInputNames[name] = "1"
+    data = urllib.urlencode(deepCopyInputNames)
     removefirstchar = len(data) == 0
     for inputnoname in inputnonames:
         data = data + "&" + inputnoname

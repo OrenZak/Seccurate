@@ -162,10 +162,10 @@ class MainWindow(QMainWindow):
         self.htmlResponse = htmlResponse
         self.RenderingHandler()
         if (payload.getExpectedResult() in self.htmlResponse) or payload.getPayload() in self.htmlResponse:
-            print "**Response Before Rendering** method: " + method + " Maybe XSS: payload " + payload.getPayload() + " return in the response, URL: " + self.urlform + " payload: " + data + "\n"
+            print "**Response Before Rendering** method: " + method + " Maybe XSS: payload " + payload.getPayload() + " return in the response, URL: " + self.url + " payload: " + data + "\n"
             if payload.getExpectedResult() in self.MainWindowJShandle.htmlResponse:
-                self.event = "**XSS Detected After Rendering** method: " + method + " payload " + payload.getPayload() + " URL : " + self.urlform + " payload: " + data + "\n"
-                self.addEvent(vuln_descriptor=self.descriptionKey, url=self.urlform,
+                self.event = "**XSS Detected After Rendering** method: " + method + " payload " + payload.getPayload() + " URL : " + self.url + " payload: " + data + "\n"
+                self.addEvent(vuln_descriptor=self.descriptionKey, url=self.url,
                               payload=payload.getPayload(),
                               requestB64=requestB64)
             else:  # False Positive
