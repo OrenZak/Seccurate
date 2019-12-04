@@ -1,20 +1,10 @@
 import sys
-from Methods import GetFormInputFields, ParseForms
+from Methods import ParseForms
 import SQLICrud
 from bs4 import BeautifulSoup
 from urllib import urlencode
-from urlparse import urlparse, urljoin
-import json
-import mechanize
-import hashlib
-import re
-import time
+from urlparse import urlparse
 import ConfigParser
-from VulnerabilitiesObjects import SimpleVulnerabilityEntity
-import VulnerabilitiesCRUD
-import base64
-from cookielib import Cookie
-import cookielib
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -23,7 +13,7 @@ sys.setdefaultencoding('utf8')
 class SQLIAlgorithm():
 
     def __init__(self, db_type):
-        self.sqliDBInstance = SQLICrud #TODO: remove this - not needed
+        self.sqliDBInstance = SQLICrud  # TODO: remove this - not needed
         self.get_configuration_properties()
 
     def get_configuration_properties(self):
@@ -54,7 +44,7 @@ class SQLIAlgorithm():
         self.error_based = self.config.get('SQLITypes', 'error_based')
 
     def start_scan(self, pageEntity, forms, links, vulnUtils):
-        #if forms or links:
+        # if forms or links:
         #    self.error_based_payloads = self.get_payloads_by_type(payload_type=self.error_based)
         #    self.error_based_responses = self.get_error_based_responses()
         for link in links:
@@ -93,8 +83,9 @@ class SQLIAlgorithm():
         i = 0
         while i < self.injection_types_count and non_vulnerable_inputnames != {}:
             non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=self.injection_types[i],
-                non_vulnerable_inputnames=non_vulnerable_inputnames, page_entity=page_entity,
-                form_attributes=form_attributes, vulnUtils=vulnUtils)
+                                                                  non_vulnerable_inputnames=non_vulnerable_inputnames,
+                                                                  page_entity=page_entity,
+                                                                  form_attributes=form_attributes, vulnUtils=vulnUtils)
             i += 1
 
     def inject_to_links(self, link, page_entity, vulnUtils):
@@ -103,8 +94,9 @@ class SQLIAlgorithm():
         i = 0
         while i < self.injection_types_count and non_vulnerable_inputnames != {}:
             non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=self.injection_types[i],
-                non_vulnerable_inputnames=non_vulnerable_inputnames, page_entity=page_entity,
-                link_attributes=all_inputnames, vulnUtils=vulnUtils)
+                                                                  non_vulnerable_inputnames=non_vulnerable_inputnames,
+                                                                  page_entity=page_entity,
+                                                                  link_attributes=all_inputnames, vulnUtils=vulnUtils)
             i += 1
 
     def inject_to_inputnames(self, injection_type, non_vulnerable_inputnames, page_entity, form_attributes=None,
@@ -142,18 +134,19 @@ class SQLIAlgorithm():
 
                 regular_result = vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
                 if not self.verify_regular_hash(regular_result[self.response_index], page_entity.getPageHash()):
-                    #TODO: ZUR - here an event should be sent to logic service so that new authentication method will
-                    #be genterated
+                    # TODO: ZUR - here an event should be sent to logic service so that new authentication method will
+                    # be genterated
                     pass
                 error_result = vulnUtils.get_url_open_results(method, data[self.error_result_index], url)
-                regular_imitating_result = vulnUtils.get_url_open_results(method, data[self.regular_imitating_result_index],
-                                                                     url)
+                regular_imitating_result = vulnUtils.get_url_open_results(method,
+                                                                          data[self.regular_imitating_result_index],
+                                                                          url)
 
                 if self.validate_error_based(regular_result, error_result, regular_imitating_result, vulnUtils):
                     self.event = "SQLI Detected in :" + inputname
                     print(self.event)
                     vulnUtils.add_event(name=payload.getType(), url=url, payload=payload.getPayload(),
-                                   requestB64=error_result[self.requestb64_index])
+                                        requestB64=error_result[self.requestb64_index])
                     vulnerable = True
                     break
                 else:

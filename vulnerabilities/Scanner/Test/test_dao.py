@@ -150,15 +150,15 @@ class TestRXSSCRUD(unittest.TestCase):
         self.__vulnDescriptor.deleteAllDataFromTable()
 
     def test_create_payload(self):
-        self.assertEqual(self.rxss1.getExpectedResult(), self.__RXSSCRUD.getRXSSPayloads(1, 0)[0].getExpectedResult())
-        self.assertEqual(self.rxss2.getExpectedResult(), self.__RXSSCRUD.getRXSSPayloads(1, 1)[0].getExpectedResult())
+        self.assertEqual(self.rxss1.getExpectedResult(), self.__RXSSCRUD.__getRXSSPayloads(1, 0)[0].getExpectedResult())
+        self.assertEqual(self.rxss2.getExpectedResult(), self.__RXSSCRUD.__getRXSSPayloads(1, 1)[0].getExpectedResult())
 
     def test_wrong_create_payload(self):
-        self.assertNotEqual('abdTest', self.__RXSSCRUD.getRXSSPayloads(1, 0)[0].getPayload())
+        self.assertNotEqual('abdTest', self.__RXSSCRUD.__getRXSSPayloads(1, 0)[0].getPayload())
 
 
     def test_get_payloads_pagination(self):
-        self.assertEqual(len(self.__RXSSCRUD.getRXSSPayloads(2, 0)), 2)
+        self.assertEqual(len(self.__RXSSCRUD.__getRXSSPayloads(2, 0)), 2)
 
     def test_read_by_id(self):
         self.assertEqual(self.rxss1.getPayload(), self.__RXSSCRUD.getPayloadByID(self.rxss1ID).getPayload())
@@ -169,7 +169,7 @@ class TestRXSSCRUD(unittest.TestCase):
             self.__RXSSCRUD.getPayloadByID(self.rxss2ID + self.rxss1ID)
 
     def test_create_correct_number_of_payloads(self):
-        self.assertEqual(2, len(self.__RXSSCRUD.getRXSSPayloads()))
+        self.assertEqual(2, len(self.__RXSSCRUD.__getRXSSPayloads()))
 
     def test_update(self):
         self.__RXSSCRUD.updatePayload(RXSSPayloadEntity(self.rxss2ID, 'testUpdate'))
@@ -181,11 +181,11 @@ class TestRXSSCRUD(unittest.TestCase):
 
     def test_delete_by_id(self):
         self.__RXSSCRUD.deletePayloadByID(self.rxss1ID)
-        self.assertEqual(1, len(self.__RXSSCRUD.getRXSSPayloads()))
+        self.assertEqual(1, len(self.__RXSSCRUD.__getRXSSPayloads()))
 
     def test_delete_all_data_from_table(self):
         self.__RXSSCRUD.deleteAllDataFromTable()
-        self.assertEqual(0, len(self.__RXSSCRUD.getRXSSPayloads()))
+        self.assertEqual(0, len(self.__RXSSCRUD.__getRXSSPayloads()))
 
     def doCleanups(self):
         pass

@@ -1,7 +1,6 @@
 import ConfigParser
 import sys
 
-import RXSSCrud
 import VulnerabilitiesCRUD
 from VulnerabilitiesObjects import SimpleVulnerabilityEntity
 from Methods import ParseForms
@@ -63,7 +62,6 @@ class MainWindow(QMainWindow):
         self.networkAccessManager = QNetworkAccessManager()
         self.cookieJar = QNetworkCookieJar()
         self.__VulnCrud = VulnerabilitiesCRUD
-        self.__RXSSCrud = RXSSCrud
         self.__tableName = table_name
         self.get_configuration_properties()
 
@@ -84,26 +82,6 @@ class MainWindow(QMainWindow):
 
         # get rxss description key
         self.descriptionKey = self.config.get('RXSS', 'rxss')
-
-    def setcookies(self, domain):
-        self.networkAccessManager = QNetworkAccessManager()
-        self.cookieJar = QNetworkCookieJar()
-        self.networkAccessManager.setCookieJar(self.cookieJar)
-        cookieList = []
-        list = []
-        print " dir is" + os.getcwd()
-        for cookie in self.__sessionEntity.getValue().split(";"):
-            cookie_name = cookie.split("=")[0]  # Cookie name
-            cookie_value = cookie[len(cookie.split("=")[0]) + 1:]  # Cookie value
-            Qcookie = QNetworkCookie()
-            Qcookie.setName(cookie_name)
-            Qcookie.setValue(cookie_value)
-            Qcookie.setDomain(domain)
-            cookieList.append(Qcookie)
-            # print cookie.value()
-            list.append(cookie_name + ":" + cookie_value)
-        # print "[*] Cookies from file: " +str(list)
-        self.cookieJar.setAllCookies(cookieList)
 
     def ScanPage(self, pageEntity=None, forms=None, links=None, vulnUtils=None):
         self.forms = forms
@@ -127,11 +105,9 @@ class MainWindow(QMainWindow):
         self.ScanLinks()
         self.ScanForms()
         self.app.closeAllWindows()
-        self.app.quit()
 
     def LoadConfigurations(self):
-        ALLPAYLOADS = 1000
-        self.xsspayload = self.__RXSSCrud.getRXSSPayloads(page=0, size=ALLPAYLOADS)
+        self.xsspayload = self.vulnUtils.getRXSSPayloads()
 
     def ScanForms(self):
         for form in self.forms:

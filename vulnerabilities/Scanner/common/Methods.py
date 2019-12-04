@@ -63,7 +63,6 @@ def GetFormInputFields(url, form):
 
 
 # this function gets relevant data and return the body of the relevant request from the form
-# TODO we need to refactor this function
 def ParseForms(inputname, inputnames, payload, inputnonames):
     deepCopyInputNames = copy.deepcopy(inputnames)
     deepCopyInputNames[inputname] = payload

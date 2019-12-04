@@ -38,16 +38,22 @@ class TestRXSSAlgorithm(unittest.TestCase):
         cls.br.form['login'] = 'bee'
         cls.br.form['password'] = 'bug'
         cls.br.submit()
-        cls.scanType = 'rxss'
+        cls.scanType = 'RXSS'
         cookie_value_string = ""
         for cookie in cls.cj:
             cookie_value_string += cookie.name + "=" + cookie.value + "=" + cookie.domain + "=" + cookie.path + ";"
         cls.session_entity = SessionEntity('Cookie', cookie_value_string[:-1])
+        cls.rxss1 = RXSSPayloadEntity(payload="<script>console.log(123)</script>",
+                                      expectedResult="<script>console.log(123)</script>")
+        cls.rxss1ID = cls.RXSSCrud.createPayload(cls.rxss1).getID()
         cls.vulnUtils = VulnerabilityUtils(cls.__table_name,cls.scanType)
         cls.rxssAlgorithm = MainWindow(db_type='test', table_name=cls.__table_name)
 
+
     @classmethod
     def tearDownClass(cls):
+        cls.RXSSCrud.deleteAllDataFromTable
+        cls.vulnDescriptor.deleteAllDataFromTable()
         cls.__vulnsCRUD.dropTable(cls.__table_name)
         cls.__vulnsCRUD = None
         cls.RXSSCrud = None
@@ -55,16 +61,11 @@ class TestRXSSAlgorithm(unittest.TestCase):
         cls.vulnUtils = None
 
     def setUp(self):
-        self.vuln1 = VulnerabilityDescriptionEntity(name="rxss", severity=2, description='defTest',
-                                                    recommendations='bbb')
-        self.vulnDescriptor.createVulnerabilityDescription(self.vuln1)
-        self.rxss1 = RXSSPayloadEntity(payload="<script>console.log(123)</script>",
-                                       expectedResult="<script>console.log(123)</script>")
-        self.rxss1ID = self.RXSSCrud.createPayload(self.rxss1).getID()
+        None
+
 
     def tearDown(self):
-        self.RXSSCrud.deleteAllDataFromTable
-        self.vulnDescriptor.deleteAllDataFromTable()
+        None
 
     def test_scan_rxss(self):
         url = "http://localhost/bwapp/htmli_post.php"
