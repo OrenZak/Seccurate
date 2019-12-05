@@ -1,10 +1,11 @@
 class ScanConfigBoundary {
-    constructor(config, scanType, url, loginInfo, name, save) {
+    constructor(config, scanType, url, loginInfo, name, save, description) {
         this.config = config;
         this.scanType = scanType;
         this.url = url;
         this.loginInfo = loginInfo;
         this.name = name;
+        this.description = description
         this.save = save;
     }
 
@@ -41,6 +42,14 @@ class ScanConfigBoundary {
         this.name = name
     }
 
+    get Description() {
+        return this.description
+    }
+
+    set Description(description) {
+        this.description = description
+    }
+
     get Save() {
         return this.save
     }
@@ -50,11 +59,11 @@ class ScanConfigBoundary {
     }
 
     serialize() {
-        return JSON.stringify(this);
+        return this;
     }
 
     static deserialize(scanConfigBoundary) {
-        return new ScanConfigBoundary(scanConfigBoundary.config, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save);
+        return new ScanConfigBoundary(scanConfigBoundary.config, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save, scanConfigBoundary.description);
     }
 }
 

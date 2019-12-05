@@ -2,6 +2,7 @@ const ScanConfigBoundary = require('../layout/boundaries/scanConfigBoundary');
 
 let assert = require('assert');
 let name = "haha";
+let description = "description";
 let save = true;
 let config = {interval: 1000, maxConcurrency: 3, maxDepth: 5, timeout: 10000};
 let loginInfo = {form: {login: "bee", password: "bug", security: "0", form: "submit"}, formAction: "login.php"};
@@ -12,7 +13,8 @@ let jsonScanConfig = {
     url: url,
     loginInfo: loginInfo,
     name: name,
-    save: save
+    save: save,
+    description: description
 };
 
 let boundary = new ScanConfigBoundary(config, 2, url, loginInfo, name, save);
@@ -34,23 +36,25 @@ describe('Test deserialize', function () {
         assert.equal(scanBoundary.loginInfo.form.form, loginInfo.form.form);
         assert.equal(scanBoundary.name, name);
         assert.equal(scanBoundary.save, save);
+        assert.equal(scanBoundary.description, description);
     });
 });
 
 describe('Test serialize', function () {
     it('Should serialzie to {interval: 1000, maxConcurrency: 3, maxDepth: 5, timeout: 10000, scanType: 2, url: url, loginInfo: loginInfo, name: name, save: save}', function () {
         var serialize = boundary.serialize();
-        assert.equal(boundary.config.interval, JSON.parse(serialize).config.interval);
-        assert.equal(boundary.config.maxConcurrency, JSON.parse(serialize).config.maxConcurrency);
-        assert.equal(boundary.config.maxDepth, JSON.parse(serialize).config.maxDepth);
-        assert.equal(boundary.config.timeout, JSON.parse(serialize).config.timeout);
-        assert.equal(boundary.scanType, JSON.parse(serialize).scanType);
-        assert.equal(boundary.loginInfo.formAction, JSON.parse(serialize).loginInfo.formAction);
-        assert.equal(boundary.loginInfo.form.login, JSON.parse(serialize).loginInfo.form.login);
-        assert.equal(boundary.loginInfo.form.password, JSON.parse(serialize).loginInfo.form.password);
-        assert.equal(boundary.loginInfo.form.security, JSON.parse(serialize).loginInfo.form.security);
-        assert.equal(boundary.loginInfo.form.form, JSON.parse(serialize).loginInfo.form.form);
-        assert.equal(boundary.name, JSON.parse(serialize).name);
-        assert.equal(boundary.save, JSON.parse(serialize).save);
+        assert.equal(boundary.config.interval, serialize.config.interval);
+        assert.equal(boundary.config.maxConcurrency, serialize.config.maxConcurrency);
+        assert.equal(boundary.config.maxDepth, serialize.config.maxDepth);
+        assert.equal(boundary.config.timeout, serialize.config.timeout);
+        assert.equal(boundary.scanType, serialize.scanType);
+        assert.equal(boundary.loginInfo.formAction, serialize.loginInfo.formAction);
+        assert.equal(boundary.loginInfo.form.login, serialize.loginInfo.form.login);
+        assert.equal(boundary.loginInfo.form.password, serialize.loginInfo.form.password);
+        assert.equal(boundary.loginInfo.form.security, serialize.loginInfo.form.security);
+        assert.equal(boundary.loginInfo.form.form, serialize.loginInfo.form.form);
+        assert.equal(boundary.name, serialize.name);
+        assert.equal(boundary.save, serialize.save);
+        assert.equal(boundary.description, serialize.description);
     });
 });
