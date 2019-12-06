@@ -4,9 +4,7 @@ const Crawler = require("simplecrawler"),
   events = require("events"),
   urlLib = require("url"),
   cheerio = require("cheerio"),
-  request = require("request"),
-  AppDAO = require("./db/dao");
-CrawlerRepository = require("./db/crawler_repository");
+  request = require("request");
 
 let crawler_config = config.crawler;
 
@@ -14,9 +12,6 @@ const EVENTS = {
   PAGE_FETCHED: "page_fetched",
   CRAWLER_DONE: "crawler_done"
 };
-
-const dao = new AppDAO("./crawler.database");
-const crawlerRepo = new CrawlerRepository(dao);
 
 async function createTableByURL(mainUrl) {
   await crawlerRepo.createTable(mainUrl);
