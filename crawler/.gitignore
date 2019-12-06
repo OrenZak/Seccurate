@@ -2,7 +2,7 @@
 .idea/
 venv/
 install/
-
+package-lock.json
 # Logs
 logs
 *.log
