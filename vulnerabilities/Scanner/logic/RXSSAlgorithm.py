@@ -75,6 +75,8 @@ class MainWindow(QMainWindow):
         self.cookie = self.config.get('Authentication', 'Cookie')
         self.baseAuth = self.config.get('Authentication', 'BasicAuthentication')
 
+        self.env_type = self.config.get('CurrentEnvironment', 'type')
+
         # form_attributes_indices
         self.method_index = int(self.config.get('FormAttributes', 'method'))
         self.inputnames_index = int(self.config.get('FormAttributes', 'inputnames'))
@@ -205,5 +207,5 @@ class MainWindow(QMainWindow):
         simpleVulnerability = SimpleVulnerabilityEntity(name=vuln_descriptor, url=url,
                                                         payload=payload,
                                                         requestB64=requestB64)
-        createdVuln = self.__VulnCrud.createVulnerability(simpleVulnerability, self.__tableName)
+        createdVuln = self.__VulnCrud.createVulnerability(simpleVulnerability, self.__tableName, self.env_type)
         print(self.event)
