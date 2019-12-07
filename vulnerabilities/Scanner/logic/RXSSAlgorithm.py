@@ -101,6 +101,7 @@ class MainWindow(QMainWindow):
         self.show()
         self.app.exec_()
         self.app.quit()
+        self.app.exit(0)
 
     def __onUrlLoaded(self):
         print("RXSS url loaded")
