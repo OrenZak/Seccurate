@@ -1,18 +1,20 @@
-import {VULNERABILITY_MICROSERVICE_REST} from "../common/globals";
+//import {VULNERABILITY_MICROSERVICE_REST} from "../common/globals";
+
+let VULNERABILITY_MICROSERVICE_REST =  require( "../common/globals").VULNERABILITY_MICROSERVICE_REST;
 
 const https = require('https');
 const request = require('request');
 const globals = require('../common/globals');
-var socketManager = require('./socketManager');
-var CrawlerConfigScanBoundary = require('./boundaries/crawlerConfigScanBoundary');
-var VulnerabilityConfigScanBoundary = require('./boundaries/vulnerabilityConfigBoundary');
-var VulnerabilityGetResultsRequestBoundary = require('./boundaries/vulnerabilityGetResultsRequestBoundary');
-var ConfigurationHistoryDao = require('../dao/scanConfigurationCRUD');
-var SavedConfigurarionDao = require('../dao/savedScanConfigurationCRUD')
-var ScansDao = require('../dao/scansCRUD');
-var ConfigEntity = require('../data/ConfigurationEntity');
-var SavedConfigEntity = require('../data/SavedConfigurationEntity')
-var ScanEntity = require('../data/scanEntity');
+let socketManager = require('./socketManager');
+let CrawlerConfigScanBoundary = require('./boundaries/crawlerConfigScanBoundary');
+let VulnerabilityConfigScanBoundary = require('./boundaries/vulnerabilityConfigBoundary');
+let VulnerabilityGetResultsRequestBoundary = require('./boundaries/vulnerabilityGetResultsRequestBoundary');
+let ConfigurationHistoryDao = require('../dao/scanConfigurationCRUD');
+let SavedConfigurarionDao = require('../dao/savedScanConfigurationCRUD')
+let ScansDao = require('../dao/scansCRUD');
+let ConfigEntity = require('../data/ConfigurationEntity');
+let SavedConfigEntity = require('../data/SavedConfigurationEntity')
+let ScanEntity = require('../data/scanEntity');
 
 class LogicService {
     constructor(server) {

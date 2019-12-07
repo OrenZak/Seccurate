@@ -37,13 +37,15 @@ function startCrawl(mainUrl, loginInfo) {
   crawler.scanSubdomains = false;
   crawler.acceptCookies = true;
 
+
+  console.log(`start crawl -> url:${mainUrl} and  loginInfo: ${loginInfo}`);
   crawler.on("fetchcomplete", function(queueItem, responseBuffer, response) {
     console.log(`New page: ${queueItem.url}`);
     const hash = createHash(queueItem)
     const urlCookies = getCookies(crawler, queueItem.url);
     doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
       url: queueItem.url,
-      cookies: urlCookies, 
+      value: urlCookies,
       type: urlCookies.length > 0 ? 'Cookie' : 'Basic',
       pageHash: hash,
     });
@@ -64,8 +66,6 @@ function startCrawl(mainUrl, loginInfo) {
     });
     callback(null, mimeTypeSupported);
   });
-
-  crawler.on;
 
   if (loginInfo) {
     startAfterLogin(crawler, loginInfo, mainUrl);

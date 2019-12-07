@@ -17,7 +17,7 @@ class ScansDataCRUD {
             host: 'localhost',
             port: 3306,
             user: 'root',
-            password: '18031997',
+            //password: '18031997',
             database: globals.API_GW_DB_NAME.split(':')[index]
         })
         this.conn.connect(function(err) {
@@ -131,29 +131,29 @@ class ScansDataCRUD {
 
 module.exports = ScansDataCRUD
 
-var configCRUD = new configurationCRUD('test');
-var id1;
-var id2;
-var connection = new ScansDataCRUD('test');
-connection.createTable();
-configCRUD.getAll(function (err, data) {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        connection.insertValue(new scanEntity('abc', Date.now()-5, data[0]['id'], 'aaa'));
-        connection.insertValue(new scanEntity('def', Date.now(), data[1]['id'], 'bbb'));
-    }
-})
-connection.getAll(function(err, data) {
-    if (err) {
-        console.log(err)
-    }
-    else {
-        console.log(data)
-        console.log('length is ' + data.length)
-    }
-})
+// var configCRUD = new configurationCRUD('test');
+// var id1;
+// var id2;
+// var connection = new ScansDataCRUD('test');
+// connection.createTable();
+// configCRUD.getAll(function (err, data) {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         connection.insertValue(new scanEntity('abc', Date.now()-5, data[0]['id'], 'aaa'));
+//         connection.insertValue(new scanEntity('def', Date.now(), data[1]['id'], 'bbb'));
+//     }
+// })
+// connection.getAll(function(err, data) {
+//     if (err) {
+//         console.log(err)
+//     }
+//     else {
+//         console.log(data)
+//         console.log('length is ' + data.length)
+//     }
+// })
 /*connection.getValue(value1, (err, data) => {
     if (err) {
         console.log(err)

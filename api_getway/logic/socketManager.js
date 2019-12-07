@@ -10,7 +10,7 @@ const ACTIONS = {
     PAGE_FETCHED: "page_fetched",
     CRAWLER_DONE: "crawler_done",
     SCAN_RESULTS: "scan_page",
-    SCAN_PAGE_DONE: "scan_page_finished"
+    SCAN_PAGE_DONE: "scan_page_done"
 
 
 };
@@ -32,6 +32,8 @@ let isVulnerabilityScanning = false;
 function startCrawl(crawlBoundary) {
     io.emit(EVENTS.START_CRAWL, crawlBoundary.serialize());
     isCrawlerScanning = true;
+    pageQueue = [];
+    isVulnerabilityScanning = false;
 }
 
 function configDatabase(vulnerabilityConfigBoundary) {
@@ -59,7 +61,7 @@ function start(server) {
             console.log("socket disconnected");
         });
         socket.on(ACTIONS.PAGE_FETCHED, async function (pageBoundary) {
-            console.log("received page");
+            console.log("received page", pageBoundary);
             //TODO should we save the page in a db
             let crawlerPageboundary = CrawlerPageBoundary.deserialize(pageBoundary);
             //page = new pageEntity(crawlerPageboundary.URL, crawlerPageboundary.PageHash, crawlerPageboundary.SessionType, crawlerPageboundary.SessionValue, ???)
@@ -69,6 +71,7 @@ function start(server) {
             let vulnerabilityPageBoundary = new VulnerabilityPageBoundary(crawlerPageboundary.url, crawlerPageboundary.pageHash, crawlerPageboundary.type, crawlerPageboundary.value);
             if (pageQueue.length == 0 && !isVulnerabilityScanning) {
                 scanPage(vulnerabilityPageBoundary);
+                isVulnerabilityScanning = true
             } else {
                 pageQueue.push(vulnerabilityPageBoundary);
             }
