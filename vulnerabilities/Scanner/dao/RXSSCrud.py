@@ -8,20 +8,20 @@ config = ConfigParser.RawConfigParser()
 config.read(
     '..\common\config.properties')
 
-def createTable():
-    with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
+def createTable(env):
+    with sqlite3.connect(config.get('VulnServiceDB', env)) as db:
         cursor = db.cursor()
         cursor.execute('CREATE TABLE IF NOT EXISTS RXSS_Payloads(id TEXT PRIMARY KEY,\
          payload TEXT unique not null, expected_result TEXT not null)')
         db.commit()
 
-def createPayload(payload):
+def createPayload(payload, env):
     """
     :param payload: payload without id to be inserted to DB
     :return: payload with id after being inserted to DB
     """
     id = str(datetime.now()).replace('-', '').replace(' ', '').replace(':', '').replace('.', '')
-    with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
+    with sqlite3.connect(config.get('VulnServiceDB', env)) as db:
         cursor = db.cursor()
         cursor.execute("""insert into RXSS_Payloads values(?,?,?)""", (id, payload.getPayload(),
                                                                        payload.getExpectedResult()))
@@ -29,13 +29,13 @@ def createPayload(payload):
     payload.setID(id)
     return payload
 
-def getRXSSPayloads(size=10, page=0):
+def getRXSSPayloads(env, size=10, page=0):
     """
     :param size: page size, default 10
     :param page: page number, default 0
     :return:  a list of RXSSPayloadEntities items from RXSS_Payloads DB from page #page of size size
     """
-    with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
+    with sqlite3.connect(config.get('VulnServiceDB', env)) as db:
         cursor = db.cursor()
         cursor.execute(
             """SELECT * from RXSS_Payloads ORDER BY id ASC LIMIT %d OFFSET %d""" % (size, page * size))
@@ -45,12 +45,12 @@ def getRXSSPayloads(size=10, page=0):
             payload_list.append(rxss_payload)
     return payload_list
 
-def getPayloadByID(id):
+def getPayloadByID(id, env):
     """
     :param id: payload id
     :return: if id exists - returns RXSSPayloadEntity that is described by that id in the DB
     """
-    with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
+    with sqlite3.connect(config.get('VulnServiceDB', env)) as db:
         cursor = db.cursor()
         cursor.execute("""SELECT * from RXSS_Payloads where id = '%s'""" % id)
         item = cursor.fetchone()
@@ -58,65 +58,36 @@ def getPayloadByID(id):
             raise Exception("No such payload with id %s" % id)
     return RXSSPayloadEntity(item[0], item[1], item[2])
 
-def updatePayload(payload):
+def updatePayload(payload, env):
     """
     :param payload: new payload with existing id
     :return: the new payload successfully updated in RXSSPayloadEntity format
     """
-    if (getPayloadByID(payload.getID()) is None):
+    if (getPayloadByID(payload.getID(), env) is None):
         raise Exception("no such payload")
-    with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
+    with sqlite3.connect(config.get('VulnServiceDB', env)) as db:
         cursor = db.cursor()
         cursor.execute("""update RXSS_Payloads set payload='%s', expected_result='%s' where id='%s'""" % (
         payload.getPayload(), payload.getExpectedResult(), payload.getID()))
         db.commit()
     return payload
 
-def deletePayloadByID(id):
-    if getPayloadByID(id) is None:
+def deletePayloadByID(id, env):
+    if getPayloadByID(id, env) is None:
         raise Exception("no such vulnerability")
-    with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
+    with sqlite3.connect(config.get('VulnServiceDB', env)) as db:
         cursor = db.cursor()
         cursor.execute("""delete from RXSS_Payloads where id='%s'""" % id)
         db.commit()
 
-def deleteAllDataFromTable():
-    with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
+def deleteAllDataFromTable(env):
+    with sqlite3.connect(config.get('VulnServiceDB', env)) as db:
         cursor = db.cursor()
         cursor.execute("""delete from RXSS_Payloads""")
         db.commit()
 
-def dropTable():
-    with sqlite3.connect(config.get('VulnServiceDB', "test")) as db:
+def dropTable(env):
+    with sqlite3.connect(config.get('VulnServiceDB', env)) as db:
         cursor = db.cursor()
         cursor.execute("""DROP TABLE RXSS_Payloads""")
         db.commit()
-
-"""s = RXSSCrud.getInstance()
-ent1 = RXSSPayloadEntity(payload='abc', vuln_descriptor=1)
-ent2 = RXSSPayloadEntity(payload='def', vuln_descriptor=2)
-s.createPayload(ent1)
-s.createPayload(ent2)
-l= s.getRXSSPayloads(1,0)
-if (l != []):
-    print(l[0].getPayload())
-l= s.getRXSSPayloads(1,1)
-if (l != []):
-    print(l[0].getPayload())
-s.updatePayload(RXSSPayloadEntity(2,'ghi',2))
-l= s.getRXSSPayloads(1,1)
-if (l != []):
-    print(l[0].getPayload())
-l = s.getRXSSPayloads(1, 2)
-if (l != []):
-    print(l[0].getPayload())
-else:
-    print("empty")
-print(s.getPayloadByID(2).getPayload())
-s.deleteAllDataFromTable()
-l= s.getRXSSPayloads(1,0)
-if (l != []):
-    print(l[0].getPayload())
-else:
-    print ("empty")
-s.closeConnection()"""

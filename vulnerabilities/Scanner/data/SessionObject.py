@@ -16,11 +16,11 @@ class SessionEntity:
     def setValue(self, value):
         self.__value = value
 
-    def getValuesList(self):
-        values = []
-        for value in self.__value.split(';'):
-            values.append(value)
-        return values
+    # def getValuesList(self):
+    #     values = []
+    #     for value in self.__value.split(';'):
+    #         values.append(value)
+    #     return values
 
     def __eq__(self, other):
         if isinstance(other, SessionEntity):
