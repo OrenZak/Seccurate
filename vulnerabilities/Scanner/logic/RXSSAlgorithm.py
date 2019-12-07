@@ -53,7 +53,7 @@ class JShandle(QMainWindow):
 class MainWindow(QMainWindow):
     def __init__(self, table_name=None, db_type=None, *args,
                  **kwargs):
-        self.app = QApplication()#sys.argv)
+        self.app = QApplication(sys.argv)
         self.app.setApplicationName(QString("Chrome"))
         self.app.setApplicationVersion(QString("53.0.2785.113"))
         super(MainWindow, self).__init__(*args, **kwargs)
