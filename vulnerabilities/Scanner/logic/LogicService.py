@@ -19,7 +19,6 @@ class LogicService():
         self.env_type = config.get('CurrentEnvironment', 'type')
         self.__vulnCrud = VulnerabilitiesCRUD
         self.__vulnDescriptor = VulnerabilityDescriptionCRUD
-        self.rxssalgo = None
         ################################################
         # VulnerabilityDescriptionCRUD.createVulnerabilityDescription(VulnerabilityDescriptionEntity(name='error-based', severity=1, description='abcTest',
         #                                                    recommendations='aaa'), self.env_type)
@@ -62,9 +61,8 @@ class LogicService():
         return
 
     def __scanForRXSS(self, pageEntity=None, forms=None, links=None):  # sessionEntity=None):
-        if(self.rxssalgo == None):
-            self.rxssalgo = MainWindow(db_type='test', table_name=self.__tableName)
-        self.rxssalgo.ScanPage(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
+        rxssalgo = MainWindow(db_type='test', table_name=self.__tableName)
+        rxssalgo.ScanPage(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
         return
 
     # TODO: what about type of db - prod or test? how do we get this value and pass it?
