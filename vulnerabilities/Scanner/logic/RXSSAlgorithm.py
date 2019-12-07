@@ -107,9 +107,13 @@ class MainWindow(QMainWindow):
         self.LoadConfigurations()
         self.ScanLinks()
         self.ScanForms()
-        self.app.closeAllWindows()
-        self.app.quit()
         self.browser.close()
+        #self.app.closeAllWindows()
+        self.app.quit()
+
+
+    def destroyed(self):
+        print "h1"
 
     def LoadConfigurations(self):
         self.xsspayload = self.vulnUtils.getRXSSPayloads()
