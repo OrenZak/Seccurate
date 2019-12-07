@@ -102,6 +102,7 @@ class MainWindow(QMainWindow):
         self.app.exec_()
 
     def __onUrlLoaded(self):
+        print("RXSS url loaded")
         self.browser.loadFinished.disconnect(self.__onUrlLoaded)
         self.LoadConfigurations()
         self.ScanLinks()
@@ -112,6 +113,7 @@ class MainWindow(QMainWindow):
         self.xsspayload = self.vulnUtils.getRXSSPayloads()
 
     def ScanForms(self):
+        print("scanning forms")
         for form in self.forms:
             (method, inputnames, inputnonames) = self.forms[form][self.method_index], self.forms[form][
                 self.inputnames_index], self.forms[form][
@@ -182,6 +184,7 @@ class MainWindow(QMainWindow):
             return inputnames
 
     def ScanLinks(self):
+        print("scanning links")
         for link in self.links:
             inputnames = self.GetLinkInputFields(link)
             if (inputnames != None):
