@@ -100,6 +100,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.browser)
         self.show()
         self.app.exec_()
+        self.app.quit()
 
     def __onUrlLoaded(self):
         print("RXSS url loaded")
