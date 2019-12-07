@@ -21,13 +21,14 @@ class TestRXSSAlgorithm(unittest.TestCase):
         cls.__table_name = "test_vulns" + str(datetime.now()).replace('-', '').replace(' ', '').replace(':',
                                                                                                         '').replace('.',
                                                                                                                     '')
-        cls.__vulnsCRUD.createTable(cls.__table_name)
+        cls.test = "test"
+        cls.__vulnsCRUD.createTable(cls.__table_name,cls.test)
         cls.RXSSCrud = RXSSCrud
-        cls.RXSSCrud.dropTable()
-        cls.RXSSCrud.createTable()
+        cls.RXSSCrud.dropTable(cls.test)
+        cls.RXSSCrud.createTable(cls.test)
         cls.vulnDescriptor = VulnerabilityDescriptionCRUD
-        cls.vulnDescriptor.dropTable()
-        cls.vulnDescriptor.createTable()
+        cls.vulnDescriptor.dropTable(cls.test)
+        cls.vulnDescriptor.createTable(cls.test)
         cls.br = mechanize.Browser()
         cls.br.addheaders = [('User-agent',
                               'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34')]
@@ -39,13 +40,14 @@ class TestRXSSAlgorithm(unittest.TestCase):
         cls.br.form['password'] = 'bug'
         cls.br.submit()
         cls.scanType = 'RXSS'
-        cookie_value_string = ""
+        cookie_value_string = []
         for cookie in cls.cj:
-            cookie_value_string += cookie.name + "=" + cookie.value + "=" + cookie.domain + "=" + cookie.path + ";"
-        cls.session_entity = SessionEntity('Cookie', cookie_value_string[:-1])
+            cookie_dict = {"name": cookie.name, "value": cookie.value, "domain": cookie.domain, "path": cookie.path}
+            cookie_value_string.append(cookie_dict)
+        cls.session_entity = SessionEntity('Cookie', cookie_value_string)
         cls.rxss1 = RXSSPayloadEntity(payload="<script>console.log(123)</script>",
                                       expectedResult="<script>console.log(123)</script>")
-        cls.rxss1ID = cls.RXSSCrud.createPayload(cls.rxss1).getID()
+        cls.rxss1ID = cls.RXSSCrud.createPayload(cls.rxss1,cls.test).getID()
         cls.vulnUtils = VulnerabilityUtils(cls.__table_name,cls.scanType)
         cls.rxssAlgorithm = MainWindow(db_type='test', table_name=cls.__table_name)
 
@@ -53,8 +55,8 @@ class TestRXSSAlgorithm(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.RXSSCrud.deleteAllDataFromTable
-        cls.vulnDescriptor.deleteAllDataFromTable()
-        cls.__vulnsCRUD.dropTable(cls.__table_name)
+        cls.vulnDescriptor.deleteAllDataFromTable(cls.test)
+        cls.__vulnsCRUD.dropTable(cls.__table_name,cls.test)
         cls.__vulnsCRUD = None
         cls.RXSSCrud = None
         cls.vulnDescriptor = None
@@ -74,7 +76,7 @@ class TestRXSSAlgorithm(unittest.TestCase):
         self.rxssAlgorithm.ScanPage(PageEntity(url=url, pageHash=hash), forms=forms, links=links,
                                     vulnUtils=self.vulnUtils)
         # (PageEntity(url=url, pageHash=hash), self.__session_entity)
-        self.assertEqual(len(VulnerabilitiesCRUD.getVulns(self.__table_name)), 2)
+        self.assertEqual(len(VulnerabilitiesCRUD.getVulns(self.test,self.__table_name)), 2)
 
     def doCleanups(self):
         pass

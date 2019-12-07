@@ -12,8 +12,8 @@ config.read('..\\common\\config.properties')
 def createTable(table_name, env):
     """Creates the Vulns_Objects table if it doesn't exist"""
     # TODO: check if every DB interaction should be sorrounded with try and rollback in case of failure
-    if table_name in __tables:  # VulnerabilitiesCRUD.__tables:
-        raise Exception("Table %s already exists, cannot create new table with same name" % table_name)
+#    if table_name in __tables:  # VulnerabilitiesCRUD.__tables:
+#        raise Exception("Table %s already exists, cannot create new table with same name" % table_name)
     with sqlite3.connect(config.get('VulnServiceDB', env)) as db:
         print ("connected to DB")
         cursor = db.cursor()

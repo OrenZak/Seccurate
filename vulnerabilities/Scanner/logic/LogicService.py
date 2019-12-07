@@ -45,6 +45,7 @@ class LogicService():
     def startScan(self, pageEntity=None,
                   sessionEntity=None):  # , db_type=None, vuln_table_name=None):  # start scan by using the client info data
         forms, links = self.vulnUtils.get_injection_points(pageEntity=pageEntity, sessionEntity=sessionEntity)
+        print("url is being scanned : " +pageEntity.getURL())
         if self.__scanType == "ALL":
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)
             self.__scanForSqlInjection(pageEntity=pageEntity, forms=forms, links=links)
@@ -62,7 +63,7 @@ class LogicService():
         return
 
     def __scanForRXSS(self, pageEntity=None, forms=None, links=None):  # sessionEntity=None):
-        if (self.rxssalgo == None):
+        if self.rxssalgo == None:
             print("init MainWindows")
             self.rxssalgo = MainWindow(db_type='test', table_name=self.__tableName)
         self.rxssalgo.ScanPage(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)

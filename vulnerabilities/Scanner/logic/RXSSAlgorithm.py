@@ -53,7 +53,9 @@ class JShandle(QMainWindow):
 class MainWindow(QMainWindow):
     def __init__(self, table_name=None, db_type=None, *args,
                  **kwargs):
+
         self.app = QApplication(sys.argv)
+        self.tt = self.app.thread()
         self.app.setApplicationName(QString("Chrome"))
         self.app.setApplicationVersion(QString("53.0.2785.113"))
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -86,6 +88,8 @@ class MainWindow(QMainWindow):
         self.descriptionKey = self.config.get('RXSS', 'rxss')
 
     def ScanPage(self, pageEntity=None, forms=None, links=None, vulnUtils=None):
+        self.moveToThread(self.tt)
+        self.networkAccessManager = QNetworkAccessManager()
         self.forms = forms
         self.links = links
         self.vulnUtils = vulnUtils
@@ -103,17 +107,13 @@ class MainWindow(QMainWindow):
 
     def __onUrlLoaded(self):
         print("RXSS url loaded")
-        self.browser.loadFinished.disconnect(self.__onUrlLoaded)
+        #self.browser.loadFinished.disconnect(self.__onUrlLoaded)
         self.LoadConfigurations()
         self.ScanLinks()
         self.ScanForms()
         self.browser.close()
-        #self.app.closeAllWindows()
-        self.app.quit()
+        self.app.closeAllWindows()
 
-
-    def destroyed(self):
-        print "h1"
 
     def LoadConfigurations(self):
         self.xsspayload = self.vulnUtils.getRXSSPayloads()

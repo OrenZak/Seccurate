@@ -5,6 +5,7 @@ from PageBoundary import ScanBoundary
 from ConfigDatabaseBoundary import ConfigDatabaseBoundary
 
 from flask import Flask, jsonify
+import threading
 
 from VulnerabilityBoundary import VulnerabilityBoundary
 
@@ -18,6 +19,10 @@ class RestServer():
         global clientLogicService
         clientLogicService = logicService
         app.run()
+
+    @app.route('/h1')
+    def ttt():
+        print("thread: " + str(threading._get_ident()))
 
     @app.route('/get_results', methods=['POST'])
     def hello(serializedGetResultBoundary):
@@ -36,6 +41,7 @@ class RestServer():
 class SocketIOClient():
     global sio
     global clientLogicService
+    global dbBoundary
     sio = socketio.Client()
 
     def __init__(self, logicService):
@@ -60,6 +66,7 @@ class SocketIOClient():
     @sio.on('scan_page')
     def startScan(scanParams):  # start scan method, the server needs to provide urls to scan
         configScanBoundary = ScanBoundary.deserialize(scanParams)
+        print("thread: "+str(threading._get_ident()))
         clientLogicService.startScan(pageEntity=configScanBoundary.getPageEntity(),
                                      sessionEntity=configScanBoundary.getSessionEntity())
         sio.emit('scan_page_done')
