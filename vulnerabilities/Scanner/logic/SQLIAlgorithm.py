@@ -133,10 +133,7 @@ class SQLIAlgorithm():
                     data = self.get_link_data_with_payload(inputname, link_attributes, splitted_payload)
 
                 regular_result = vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
-                if not self.verify_regular_hash(regular_result[self.response_index], page_entity.getPageHash()):
-                    # TODO: ZUR - here an event should be sent to logic service so that new authentication method will
-                    # be genterated
-                    pass
+                vulnUtils.verifyHash(url, regular_result[self.response_index], page_entity.getPageHash())
                 error_result = vulnUtils.get_url_open_results(method, data[self.error_result_index], url)
                 regular_imitating_result = vulnUtils.get_url_open_results(method,
                                                                           data[self.regular_imitating_result_index],
@@ -202,12 +199,3 @@ class SQLIAlgorithm():
         soup3 = BeautifulSoup(response3, 'html.parser').find_all()
         soup3_contents = [tag.string for tag in soup2]
         return str([x for x in soup2_contents if x not in soup1_contents and x not in soup3_contents])
-
-    def verify_regular_hash(self, actual_response, expected_hash):
-        # TODO: edit this function after oren implements hash
-        """if hashes not equal:
-            if self.__session_entity.getType() == self.cookie:
-                print ("cookie expired")  # TODO: raise ExpiredCookieException(page_entity)
-            elif self.__session_entity.getType() == self.baseAuth:
-                print ("wrong baseAuth")  # TODO: raise WrongBaseAuthCredentialsException(page_entity)"""
-        return True

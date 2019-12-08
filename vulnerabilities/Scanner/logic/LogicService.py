@@ -5,6 +5,7 @@ from RXSSAlgorithm import MainWindow
 from SQLIAlgorithm import SQLIAlgorithm
 import VulnerabilitiesCRUD
 from BaseVulnerabilityClass import VulnerabilityUtils
+from cookieExpiration import CookieException
 ####################################################
 from VulnerabilityDescriptionObject import VulnerabilityDescriptionEntity
 import RXSSCrud
@@ -35,11 +36,12 @@ class LogicService():
         self.sqliErroBasedDescripor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'error_based'), self.env_type)
         self.rxssDescriptor = self.__vulnDescriptor.getVulnByName(config.get('RXSS', 'rxss'), self.env_type)
 
-    def configNewScan(self, tableName, scanType):  # Config new db u
+    def configNewScan(self, tableName, scanType, credentialsEntity):  # Config new db u
         self.__vulnCrud.createTable(tableName, self.env_type)
         self.__tableName = tableName
         self.__scanType = scanType
         self.vulnUtils = VulnerabilityUtils(tableName, scanType)
+        self.credentialsEntity = credentialsEntity
         return
 
     def startScan(self, pageEntity=None,
@@ -63,14 +65,26 @@ class LogicService():
         return
 
     def __scanForRXSS(self, pageEntity=None, forms=None, links=None):  # sessionEntity=None):
+        flag = False
         if self.rxssalgo == None:
             print("init MainWindows")
             self.rxssalgo = MainWindow(db_type='test', table_name=self.__tableName)
-        self.rxssalgo.ScanPage(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
+        while not flag:
+            try:
+                self.rxssalgo.ScanPage(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
+                flag = True
+            except CookieException:
+                self.vulnUtils.generateNewCookie(self.credentialsEntity)
         return
 
     # TODO: what about type of db - prod or test? how do we get this value and pass it?
     def __scanForSqlInjection(self, pageEntity=None, forms=None, links=None):
         sqli_algo = SQLIAlgorithm(db_type='test')
-        sqli_algo.start_scan(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
+        flag = False
+        while not flag:
+            try:
+                sqli_algo.start_scan(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
+                flag = True
+            except CookieException:
+                self.vulnUtils.generateNewCookie(self.credentialsEntity)
         return
