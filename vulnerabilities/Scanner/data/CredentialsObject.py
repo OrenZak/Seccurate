@@ -1,23 +1,16 @@
 class CredentialsEntity:
-    def __init__(self, url, form, formAction):
-        self.__url = url
-        self.__form = form
-        self.__formAction = formAction
+    def __init__(self, loginUrl, loginInfo):
+        self.__loginUrl = loginUrl
+        self.__loginInfo = loginInfo
 
-    def getURL(self):
-        return self.__url
+    def getLoginURL(self):
+        return self.__loginUrl
 
-    def setURL(self, url):
-        self.__url = url
+    def setLoginURL(self, url):
+        self.__loginUrl = url
 
-    def getForm(self):
-        return self.__form
+    def getLoginInfo(self):
+        return self.__loginInfo
 
-    def setForm(self, form):
-        self.__form = form
-
-    def getFormAction(self):
-        return self.__formAction
-
-    def setFormAction(self, formAction):
-        self.__formAction = formAction
+    def setLoginInfo(self, loginInfo):
+        self.__loginInfo = loginInfo

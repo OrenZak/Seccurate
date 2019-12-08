@@ -1,8 +1,8 @@
 class CrawlerConfigScanBoundary {
-    constructor(config, scanType, url, loginInfo) {
+    constructor(config, scanType, loginUrl, loginInfo) {
         this.config = config;
         this.scanType = scanType;
-        this.url = url;
+        this.url = loginUrl;
         this.loginInfo = loginInfo;
     }
 

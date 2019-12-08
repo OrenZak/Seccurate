@@ -2,7 +2,7 @@ import socketio
 
 from GetResultsRequestBoundary import GetResultsRequestBoundary
 from PageBoundary import ScanBoundary
-from ConfigDatabaseBoundary import ConfigDatabaseBoundary
+from ConfigScanBoundary import ConfigScanBoundary
 
 from flask import Flask, jsonify
 import threading
@@ -59,7 +59,7 @@ class SocketIOClient():
     @sio.on('config_database')
     def configNewScan(dbNameBoundary):  # set up a scan, needs to create a new db in the logic service
         global clientLogicService
-        dbBoundary = ConfigDatabaseBoundary.deserialize(dbNameBoundary)
+        dbBoundary = ConfigScanBoundary.deserialize(dbNameBoundary)
         clientLogicService.configNewScan(dbBoundary.getDbName(), dbBoundary.getScanType())
         return
 

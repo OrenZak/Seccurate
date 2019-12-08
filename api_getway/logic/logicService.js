@@ -1,6 +1,6 @@
 //import {VULNERABILITY_MICROSERVICE_REST} from "../common/globals";
 
-let VULNERABILITY_MICROSERVICE_REST =  require( "../common/globals").VULNERABILITY_MICROSERVICE_REST;
+let VULNERABILITY_MICROSERVICE_REST = require("../common/globals").VULNERABILITY_MICROSERVICE_REST;
 
 const https = require('https');
 const request = require('request');
@@ -54,7 +54,7 @@ class LogicService {
                     timeout: value[0]["timeout"]
                 };
                 let crawlerConfigBoundary = new CrawlerConfigScanBoundary(config, value[0]["vulnsScanned"], value[0]["loginPage"], JSON.parse(value[0]["credentials"]));
-                let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(value[0]["id"], value[0]["vulnsScanned"]);
+                let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(value[0]["id"], value[0]["vulnsScanned"], value[0]["loginPage"], JSON.parse(value[0]["credentials"]));
                 socketManager.startCrawl(crawlerConfigBoundary);
                 // INIT vulnerability micro service scan configuration
                 socketManager.configDatabase(vulnerabilityConfigBoundary);

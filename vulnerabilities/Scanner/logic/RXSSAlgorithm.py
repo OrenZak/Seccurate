@@ -55,7 +55,6 @@ class MainWindow(QMainWindow):
                  **kwargs):
 
         self.app = QApplication(sys.argv)
-        self.tt = self.app.thread()
         self.app.setApplicationName(QString("Chrome"))
         self.app.setApplicationVersion(QString("53.0.2785.113"))
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -88,7 +87,6 @@ class MainWindow(QMainWindow):
         self.descriptionKey = self.config.get('RXSS', 'rxss')
 
     def ScanPage(self, pageEntity=None, forms=None, links=None, vulnUtils=None):
-        self.moveToThread(self.tt)
         self.networkAccessManager = QNetworkAccessManager()
         self.forms = forms
         self.links = links
