@@ -87,7 +87,6 @@ class MainWindow(QMainWindow):
         self.descriptionKey = self.config.get('RXSS', 'rxss')
 
     def ScanPage(self, pageEntity=None, forms=None, links=None, vulnUtils=None):
-        self.networkAccessManager = QNetworkAccessManager()
         self.forms = forms
         self.links = links
         self.vulnUtils = vulnUtils
@@ -95,7 +94,7 @@ class MainWindow(QMainWindow):
         self.url = pageEntity.getURL()
         self.domain = urlparse(self.url).hostname
         self.browser.loadFinished.connect(self.__onUrlLoaded)
-        self.browser.page().setNetworkAccessManager(self.networkAccessManager)
+        self.browser.page().networkAccessManager().setCookieJar(self.cookieJar)
         self.browser.page().userAgentForUrl(QUrl(self.url))
         curURL = QUrl(self.url)
         self.browser.load(curURL)
@@ -105,11 +104,10 @@ class MainWindow(QMainWindow):
 
     def __onUrlLoaded(self):
         print("RXSS url loaded")
-        #self.browser.loadFinished.disconnect(self.__onUrlLoaded)
+        self.browser.loadFinished.disconnect(self.__onUrlLoaded)
         self.LoadConfigurations()
         self.ScanLinks()
         self.ScanForms()
-        self.browser.close()
         self.app.closeAllWindows()
 
 
@@ -169,6 +167,7 @@ class MainWindow(QMainWindow):
             Qcookie.setName(Mcookie.name)
             Qcookie.setValue(Mcookie.value)
             Qcookie.setDomain(Mcookie.domain)
+            Qcookie.setPath(Mcookie.path)
             QcookieList.append(Qcookie)
             list.append(Mcookie.name + ":" + Mcookie.value)
         self.cookieJar.setAllCookies(QcookieList)
