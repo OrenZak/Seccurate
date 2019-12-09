@@ -1,3 +1,5 @@
+import time
+
 from ClientController import SocketIOClient, RestServer
 
 from LogicService import LogicService
@@ -8,7 +10,11 @@ if __name__ == '__main__':
     config.read('..\common\config.properties')
     URL = config.get('SocketIOServerInfo', 'hostname')
     logicService = LogicService(db_type="test")
-    socketIOClient = SocketIOClient(logicService)
+    socketIOClient = SocketIOClient()
     socketIOClient.connectToServer(URL)
+    logicService.start()
+    time.sleep(2)
+    socketIOClient.start()
     restServer = RestServer(logicService)
+
     # sio.emit('scan results', {'data': 'results'})
