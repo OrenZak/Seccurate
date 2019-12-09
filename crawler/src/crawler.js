@@ -4,7 +4,8 @@ const Crawler = require("simplecrawler"),
   events = require("events"),
   urlLib = require("url"),
   cheerio = require("cheerio"),
-  request = require("request");
+  request = require("request"),
+  extractDomain = require("./utils").extractDomain;
 
 let crawler_config = config.crawler;
 
@@ -13,21 +14,16 @@ const EVENTS = {
   CRAWLER_DONE: "crawler_done"
 };
 
-async function createTableByURL(mainUrl) {
-  await crawlerRepo.createTable(mainUrl);
-}
-
 function doEmit(action, mainUrl, data) {
   module.exports.eventEmitter.emit(action, { mainUrl: mainUrl, data: data });
 }
 
 function startCrawl(mainUrl, loginInfo) {
-  createTableByURL(mainUrl);
   const crawler = Crawler(mainUrl);
   crawler.interval = crawler_config.interval;
   crawler.maxDepth = crawler_config.maxDepth;
   crawler.maxConcurrency = crawler_config.maxConcurrency;
-  crawler.timeout = crawler_config.timeout;``
+  crawler.timeout = crawler_config.timeout;
   crawler.decodeResponses = true;
   crawler.parseHTMLComments = false;
   crawler.allowInitialDomainChange = false;
@@ -132,7 +128,10 @@ function startAfterLogin(crawler, loginInfo, mainUrl) {
 function getCookies(crawler, url) {
   let cookiesRes = [];
   crawler.cookies.cookies.forEach(cookie => {
-    if (cookie.value != 'deleted' && (cookie.domain === '*' || url.contains(cookie.domain))) {
+    if (cookie.value != 'deleted' && (cookie.domain === '*' || url.includes(cookie.domain))) {
+      if (cookie.domain === '*') {
+        cookie.domain = extractDomain(url);
+      }
       cookiesRes.push(cookie)
     }
   });
@@ -156,7 +155,7 @@ function createHash(queueItem) {
     .digest("hex");
 }
 
-// loginInfo = {
+// const loginInfo = {
 //   form: {
 //     login: "bee",
 //     password: "bug",
@@ -166,19 +165,6 @@ function createHash(queueItem) {
 //   formAction: "login.php"
 // }
 // startCrawl("http://192.168.64.2/bWAPP/login.php", loginInfo);
-
-// {
-//   "url": "http://192.168.64.2/bWAPP/login.php",
-//   "loginInfo": {
-//     "form": {
-//     "login": "bee",
-//     "password": "bug",
-//     "security": 0,
-//     "form": "submit"
-//   },
-//   "formAction": "login.php"
-//   }
-// }
 
 module.exports = {
   eventEmitter: new events.EventEmitter(),
