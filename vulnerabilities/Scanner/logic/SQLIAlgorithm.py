@@ -133,7 +133,7 @@ class SQLIAlgorithm():
                     data = self.get_link_data_with_payload(inputname, link_attributes, splitted_payload)
 
                 regular_result = vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
-                vulnUtils.verifyHash(url, regular_result[self.response_index], page_entity.getPageHash())
+                vulnUtils.verifyHash(url, page_entity.getPageHash())
                 error_result = vulnUtils.get_url_open_results(method, data[self.error_result_index], url)
                 regular_imitating_result = vulnUtils.get_url_open_results(method,
                                                                           data[self.regular_imitating_result_index],
