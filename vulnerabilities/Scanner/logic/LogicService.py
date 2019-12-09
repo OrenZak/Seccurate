@@ -22,32 +22,37 @@ class LogicService():
         self.__vulnDescriptor = VulnerabilityDescriptionCRUD
         self.rxssalgo = None
         ################################################
+        # VulnerabilityDescriptionCRUD.createTable(self.env_type)
         # VulnerabilityDescriptionCRUD.createVulnerabilityDescription(VulnerabilityDescriptionEntity(name='error-based', severity=1, description='abcTest',
         #                                                    recommendations='aaa'), self.env_type)
         # VulnerabilityDescriptionCRUD.createVulnerabilityDescription(VulnerabilityDescriptionEntity(name='rxss', severity=2, description='defTest',
         #                                                         recommendations='bbb'), self.env_type)
         # rxss1 = RXSSPayloadEntity(payload="<script>console.log(123)</script>",
         #                               expectedResult="<script>console.log(123)</script>")
+        # RXSSCrud.createTable(self.env_type)
         # RXSSCrud.createPayload(rxss1, self.env_type)
         # self.sqli1 = SQLIPayloadEntity(payload="5;;5';;5''", type='error-based')
+        # SQLICrud.createSQLITable(self.env_type)
         # SQLICrud.createPayload(self.sqli1, self.env_type)
         ################################################
-        #TODO: Zur I think the way we read configurations is not good. I t doesn't seem right
-        self.sqliErroBasedDescripor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'error_based'), self.env_type)
+        # TODO: Zur I think the way we read configurations is not good. I t doesn't seem right
+        self.sqliErroBasedDescripor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'error_based'),
+                                                                          self.env_type)
         self.rxssDescriptor = self.__vulnDescriptor.getVulnByName(config.get('RXSS', 'rxss'), self.env_type)
 
-    def configNewScan(self, tableName, scanType, credentialsEntity):  # Config new db u
+    def configNewScan(self, tableName=None, scanType=None, credentialsEntity=None):  # Config new db u
         self.__vulnCrud.createTable(tableName, self.env_type)
         self.__tableName = tableName
         self.__scanType = scanType
         self.vulnUtils = VulnerabilityUtils(tableName, scanType)
+        print("vulnutils object : "+str(self.vulnUtils))
         self.credentialsEntity = credentialsEntity
         return
 
     def startScan(self, pageEntity=None,
-                  sessionEntity=None):  # , db_type=None, vuln_table_name=None):  # start scan by using the client info data
+                  sessionEntity=None):
         forms, links = self.vulnUtils.get_injection_points(pageEntity=pageEntity, sessionEntity=sessionEntity)
-        print("url is being scanned : " +pageEntity.getURL())
+        print("url is being scanned : " + pageEntity.getURL())
         if self.__scanType == "ALL":
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)
             self.__scanForSqlInjection(pageEntity=pageEntity, forms=forms, links=links)

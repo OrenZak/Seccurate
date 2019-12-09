@@ -1,5 +1,6 @@
 import socketio
 
+from CredentialsObject import CredentialsEntity
 from GetResultsRequestBoundary import GetResultsRequestBoundary
 from PageBoundary import ScanBoundary
 from ConfigScanBoundary import ConfigScanBoundary
@@ -27,16 +28,19 @@ class RestServer():
     @app.route('/get_results', methods=['POST'])
     def hello(serializedGetResultBoundary):
         vulnBoundaryList = []
-        vulnerabilityEntities, rxssDescriptorEntity, sqliErroBasedDescriporEntity = clientLogicService.retriveScanResults(GetResultsRequestBoundary.deserialize(serializedGetResultBoundary).getResultsEntity())
+        vulnerabilityEntities, rxssDescriptorEntity, sqliErroBasedDescriporEntity = clientLogicService.retriveScanResults(
+            GetResultsRequestBoundary.deserialize(serializedGetResultBoundary).getResultsEntity())
         for vuln in vulnerabilityEntities:
             if vuln.getName() == rxssDescriptorEntity.getName():
-                vulnBoundary = VulnerabilityBoundary(vulnEntity=vuln,vulnDescriptionEntity=rxssDescriptorEntity)
+                vulnBoundary = VulnerabilityBoundary(vulnEntity=vuln, vulnDescriptionEntity=rxssDescriptorEntity)
             elif vuln.getName() == sqliErroBasedDescriporEntity.getName():
-                vulnBoundary = VulnerabilityBoundary(vulnEntity=vuln,vulnDescriptionEntity=sqliErroBasedDescriporEntity)
+                vulnBoundary = VulnerabilityBoundary(vulnEntity=vuln,
+                                                     vulnDescriptionEntity=sqliErroBasedDescriporEntity)
             else:
                 continue
             vulnBoundaryList.append(vulnBoundary.serialize())
         return jsonify(vulnBoundaryList)
+
 
 class SocketIOClient():
     global sio
@@ -58,15 +62,18 @@ class SocketIOClient():
 
     @sio.on('config_database')
     def configNewScan(dbNameBoundary):  # set up a scan, needs to create a new db in the logic service
+        print("config database")
         global clientLogicService
         dbBoundary = ConfigScanBoundary.deserialize(dbNameBoundary)
-        clientLogicService.configNewScan(dbBoundary.getDbName(), dbBoundary.getScanType())
+        credentialsEntity = CredentialsEntity(dbBoundary.getLoginUrl(), dbBoundary.getLoginInfo())
+        clientLogicService.configNewScan(tableName=dbBoundary.getDbName(), scanType=dbBoundary.getScanType(),
+                                         credentialsEntity=credentialsEntity)
         return
 
     @sio.on('scan_page')
     def startScan(scanParams):  # start scan method, the server needs to provide urls to scan
         configScanBoundary = ScanBoundary.deserialize(scanParams)
-        print("thread: "+str(threading._get_ident()))
+        print("thread: " + str(threading._get_ident()))
         clientLogicService.startScan(pageEntity=configScanBoundary.getPageEntity(),
                                      sessionEntity=configScanBoundary.getSessionEntity())
         sio.emit('scan_page_done')

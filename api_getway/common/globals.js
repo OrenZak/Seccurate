@@ -1,8 +1,8 @@
-const VULNERABILITY_MICROSERVICE_SOCKETIO = '10.0.0.4:8000';
-const VULNERABILITY_MICROSERVICE_REST = '10.0.0.4:5000';
-const CRAWLER_MICROSERVICE = 'http://10.0.0.7:3000';
-const TEST_DB = 'D:\\DB\\node_test_api_db.db';
-const PROD_DB = 'D:\\DB\\node_prod_api_db.db';
+const VULNERABILITY_MICROSERVICE_SOCKETIO = 'localhost:8000';
+const VULNERABILITY_MICROSERVICE_REST = 'localhost:5000';
+const CRAWLER_MICROSERVICE = 'http://localhost:3000';
+const TEST_DB = 'C:\\DB\\node_test_api_db.db';
+const PROD_DB = 'C:\\DB\\node_prod_api_db.db';
 const API_GW_DB_NAME = 'test:prod';
 const SCAN_CRUD_TABLE = 'scans';
 

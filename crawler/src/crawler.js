@@ -22,7 +22,7 @@ function doEmit(action, mainUrl, data) {
 }
 
 function startCrawl(mainUrl, loginInfo) {
-  createTableByURL(mainUrl);
+  //createTableByURL(mainUrl);
   const crawler = Crawler(mainUrl);
   crawler.interval = crawler_config.interval;
   crawler.maxDepth = crawler_config.maxDepth;

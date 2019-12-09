@@ -38,10 +38,9 @@ class ConfigScanBoundary:
 
     @staticmethod
     def deserialize(serializedConfigScan):
-        deserialized = json.loads(serializedConfigScan)
-        deserializedDbName = deserialized["dbName"]
-        deserializedScanType = deserialized["scanType"]
-        deserializedLoginUrl = deserialized["loginUrl"]
-        deserializedLoginInfo = deserialized["loginInfo"]
+        deserializedDbName = serializedConfigScan["dbName"]
+        deserializedScanType = serializedConfigScan["scanType"]
+        deserializedLoginUrl = serializedConfigScan["loginUrl"]
+        deserializedLoginInfo = serializedConfigScan["loginInfo"]
         return ConfigScanBoundary(dbName=deserializedDbName, scanType=deserializedScanType,
                                   loginUrl=deserializedLoginUrl, loginInfo=deserializedLoginInfo)
