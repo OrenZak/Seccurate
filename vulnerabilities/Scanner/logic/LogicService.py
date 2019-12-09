@@ -1,12 +1,16 @@
 import ConfigParser
 import threading
+import time
 
-import ProducerConsumerQueue
+from ConfigDatabaseMessage import ConfigDatabaseMessage
+from ProducerConsumerQueue import ProducerConsumerQueue
 import VulnerabilityDescriptionCRUD
 from RXSSAlgorithm import MainWindow
 from SQLIAlgorithm import SQLIAlgorithm
 import VulnerabilitiesCRUD
 from BaseVulnerabilityClass import VulnerabilityUtils
+from ScanCompleteMessage import ScanCompleteMessage
+from ScanPageMessage import ScanPageMessage
 from cookieExpiration import CookieException
 ####################################################
 from VulnerabilityDescriptionObject import VulnerabilityDescriptionEntity
@@ -17,6 +21,7 @@ from PayloadObjects import *
 
 class LogicService(threading.Thread):
     def __init__(self, db_type):
+        super(LogicService, self).__init__()
         config = ConfigParser.RawConfigParser()
         config.read('..\common\config.properties')
         self.env_type = config.get('CurrentEnvironment', 'type')
@@ -47,7 +52,7 @@ class LogicService(threading.Thread):
         self.__tableName = tableName
         self.__scanType = scanType
         self.vulnUtils = VulnerabilityUtils(tableName, scanType)
-        print("vulnutils object : "+str(self.vulnUtils))
+        print("vulnutils object : " + str(self.vulnUtils))
         self.credentialsEntity = credentialsEntity
         return
 
@@ -62,6 +67,9 @@ class LogicService(threading.Thread):
             self.__scanForSqlInjection(pageEntity=pageEntity, forms=forms, links=links)
         elif self.__scanType == "RXSS":
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)
+        scanCompleteMsg = ScanCompleteMessage()
+        print("Insert Scan complete message to queue")
+        ProducerConsumerQueue.getInstance().getOutQueue().put(scanCompleteMsg)
         return
 
     def retriveScanResults(self, getResultEntity):
@@ -98,6 +106,11 @@ class LogicService(threading.Thread):
 
     def run(self):
         while True:
-            if not ProducerConsumerQueue.getInstance().getQueue().empty():
-                item = ProducerConsumerQueue.getInstance().getQueue().get()
-                #TODO iterate over diffrent types of items.
+            if not ProducerConsumerQueue.getInstance().getIncomeQueue().empty():
+                item = ProducerConsumerQueue.getInstance().getIncomeQueue().get()
+                if isinstance(item, ConfigDatabaseMessage):
+                    self.configNewScan(tableName=item.getDbName(), scanType=item.getScanType(),
+                                       credentialsEntity=item)
+                elif isinstance(item, ScanPageMessage):
+                    self.startScan(pageEntity=item.getPageEntity(),
+                                   sessionEntity=item.getSessionEntity())

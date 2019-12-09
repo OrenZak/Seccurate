@@ -19,7 +19,11 @@ class ProducerConsumerQueue:
             raise Exception("This class is a singleton!")
         else:
             ProducerConsumerQueue.__instance = self
-            self._queue = Queue.Queue(BUF_SIZE)
+            self._incomeQueue = Queue.Queue(BUF_SIZE)
+            self._outQueue = Queue.Queue(BUF_SIZE)
 
-    def getQueue(self):
-        return self._queue
+    def getIncomeQueue(self):
+        return self._incomeQueue
+
+    def getOutQueue(self):
+        return self._outQueue
