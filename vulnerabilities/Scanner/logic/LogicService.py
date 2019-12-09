@@ -1,5 +1,7 @@
 import ConfigParser
+import threading
 
+import ProducerConsumerQueue
 import VulnerabilityDescriptionCRUD
 from RXSSAlgorithm import MainWindow
 from SQLIAlgorithm import SQLIAlgorithm
@@ -13,7 +15,7 @@ import SQLICrud
 from PayloadObjects import *
 
 
-class LogicService():
+class LogicService(threading.Thread):
     def __init__(self, db_type):
         config = ConfigParser.RawConfigParser()
         config.read('..\common\config.properties')
@@ -93,3 +95,9 @@ class LogicService():
             except CookieException:
                 self.vulnUtils.generateNewCookie(self.credentialsEntity)
         return
+
+    def run(self):
+        while True:
+            if not ProducerConsumerQueue.getInstance().getQueue().empty():
+                item = ProducerConsumerQueue.getInstance().getQueue().get()
+                #TODO iterate over diffrent types of items.
