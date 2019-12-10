@@ -1,25 +1,26 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
+    "target": "esnext",
     "module": "esnext",
+    "esModuleInterop": true,
     "moduleResolution": "node",
+    "jsx": "react-native",
+    "skipLibCheck": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react"
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noEmit": true
   },
   "include": [
-    "src"
+    "src/**/*",
+    "demo_tab/**/*",
+    "e2e/**/*",
+    "src/lib/**/*",
+    "strings/*", 
+    "lib/*"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
