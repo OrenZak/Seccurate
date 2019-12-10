@@ -51,14 +51,19 @@ class LogicService(threading.Thread):
         self.__vulnCrud.createTable(tableName, self.env_type)
         self.__tableName = tableName
         self.__scanType = scanType
-        self.vulnUtils = VulnerabilityUtils(tableName, scanType)
-        print("vulnutils object : " + str(self.vulnUtils))
         self.credentialsEntity = credentialsEntity
+        self.vulnUtils = VulnerabilityUtils(tableName, scanType, credentialsEntity)
+        print("vulnutils object : " + str(self.vulnUtils))
         return
 
-    def startScan(self, pageEntity=None,
-                  sessionEntity=None):
-        forms, links = self.vulnUtils.get_injection_points(pageEntity=pageEntity, sessionEntity=sessionEntity)
+    def startScan(self, pageEntity=None, sessionEntity=None):
+        flag = False
+        while not flag:
+            try:
+                forms, links = self.vulnUtils.get_injection_points(pageEntity=pageEntity, sessionEntity=sessionEntity)
+                flag = True
+            except:
+                self.vulnUtils.generateNewCookie(self.credentialsEntity)
         print("url is being scanned : " + pageEntity.getURL())
         if self.__scanType == "ALL":
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)

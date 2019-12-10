@@ -101,7 +101,7 @@ class TestSQLIAlgorithm(unittest.TestCase):
         br.form['password'] = 'bug'
         br.submit()
         r = br.open(url)
-        hash = hashlib.md5(url + str(len(str(r.read())))).digest()
+        hash = hashlib.md5(url + str(len(str(r.read())))).digest().encode("hex")
         forms, links = self.vulnUtils.get_injection_points(PageEntity(url=url, pageHash=hash), self.__session_entity)
         self.__sqlAlgorithm.start_scan(PageEntity(url=url, pageHash=hash), forms=forms, links=links,
                                        vulnUtils=self.vulnUtils)
@@ -116,8 +116,8 @@ class TestSQLIAlgorithm(unittest.TestCase):
             "form": "submit"
         }})
         self.__vulnsCRUD.deleteAllDataFromTable(self.__table_name, "test")
-        vulnUtils = VulnerabilityUtils(self.__table_name, "SQLI")
-        vulnUtils.generateNewCookie(creds)
+        vulnUtils = VulnerabilityUtils(self.__table_name, "SQLI", creds)
+        #vulnUtils.generateNewCookie(creds)
         br = mechanize.Browser()
         br.addheaders = [('User-agent',
                           'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34')]
@@ -130,7 +130,7 @@ class TestSQLIAlgorithm(unittest.TestCase):
         br.submit()
         r = br.open(url)
         hash = hashlib.md5(url + str(len(str(r.read())))).digest().encode("hex")
-        forms, links = vulnUtils.get_injection_points(PageEntity(url=url, pageHash=hash), self.__session_entity)
+        forms, links = vulnUtils.get_injection_points(PageEntity(url=url, pageHash=hash), None)
         self.__sqlAlgorithm.start_scan(PageEntity(url=url, pageHash=hash), forms=forms, links=links,
                                        vulnUtils=vulnUtils)
         self.assertEqual(len(VulnerabilitiesCRUD.getVulns("test", self.__table_name)), 2)
