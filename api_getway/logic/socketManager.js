@@ -61,7 +61,8 @@ function start(server) {
             console.log("socket disconnected");
         });
         socket.on(ACTIONS.PAGE_FETCHED, async function (pageBoundary) {
-            console.log("received page", pageBoundary);
+            //console.log("received page", pageBoundary);
+            console.log("Fetched page ", pageBoundary.url);
             //TODO should we save the page in a db
             let crawlerPageboundary = CrawlerPageBoundary.deserialize(pageBoundary);
             //page = new pageEntity(crawlerPageboundary.URL, crawlerPageboundary.PageHash, crawlerPageboundary.SessionType, crawlerPageboundary.SessionValue, ???)

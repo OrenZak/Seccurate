@@ -46,7 +46,7 @@ function startCrawl(mainUrl, loginInfo) {
 			url: queueItem.url,
 			value: urlCookies,
 			type: urlCookies.length > 0 ? 'Cookie' : 'Basic',
-			// pageHash: hash,
+			pageHash: hash,
 		});
 	});
 
