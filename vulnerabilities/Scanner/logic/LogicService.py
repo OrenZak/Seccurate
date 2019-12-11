@@ -63,6 +63,7 @@ class LogicService(threading.Thread):
                 forms, links = self.vulnUtils.get_injection_points(pageEntity=pageEntity, sessionEntity=sessionEntity)
                 flag = True
             except:
+                print("Generate new Cookie")
                 self.vulnUtils.generateNewCookie(self.credentialsEntity)
         print("url is being scanned : " + pageEntity.getURL())
         if self.__scanType == "ALL":
@@ -115,7 +116,7 @@ class LogicService(threading.Thread):
                 item = ProducerConsumerQueue.getInstance().getIncomeQueue().get()
                 if isinstance(item, ConfigDatabaseMessage):
                     self.configNewScan(tableName=item.getDbName(), scanType=item.getScanType(),
-                                       credentialsEntity=item)
+                                       credentialsEntity=item.getCredentialsEntity())
                 elif isinstance(item, ScanPageMessage):
                     self.startScan(pageEntity=item.getPageEntity(),
                                    sessionEntity=item.getSessionEntity())
