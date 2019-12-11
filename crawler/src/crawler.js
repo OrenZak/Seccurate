@@ -37,10 +37,8 @@ function startCrawl(mainUrl, loginInfo) {
 	// console.log(`start crawl -> url:${mainUrl} and  loginInfo: ${loginInfo}`);
 
 	crawler.on('fetchcomplete', function(queueItem, responseBuffer, response) {
-		console.log(`New page: ${queueItem.url}`);
-
 		const hash = createHash(queueItem);
-		console.log('The Hash: ', hash);
+		console.log(`New page: ${queueItem.url} -> ${hash}`);
 		const urlCookies = getCookies(crawler, queueItem.url);
 		doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
 			url: queueItem.url,
@@ -74,11 +72,11 @@ function startCrawl(mainUrl, loginInfo) {
 }
 
 function startAfterLogin(crawler, loginInfo, mainUrl) {
-	const loginUrl = `http://${extractDomain(mainUrl)}/${loginInfo.formAction}`;
+	// const loginUrl = `http://${extractDomain(mainUrl)}/${loginInfo.formAction}`;
 	// console.log('Login Url -> ', loginUrl);
 
 	request(
-		loginUrl,
+		loginInfo.formAction,
 		{
 			// The jar option isn't necessary for simplecrawler integration, but it's
 			// the easiest way to have request remember the session cookie between this
@@ -97,8 +95,11 @@ function startAfterLogin(crawler, loginInfo, mainUrl) {
 			addCookieHeader(crawler, response);
 
 			// Time for the login request!
+			// const resolved = urlLib.resolve(loginUrl, loginInfo.formAction);
+			// console.log(' Resoved : ', resolved);
 			request.post(
-				urlLib.resolve(loginUrl, loginInfo.formAction),
+				loginInfo.formAction,
+				// urlLib.resolve(loginUrl, loginInfo.formAction),
 				{
 					// We can't be sure that all of the input fields have a correct default
 					// value. Maybe the user has to tick a checkbox or something similar in
@@ -113,6 +114,7 @@ function startAfterLogin(crawler, loginInfo, mainUrl) {
 				},
 				function(error, response, body) {
 					// That should do it! We're now ready to start the crawler
+					// console.log('sec req', response);
 					if (error) {
 						console.log('There is an error: ', error);
 					} else {
@@ -169,9 +171,9 @@ function createHash(queueItem) {
 // 		security: 0,
 // 		form: 'submit',
 // 	},
-// 	formAction: 'bWAPP/login.php',
+// 	formAction: 'http://192.168.64.2/bWAPP/login.php',
 // };
-// startCrawl('http://192.168.64.2/bWAPP', loginInfo);
+// startCrawl('http://192.168.64.2/bWAPP/login.php', loginInfo);
 
 module.exports = {
 	eventEmitter: new events.EventEmitter(),
