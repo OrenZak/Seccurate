@@ -91,6 +91,19 @@ class SavedConfigurationCRUD {
         })
     }
 
+    getIDByValue(value)
+    {
+        const sql = `SELECT * FROM ?? WHERE maxDepth=? AND timeout=? AND interval_crawler=? AND maxConcurrency=?`
+        this.conn.query(sql,[this.table_name, value.getMaxDepth(), value.getTimeout(), value.getInterval(), value.getMaxConcurrency()], function (err, result) {
+            if (!err) {
+                callback(null, result)
+            }
+            else {
+                console.log(err)
+            }
+        })
+    }
+
     getDefaultValue(callback) {
         const sql = 'SELECT * FROM ?? WHERE default_scan=true';
         this.conn.query(sql,[this.table_name], function (err,result) {
