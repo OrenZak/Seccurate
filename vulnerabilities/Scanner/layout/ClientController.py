@@ -9,8 +9,9 @@ from PageBoundary import ScanBoundary
 from ConfigScanBoundary import ConfigScanBoundary
 from ProducerConsumerQueue import ProducerConsumerQueue
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import threading
+import json
 
 from ScanCompleteMessage import ScanCompleteMessage
 from ScanPageMessage import ScanPageMessage
@@ -25,14 +26,14 @@ class RestServer():
     def __init__(self, logicService):
         global clientLogicService
         clientLogicService = logicService
-        app.run()
+        app.run(host='0.0.0.0')
 
     @app.route('/get_results', methods=['POST'])
-    def hello(serializedGetResultBoundary):
+    def hello():#serializedGetResultBoundary):
         # TODO add threading support by create a new Message to return to the client, and wait for the message by while over the queue
         vulnBoundaryList = []
         vulnerabilityEntities, rxssDescriptorEntity, sqliErroBasedDescriporEntity = clientLogicService.retriveScanResults(
-            GetResultsRequestBoundary.deserialize(serializedGetResultBoundary).getResultsEntity())
+            GetResultsRequestBoundary.deserialize(request.get_json()).getResultsEntity())
         for vuln in vulnerabilityEntities:
             if vuln.getName() == rxssDescriptorEntity.getName():
                 vulnBoundary = VulnerabilityBoundary(vulnEntity=vuln, vulnDescriptionEntity=rxssDescriptorEntity)
@@ -42,6 +43,7 @@ class RestServer():
             else:
                 continue
             vulnBoundaryList.append(vulnBoundary.serialize())
+        #return json.dumps(vulnBoundaryList)
         return jsonify(vulnBoundaryList)
 
 

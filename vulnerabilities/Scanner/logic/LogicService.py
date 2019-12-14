@@ -79,7 +79,7 @@ class LogicService(threading.Thread):
         return
 
     def retriveScanResults(self, getResultEntity):
-        vulnerabilityEntities = self.__vulnCrud.getVulns(getResultEntity.getScanName(), 1000, 0)
+        vulnerabilityEntities = self.__vulnCrud.getVulns(self.env_type, getResultEntity.getScanName(), 1000, 0)
         return vulnerabilityEntities, self.rxssDescriptor, self.sqliErroBasedDescripor
 
     def updatePayloads(self, payloadObject):

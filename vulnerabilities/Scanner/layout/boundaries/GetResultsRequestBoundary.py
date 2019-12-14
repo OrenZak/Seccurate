@@ -19,6 +19,6 @@ class GetResultsRequestBoundary:
 
     @staticmethod
     def deserialize(serializedGetResult):
-        deserialized = json.loads(serializedGetResult)
-        deserializedScanName = deserialized["scanName"]
+        #deserialized = json.loads(serializedGetResult)
+        deserializedScanName = serializedGetResult["scanName"]
         return GetResultsRequestBoundary(GetResultsEntity(scanName=deserializedScanName))
