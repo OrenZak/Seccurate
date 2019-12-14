@@ -1,11 +1,12 @@
-var express = require("express");
-var router = express.Router();
-var LogicService = require('../logic/logicService');
-var logicService = new LogicService();
-var ScanConfigBoundary = require('../layout/boundaries/scanConfigBoundary');
-var UpdateScanConfigBoundary = require('../layout/boundaries/updateScanConfigBoundary');
-var StartCrawlBoundary = require('../layout/boundaries/startCrawlBoundary');
-var GetResultsRequestBoundary = require('../layout/boundaries/getResultsRequestBoundary');
+let express = require("express");
+let router = express.Router();
+let LogicService = require('../logic/logicService');
+let logicService = new LogicService();
+let ScanConfigBoundary = require('../layout/boundaries/scanConfigBoundary');
+let UpdateScanConfigBoundary = require('../layout/boundaries/updateScanConfigBoundary');
+let StartCrawlBoundary = require('../layout/boundaries/startCrawlBoundary');
+let DeleteScanBoundary = require('../layout/boundaries/deleteScanBoundary');
+let GetResultsRequestBoundary = require('../layout/boundaries/getResultsRequestBoundary');
 
 router.use(express.json());
 router.use(express.urlencoded({extended: false}));
@@ -39,6 +40,12 @@ router.post(PATHS.CONFIG_SCAN, async function (req, res, next) {
 router.put(PATHS.CONFIG_SCAN, async function (req, res, next) {
     scanConfigBoundary = UpdateScanConfigBoundary.deserialize(req.body);
     var result = await logicService.updateScanConfig(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save, scanConfigBoundary.description,scanConfigBoundary.scanID);
+    res.status(200).send(result);
+});
+
+router.delete(PATHS.CONFIG_SCAN, async function (req, res, next) {
+    deleteBoundary = DeleteScanBoundary.deserialize(req.body);
+    var result = await logicService.deleteScan(deleteBoundary.ID);
     res.status(200).send(result);
 });
 

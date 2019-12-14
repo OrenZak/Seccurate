@@ -29,9 +29,10 @@ class LogicService {
 
     async updateScanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description,scanID){
         let dbName = 'test';
+        let savedConfigDao = new SavedConfigurarionDao(dbName);
         let configEntity = new ConfigEntity(scanID, maxDepth, timeout, interval, maxConcurrency, scanType, JSON.stringify(loginInfo), url);
         if (save) {
-            let a = savedConfigDao.getValue(scanID,(err,data)=>{
+            let a = this.configurationHistoryDao.getValue(scanID,(err,data)=>{
                 if(err){
                     console.log(err)
                 }
@@ -44,7 +45,7 @@ class LogicService {
                         }
                         else {
                             let id = result[0]['id'];
-                            let updatedScan = SavedConfigEntity(id, maxDepth, timeout, interval, maxConcurrency);
+                            let updatedScan = new SavedConfigEntity(id, maxDepth, timeout, interval, maxConcurrency);
                             savedConfigDao.updateValue(updatedScan);
                         }
                     })
@@ -68,6 +69,17 @@ class LogicService {
         let scanEntity = new ScanEntity(name, Date.now(), configHistoryValue.getID(), description, configHistoryValue.getID());
         scansDao.insertValue(scanEntity);
         return configHistoryValue.getID();
+    }
+
+    async deleteScan(id){
+        let dbName = 'test';
+        let savedConfigDao = new SavedConfigurarionDao(dbName);
+        this.configurationHistoryDao.deleteValue(id,(err)=>{
+            if(err)
+                console.log(err);
+        })
+        
+
     }
 
     async startCrawl(id) {

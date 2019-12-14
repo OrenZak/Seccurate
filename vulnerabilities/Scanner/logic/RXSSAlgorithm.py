@@ -114,7 +114,7 @@ class MainWindow(QMainWindow):
         self.ScanLinks()
         self.ScanForms()
         self.app.closeAllWindows()
-        time.sleep(1)
+        self.browser.stop()
 
 
     def LoadConfigurations(self):
