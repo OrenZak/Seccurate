@@ -37,7 +37,7 @@ class LogicService {
             savedConfigDao.insertValue(savedConfigEntity);
         }
         let scansDao = new ScansDao(dbName);
-        let scanEntity = new ScanEntity(name, Date.now(), configHistoryValue.getID(), description);
+        let scanEntity = new ScanEntity(name, Date.now(), configHistoryValue.getID(), description, configHistoryValue.getID());
         scansDao.insertValue(scanEntity);
         return configHistoryValue.getID();
     }
@@ -58,7 +58,7 @@ class LogicService {
                 // INIT vulnerability micro service scan configuration
                 socketManager.configDatabase(vulnerabilityConfigBoundary);
                 console.log("config vulnerability database before scan")
-                socketManager.startCrawl(crawlerConfigBoundary);
+                socketManager.startCrawl(crawlerConfigBoundary, id);
                 console.log("crawler starts")
 
             }

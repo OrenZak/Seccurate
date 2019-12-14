@@ -1,9 +1,10 @@
 class ScanEntity {
-    constructor(name, timestamp, configuration, description) {
+    constructor(name, timestamp, configuration, description, pageTableName) {
         this.name = name;
         this.timestamp = timestamp;
         this.configuration = configuration;
         this.description = description;
+        this.pageTableName = pageTableName;
     }
 
     getName() {
@@ -36,6 +37,14 @@ class ScanEntity {
 
     setDescription(description) {
         this.description = description;
+    }
+
+    getPageTableName(){
+        return this.pageTableName;
+    }
+
+    setPageTableName(pageTableName){
+        this.pageTableName = pageTableName;
     }
 }
 

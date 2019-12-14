@@ -22,7 +22,7 @@ class PageCRUD {
     }
 
     createTable(table_name) {
-        const sql = `CREATE TABLE IF NOT EXISTS ?? (url VARCHAR(100) PRIMARY KEY, pageHash VARCHAR(100), sessionType VARCHAR(30), sessionValue VARCHAR(200), scanTimestamp VARCHAR(30), FOREIGN KEY(scanTimestamp) REFERENCES test.scans(scan_timestamp) on delete cascade)`
+        const sql = `CREATE TABLE IF NOT EXISTS ?? (url VARCHAR(100) PRIMARY KEY)`
         this.conn.query(sql, [table_name], function(err) {
             if (err) {
                 console.log("in create: " + err)
@@ -30,9 +30,9 @@ class PageCRUD {
         })
     }
 
-    insertValue(value, table_name) {
-        const sql = `INSERT INTO ?? VALUES (?,?,?,?,?)`
-        this.conn.query(sql, [table_name, value.getURL(), value.getPageHash(), value.getSessionType(), value.getSessionValue(), value.getScanTimestamp()], (err) => {
+    insertValue(value) {
+        const sql = `INSERT INTO ?? VALUES (?)`
+        this.conn.query(sql, [this.table_name, value.getURL()], (err) => {
             if (err) {
                 console.log("in insert: " + err)
             }
@@ -40,24 +40,9 @@ class PageCRUD {
         return value;
     }
 
-    updateValue(new_value, table_name) {
-        this.getValue(new_value.getURL(), table_name, function (err, res) {
-            if (err) {
-                throw new Error('No such value ' + new_value.getURL() + '\n' + err)
-            }
-        })
-        const sql = `UPDATE ?? SET pageHash=?, sessionType=?, sessionValue=?, scanTimestamp=? WHERE url=?`
-        this.conn.query(sql,[table_name, new_value.getPageHash(), new_value.getSessionType(), new_value.getSessionValue(), new_value.getScanTimestamp(), new_value.getURL()], (err) => {
-            if (err) {
-                console.log("in update: " + err)
-            }
-        })
-        return new_value
-    }
-
-    getValue(value_id, table_name, callback) {
+    getValue(value_id, callback) {
         const sql = `SELECT * FROM ?? WHERE url=?`
-        this.conn.query(sql,[table_name, value_id], function (err, result) {
+        this.conn.query(sql,[this.table_name, value_id], function (err, result) {
             if (!err) {
                 callback(null, result)
             }
@@ -67,9 +52,9 @@ class PageCRUD {
         })
     }
 
-    getAll(table_name, callback, page=0, size=10) {
+    getAll(callback, page=0, size=10) {
         const sql = `SELECT * from ?? ORDER BY url ASC LIMIT ?,?`
-        this.conn.query(sql, [table_name, page*size, (page*size)+size], function(err, results) {
+        this.conn.query(sql, [this.table_name, page*size, (page*size)+size], function(err, results) {
             if (!err) {
                 callback(null, results)
             }
@@ -79,32 +64,32 @@ class PageCRUD {
         })
     }
     
-    deleteValue(value, table_name){
-        this.getValue(value.getURL(), table_name, function (err, res) {
+    deleteValue(value){
+        this.getValue(value.getURL(), this.table_name, function (err, res) {
             if (err) {
                 throw new Error('No such value ' + value.getURL() + '\n' + err)
             }
         })
         const sql = `DELETE FROM ?? WHERE url=?`
-        this.conn.query(sql, [table_name, value.getURL(), (err) => {
+        this.conn.query(sql, [this.table_name, value.getURL(), (err) => {
             if (err) {
                 console.log(err)
             }
         }])
     }
 
-    deleteAll(table_name) {
+    deleteAll() {
         const sql = `DELETE FROM ??`
-        this.conn.query(sql, [table_name], (err) => {
+        this.conn.query(sql, [this.table_name], (err) => {
             if (err) {
                 console.log(err)
             }
         })
     }
 
-    dropTable(table_name) {
+    dropTable() {
         const sql = `DROP TABLE ??`
-        return this.conn.query(sql, [table_name], (err) => {
+        return this.conn.query(sql, [this.table_name], (err) => {
             if (err) {
                 console.log(err)
             }

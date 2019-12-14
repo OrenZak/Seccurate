@@ -32,7 +32,7 @@ class ScansDataCRUD {
     }
 
     createTable() {
-        const sql = `CREATE TABLE IF NOT EXISTS ?? (name VARCHAR(100), scan_timestamp VARCHAR(30) PRIMARY KEY, description VARCHAR(200), configuration VARCHAR(100), FOREIGN KEY(configuration) REFERENCES test.ConfigurationsHistory(id) on delete cascade)`
+        const sql = `CREATE TABLE IF NOT EXISTS ?? (name VARCHAR(100), scan_timestamp VARCHAR(30) PRIMARY KEY, description VARCHAR(200), configuration VARCHAR(100), pageTableName VARCHAR(100), FOREIGN KEY(configuration) REFERENCES test.ConfigurationsHistory(id) on delete cascade)`
         this.conn.query(sql, [this.table_name], function(err) {
             if (err) {
                 console.log(err)
@@ -41,8 +41,8 @@ class ScansDataCRUD {
     }
 
     insertValue(value) {
-        const sql2 = `INSERT INTO ?? VALUES (?,?,?,?)`
-        this.conn.query(sql2, [this.table_name, value.getName(), value.getTimestamp(), value.getDescription(), value.getConfiguration()], (err) => {
+        const sql2 = `INSERT INTO ?? VALUES (?,?,?,?,?)`
+        this.conn.query(sql2, [this.table_name, value.getName(), value.getTimestamp(), value.getDescription(), value.getConfiguration(), value.getPageTableName()], (err) => {
             if (err) {
                 console.log(err)
             }

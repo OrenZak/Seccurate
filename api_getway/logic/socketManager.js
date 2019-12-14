@@ -1,7 +1,8 @@
 events = require("events");
 var CrawlerPageBoundary = require('./boundaries/crawlerPageBoundary');
 var VulnerabilityPageBoundary = require('./boundaries/vulnerabilityPageBoundary');
-var pageCRUD = require('../dao/PageCRUD')
+var pageCRUD = require('../dao/PageCRUD');
+var pageEntity = require('../data/PageEntity');
 
 
 const ACTIONS = {
@@ -28,8 +29,10 @@ let io = undefined;
 let pageQueue = [];
 let isCrawlerScanning = false;
 let isVulnerabilityScanning = false;
+let scanID;
 
-function startCrawl(crawlBoundary) {
+function startCrawl(crawlBoundary, id) {
+    scanID = id;
     io.emit(EVENTS.START_CRAWL, crawlBoundary.serialize());
     isCrawlerScanning = true;
     pageQueue = [];
@@ -61,14 +64,15 @@ function start(server) {
             console.log("socket disconnected");
         });
         socket.on(ACTIONS.PAGE_FETCHED, async function (pageBoundary) {
-            //console.log("received page", pageBoundary);
             console.log("Fetched page ", pageBoundary.url);
-            //TODO should we save the page in a db
             let crawlerPageboundary = CrawlerPageBoundary.deserialize(pageBoundary);
-            //page = new pageEntity(crawlerPageboundary.URL, crawlerPageboundary.PageHash, crawlerPageboundary.SessionType, crawlerPageboundary.SessionValue, ???)
-            //pageTableName = ???
-            //p_crud = new pageCRUD('test', ???)
-            //p_crud.insertValue(page, pageTableName);
+            
+            //save url discovered using pageCrud
+            page = new pageEntity(crawlerPageboundary.URL)
+            p_crud = new pageCRUD('test', scanID)
+            p_crud.insertValue(page);
+            
+            //pass page to vuln service
             let vulnerabilityPageBoundary = new VulnerabilityPageBoundary(crawlerPageboundary.url, crawlerPageboundary.pageHash, crawlerPageboundary.type, crawlerPageboundary.value);
             if (pageQueue.length == 0 && !isVulnerabilityScanning) {
                 scanPage(vulnerabilityPageBoundary);
