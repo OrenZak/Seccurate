@@ -30,16 +30,29 @@ class LogicService {
     async updateScanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description,scanID){
         let dbName = 'test';
         let configEntity = new ConfigEntity(scanID, maxDepth, timeout, interval, maxConcurrency, scanType, JSON.stringify(loginInfo), url);
-        let configHistoryValue = this.configurationHistoryDao.insertValue(configEntity);
         if (save) {
-            let savedConfigDao = new SavedConfigurarionDao(dbName);
-            let savedConfigEntity = new SavedConfigEntity(null, maxDepth, timeout, interval, maxConcurrency);
-            savedConfigDao.insertValue(savedConfigEntity);
+            let a = savedConfigDao.getValue(scanID,(err,data)=>{
+                if(err){
+                    console.log(err)
+                }
+                else{
+                    console.log(data[0]['timeout']);
+                    let ent = new SavedConfigEntity(null,data[0]['maxDepth'], data[0]['timeout'], data[0]['interval_crawler'], data[0]['maxConcurrency']);
+                    savedConfigDao.getIDByValue(ent,(err,result)=>{
+                        if(err){
+                            console.log(err);
+                        }
+                        else {
+                            let id = result[0]['id'];
+                            let updatedScan = SavedConfigEntity(id, maxDepth, timeout, interval, maxConcurrency);
+                            savedConfigDao.updateValue(updatedScan);
+                        }
+                    })
+                }
+            });
         }
-        let scansDao = new ScansDao(dbName);
-        let scanEntity = new ScanEntity(name, Date.now(), configHistoryValue.getID(), description, configHistoryValue.getID());
-        scansDao.insertValue(scanEntity);
-        return configHistoryValue.getID();
+        let configHistoryValue = this.configurationHistoryDao.updateValue(configEntity);
+        return;
     }
 
     async scanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description) {
