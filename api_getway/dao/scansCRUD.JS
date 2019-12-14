@@ -89,7 +89,7 @@ class ScansDataCRUD {
 
     getAll(callback, page=0, size=20) {
         const sql = `SELECT * from ?? ORDER BY scan_timestamp ASC LIMIT ?,?`
-        this.conn.query(sql, [this.table_name, page*size, (page*size)+size], function(err, results) {
+        this.conn.query(sql, [this.table_name, page*size, parseInt((page*size)+size,10)], function(err, results) {
             if (!err) {
                 callback(null, results)
             }

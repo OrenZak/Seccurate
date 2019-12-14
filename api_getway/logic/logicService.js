@@ -73,7 +73,6 @@ class LogicService {
 
     async deleteScan(id){
         let dbName = 'test';
-        let savedConfigDao = new SavedConfigurarionDao(dbName);
         this.configurationHistoryDao.deleteValue(id);
         let scansDao = new ScansDao(dbName);
         scansDao.getByForeignKey(id,(err,data)=>{
@@ -86,6 +85,24 @@ class LogicService {
             });
         });
 
+    }
+
+    async getScans(page,size,callback){
+        let dbName = 'test';
+        let scansDao = new ScansDao(dbName);
+        scansDao.getAll((err,results)=>{
+            if(err){
+                console.log(err);
+            }
+            else{
+                let scans = [];
+                results.forEach(element => {
+                    let curEntity = new ScanEntity(element['name'],element['scan_timestamp'],element['configuration'],element['description'],element['pageTableName']);
+                    scans.push(curEntity);
+                });
+                callback(scans);
+            }
+        },page,size);
     }
 
     async startCrawl(id) {

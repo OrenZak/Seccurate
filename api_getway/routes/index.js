@@ -5,6 +5,7 @@ let logicService = new LogicService();
 let ScanConfigBoundary = require('../layout/boundaries/scanConfigBoundary');
 let UpdateScanConfigBoundary = require('../layout/boundaries/updateScanConfigBoundary');
 let StartCrawlBoundary = require('../layout/boundaries/startCrawlBoundary');
+let GetScansResponseBoundary = require('../layout/boundaries/getScansResponseBoundary');
 let DeleteScanBoundary = require('../layout/boundaries/deleteScanBoundary');
 let GetResultsRequestBoundary = require('../layout/boundaries/getResultsRequestBoundary');
 
@@ -15,6 +16,7 @@ const PATHS = {
     HOME: "/",
     START_SCAN: "/start_scan",
     CONFIG_SCAN: "/config_scan",
+    GET_SCANS:"/scans",
     LOGIN: "/login",
     REGISTER: "/register",
     GET_RESULTS: "/results",
@@ -23,6 +25,14 @@ const PATHS = {
 
 router.get(PATHS.HOME, function (req, res, next) {
     res.status(200).send('<h1>Welcome to Seccurate API Gateway</h1>');
+});
+
+router.get(PATHS.GET_SCANS, function (req, res, next) {
+    logicService.getScans(req.query.page, req.query.size,(scans)=>{
+        scansResponseBoundary = new GetScansResponseBoundary(scans);
+        res.status(200).send(scansResponseBoundary.serialize());
+    });
+
 });
 
 router.post(PATHS.START_SCAN, async function (req, res, next) {
@@ -63,8 +73,8 @@ router.post(PATHS.ADD_PAYLOADS, function (req, res, next) {
 });
 
 router.post(PATHS.GET_RESULTS, function (req, res, next) {
-    getResultsRequestBoundary = GetResultsRequestBoundary.deserialize(req.query);
-    scanResults = logicService.getResults(getResultsRequestBoundary.scanName);
+    //getResultsRequestBoundary = GetResultsRequestBoundary.deserialize(req.query);
+    scanResults = logicService.getResults(req.query.scanID);
     // TODO this needs to be parse
     res.status(200).send(scanResults);
 });
