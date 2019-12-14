@@ -103,14 +103,14 @@ class ScanConfigHistoryCRUD {
         })
     }
     
-    deleteValue(value){
-        this.getValue(value.getID(), this.table_name, function (err, res) {
+    deleteValue(value_id){
+        this.getValue(value_id, this.table_name, function (err, res) {
             if (err) {
-                throw new Error('No such value ' + value.getID() + '\n' + err)
+                throw new Error('No such value ' + value_id + '\n' + err)
             }
         })
         const sql = `DELETE FROM ?? WHERE id=?`
-        this.conn.query(sql, [this.table_name, value.getID(), (err) => {
+        this.conn.query(sql, [this.table_name, value_id, (err) => {
             if (err) {
                 console.log(err)
             }
