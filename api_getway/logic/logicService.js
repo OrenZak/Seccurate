@@ -27,6 +27,21 @@ class LogicService {
         socketManager.start(server);
     }
 
+    async updateScanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description,scanID){
+        let dbName = 'test';
+        let configEntity = new ConfigEntity(scanID, maxDepth, timeout, interval, maxConcurrency, scanType, JSON.stringify(loginInfo), url);
+        let configHistoryValue = this.configurationHistoryDao.insertValue(configEntity);
+        if (save) {
+            let savedConfigDao = new SavedConfigurarionDao(dbName);
+            let savedConfigEntity = new SavedConfigEntity(null, maxDepth, timeout, interval, maxConcurrency);
+            savedConfigDao.insertValue(savedConfigEntity);
+        }
+        let scansDao = new ScansDao(dbName);
+        let scanEntity = new ScanEntity(name, Date.now(), configHistoryValue.getID(), description, configHistoryValue.getID());
+        scansDao.insertValue(scanEntity);
+        return configHistoryValue.getID();
+    }
+
     async scanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description) {
         let dbName = 'test';
         let configEntity = new ConfigEntity(null, maxDepth, timeout, interval, maxConcurrency, scanType, JSON.stringify(loginInfo), url);
