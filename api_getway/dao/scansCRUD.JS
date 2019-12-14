@@ -75,7 +75,7 @@ class ScansDataCRUD {
         })
     }
 
-    getIDByForeignKey(fk, callback){
+    getByForeignKey(fk, callback){
         const sql = `SELECT * FROM ?? WHERE configuration=?`
         this.conn.query(sql,[this.table_name, fk], function (err, result) {
             if (!err) {
