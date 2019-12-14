@@ -7,7 +7,7 @@ let UpdateScanConfigBoundary = require('../layout/boundaries/updateScanConfigBou
 let StartCrawlBoundary = require('../layout/boundaries/startCrawlBoundary');
 let GetScansResponseBoundary = require('../layout/boundaries/getScansResponseBoundary');
 let DeleteScanBoundary = require('../layout/boundaries/deleteScanBoundary');
-let GetResultsRequestBoundary = require('../layout/boundaries/getResultsRequestBoundary');
+let GetResultsResponseBoundary = require('../layout/boundaries/getResultsResponseBoundary');
 
 router.use(express.json());
 router.use(express.urlencoded({extended: false}));
@@ -16,7 +16,7 @@ const PATHS = {
     HOME: "/",
     START_SCAN: "/start_scan",
     CONFIG_SCAN: "/config_scan",
-    GET_SCANS:"/scans",
+    GET_SCANS: "/scans",
     LOGIN: "/login",
     REGISTER: "/register",
     GET_RESULTS: "/results",
@@ -28,7 +28,7 @@ router.get(PATHS.HOME, function (req, res, next) {
 });
 
 router.get(PATHS.GET_SCANS, function (req, res, next) {
-    logicService.getScans(req.query.page, req.query.size,(scans)=>{
+    logicService.getScans(req.query.page, req.query.size, (scans) => {
         scansResponseBoundary = new GetScansResponseBoundary(scans);
         res.status(200).send(scansResponseBoundary.serialize());
     });
@@ -49,7 +49,7 @@ router.post(PATHS.CONFIG_SCAN, async function (req, res, next) {
 
 router.put(PATHS.CONFIG_SCAN, async function (req, res, next) {
     scanConfigBoundary = UpdateScanConfigBoundary.deserialize(req.body);
-    var result = await logicService.updateScanConfig(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save, scanConfigBoundary.description,scanConfigBoundary.scanID);
+    var result = await logicService.updateScanConfig(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save, scanConfigBoundary.description, scanConfigBoundary.scanID);
     res.status(200).send(result);
 });
 
@@ -72,11 +72,25 @@ router.post(PATHS.ADD_PAYLOADS, function (req, res, next) {
     res.status(200).send('<h1>Hello world</h1>');
 });
 
-router.post(PATHS.GET_RESULTS, function (req, res, next) {
+router.get(PATHS.GET_RESULTS, function (req, res, next) {
     //getResultsRequestBoundary = GetResultsRequestBoundary.deserialize(req.query);
-    scanResults = logicService.getResults(req.query.scanID);
-    // TODO this needs to be parse
-    res.status(200).send(scanResults);
+    logicService.getResults(req.query.scanName, (results) => {
+        let resultsArray = [];
+        results.forEach(element => {
+            elem = JSON.parse(element);
+            resultsArray.push({
+                description: elem._VulnerabilityBoundary__description,
+                name: elem._VulnerabilityBoundary__name,
+                payload: elem._VulnerabilityBoundary__payload,
+                recommendation: elem._VulnerabilityBoundary__recommendations,
+                requestB64: elem._VulnerabilityBoundary__requestB64,
+                severity: elem._VulnerabilityBoundary__severity,
+                url: elem._VulnerabilityBoundary__url,
+                vulnID: elem._VulnerabilityBoundary__vulnID
+            })
+        });
+        res.status(200).send(resultsArray);
+    });
 });
 
 function setServer(httpServer) {

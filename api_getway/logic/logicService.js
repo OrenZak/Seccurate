@@ -128,20 +128,23 @@ class LogicService {
         });
     }
 
-    async getResults(scanName) {
-        let vulnerabilityGetResultsRequestBoundary = VulnerabilityGetResultsRequestBoundary(scanName);
-        request.post(VULNERABILITY_MICROSERVICE_REST, {
+    async getResults(scanName,callback) {
+        let vulnerabilityGetResultsRequestBoundary = new VulnerabilityGetResultsRequestBoundary(scanName);
+        var options = {
+            uri: VULNERABILITY_MICROSERVICE_REST+"/get_results",
+            method: 'POST',
             json: {
                 scanName: vulnerabilityGetResultsRequestBoundary.ScanName
             }
-        }, (error, res, body) => {
+        };
+        request(options, (error, res, body) => {
             if (error) {
                 console.error(error);
                 return error;
             }
             console.log(`statusCode: ${res.statusCode}`);
             console.log(body);
-            return body;
+            callback(body);
         });
     }
 
