@@ -1,5 +1,6 @@
 import ConfigParser
 import sys
+import time
 
 import VulnerabilitiesCRUD
 from VulnerabilitiesObjects import SimpleVulnerabilityEntity
@@ -98,6 +99,7 @@ class MainWindow(QMainWindow):
         self.browser.page().networkAccessManager().setCookieJar(self.cookieJar)
         self.browser.page().userAgentForUrl(QUrl(self.url))
         curURL = QUrl(self.url)
+        print(self.url)
         self.browser.load(curURL)
         print("in scan page - page loaded")
         self.setCentralWidget(self.browser)
@@ -107,11 +109,12 @@ class MainWindow(QMainWindow):
     def __onUrlLoaded(self):
         print("RXSS url loaded")
         self.browser.loadFinished.disconnect(self.__onUrlLoaded)
-        self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
+        #self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
         self.LoadConfigurations()
         self.ScanLinks()
         self.ScanForms()
         self.app.closeAllWindows()
+        time.sleep(1)
 
 
     def LoadConfigurations(self):
@@ -135,7 +138,7 @@ class MainWindow(QMainWindow):
                         # Get Response From the Server
                         htmlResponse, response_hash, elapsed_time, requestB64 = self.vulnUtils.get_url_open_results(
                             method, data, self.url)
-                        self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
+                        #self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
                     except Exception as e:
                         check_r = False
                         print "<h1>[-]Error:<h1><h2>URL:</h2> " + self.urlform + "<br><h2>Data:</h2> " + data.encode(
@@ -146,7 +149,7 @@ class MainWindow(QMainWindow):
 
     def validatePayload(self, payload=None, method=None, data=None, htmlResponse=None, requestB64=None):
         self.htmlResponse = htmlResponse
-        self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
+        #self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
         self.RenderingHandler()
         if (payload.getExpectedResult() in self.htmlResponse) or payload.getPayload() in self.htmlResponse:
             print "**Response Before Rendering** method: " + method + " Maybe XSS: payload " + payload.getPayload() + " return in the response, URL: " + self.url + " payload: " + data + "\n"
