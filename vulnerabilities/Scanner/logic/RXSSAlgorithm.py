@@ -89,6 +89,7 @@ class MainWindow(QMainWindow):
     def ScanPage(self, pageEntity=None, forms=None, links=None, vulnUtils=None):
         self.forms = forms
         self.links = links
+        self.page_entity = pageEntity
         self.vulnUtils = vulnUtils
         self.updateCookiesMechanizetoQt(self.vulnUtils.getCookieJar())
         self.url = pageEntity.getURL()
@@ -98,6 +99,7 @@ class MainWindow(QMainWindow):
         self.browser.page().userAgentForUrl(QUrl(self.url))
         curURL = QUrl(self.url)
         self.browser.load(curURL)
+        print("in scan page - page loaded")
         self.setCentralWidget(self.browser)
         self.show()
         self.app.exec_()
