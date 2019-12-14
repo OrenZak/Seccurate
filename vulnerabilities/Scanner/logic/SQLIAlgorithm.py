@@ -119,7 +119,7 @@ class SQLIAlgorithm():
         for inputname in non_vulnerable_inputnames:
             vulnerable = False
             for payload in vulnUtils.getErrorBasedPayloads():
-                # TODO: turn error_based_payloads into a list of tuples instead of splitting it every iterations
+                # TODO: turn error_based_payloads into a list of tuples instead of splitting it every iteration
                 splitted_payload = payload.getPayload().split(';;')
 
                 if form_attributes:
@@ -160,7 +160,7 @@ class SQLIAlgorithm():
         inputnames = {}
         if len(urlparse(link).query):
             for parameter in urlparse(link).query.split('&'):
-                if len(parameter.split('=')) >= 2:  # TODO: what if values is base64/urlsafe padded with equal sign??
+                if len(parameter.split('=')) >= 2:
                     inputnames[parameter.split('=')[0]] = parameter.split('=')[1]
                 elif len(parameter.split('=')) == 1:
                     inputnames[parameter.split('=')[0]] = ''
