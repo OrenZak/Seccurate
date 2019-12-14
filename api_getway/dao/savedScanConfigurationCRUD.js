@@ -22,7 +22,7 @@ class SavedConfigurationCRUD {
     }
 
     createTable() {
-        const sql = `CREATE TABLE IF NOT EXISTS ?? (id VARCHAR(100) PRIMARY KEY, maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, maxConcurrency INTEGER, default_scan BOOLEAN, UNIQUE KEY unique_scan (maxDepth,timeout,interval_crawler,maxConcurrency))`
+        const sql = `CREATE TABLE IF NOT EXISTS ?? (id VARCHAR(100) PRIMARY KEY, maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, maxConcurrency INTEGER, UNIQUE KEY unique_scan (maxDepth,timeout,interval_crawler,maxConcurrency))`
         this.conn.query(sql, [this.table_name], function(err) {
             if (err) {
                 console.log(err)
@@ -33,8 +33,8 @@ class SavedConfigurationCRUD {
 
     insertValue(value) {
         const id = new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('')+Math.floor(Math.random()*100000)
-        const sql = `INSERT INTO ?? VALUES (?,?,?,?,?,?)`
-        if (value.getDefaultScan()) {
+        const sql = `INSERT INTO ?? VALUES (?,?,?,?,?)`
+        /*if (value.getDefaultScan()) {
             this.getDefaultValue((err, value) => {
                 if (err) {
                     console.log(err)
@@ -43,9 +43,9 @@ class SavedConfigurationCRUD {
                     this.updateValue(new configurationEntity(value[0]['id'], value[0]['maxDepth'], value[0]['timeout'], value[0]['interval_crawler'], value[0]['maxConcurrency'], false));
                 }
             })
-        }
+        }*/
         //TODO: I assume that all three extra values are here. This should be checked in a different layer
-        this.conn.query(sql, [this.table_name, id, value.getMaxDepth(), value.getTimeout(), value.getInterval(), value.getMaxConcurrency(), value.getDefaultScan()], (err) => {
+        this.conn.query(sql, [this.table_name, id, value.getMaxDepth(), value.getTimeout(), value.getInterval(), value.getMaxConcurrency()], (err) => {
             if (err) {
                 console.log(err)
             }
@@ -60,8 +60,8 @@ class SavedConfigurationCRUD {
                 throw new Error('No such value ' + new_value.getID() + '\n' + err)
             }
         })
-        const sql = `UPDATE ?? SET maxDepth=?, timeout=?, interval_crawler=?, maxConcurrency=?, default_scan=? WHERE id=?`
-        if (new_value.getDefaultScan()) {
+        const sql = `UPDATE ?? SET maxDepth=?, timeout=?, interval_crawler=?, maxConcurrency=? WHERE id=?`
+        /*if (new_value.getDefaultScan()) {
             this.getDefaultValue((err, value) => {
                 if (err) {
                     console.log(err)
@@ -70,8 +70,8 @@ class SavedConfigurationCRUD {
                     this.updateValue(new configurationEntity(value[0]['id'], value[0]['maxDepth'], value[0]['timeout'], value[0]['interval_crawler'], value[0]['maxConcurrency'], false));
                 }
             })
-        }
-        this.conn.query(sql,[this.table_name, new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(), new_value.getMaxConcurrency(), new_value.getDefaultScan(), new_value.getID()], (err) => {
+        }*/
+        this.conn.query(sql,[this.table_name, new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(), new_value.getMaxConcurrency(), new_value.getID()], (err) => {
             if (err) {
                 console.log(err)
             }
@@ -104,7 +104,7 @@ class SavedConfigurationCRUD {
         })
     }
 
-    getDefaultValue(callback) {
+    /*getDefaultValue(callback) {
         const sql = 'SELECT * FROM ?? WHERE default_scan=true';
         this.conn.query(sql,[this.table_name], function (err,result) {
             if (!err) {
@@ -114,7 +114,7 @@ class SavedConfigurationCRUD {
                 console.log(err)
             }
         })
-    }
+    }*/
 
     getAll(callback, page=0, size=10) {
         const sql = `SELECT * from ?? ORDER BY id ASC LIMIT ?,?`
