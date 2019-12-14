@@ -47,36 +47,11 @@ class SQLIAlgorithm():
         # if forms or links:
         #    self.error_based_payloads = self.get_payloads_by_type(payload_type=self.error_based)
         #    self.error_based_responses = self.get_error_based_responses()
+        print("in start scan")
         for link in links:
             self.inject_to_links(link, pageEntity, vulnUtils)
         for form in forms:
             self.inject_to_form(forms[form], pageEntity, vulnUtils)  # self.update_scanned_pages()
-
-    # def get_soup_from_url(self, url):
-    #     response = unicode(self.br.open(url).read(), 'utf-8')
-    #     return BeautifulSoup(response, 'html.parser')
-
-    # def get_payloads_by_type(self, payload_type):
-    #     payloads = []
-    #     i = 0
-    #     page_result = self.sqliDBInstance.getPayloadsByType(type=payload_type, page=i)
-    #     while page_result:
-    #         for payload in page_result:
-    #             payloads.append(payload)
-    #         i += 1
-    #         page_result = self.sqliDBInstance.getPayloadsByType(type=payload_type, page=i)
-    #     return payloads
-    #
-    # def get_error_based_responses(self):
-    #     error_based_responses = []
-    #     i = 0
-    #     page_result = self.sqliDBInstance.getResponses(page=i)
-    #     while page_result:
-    #         for response in page_result:
-    #             error_based_responses.append(response)
-    #         i += 1
-    #         page_result = self.sqliDBInstance.getResponses(page=i)
-    #     return error_based_responses
 
     def inject_to_form(self, form_attributes, page_entity, vulnUtils):
         non_vulnerable_inputnames = form_attributes[self.inputnames_index]
@@ -119,6 +94,7 @@ class SQLIAlgorithm():
         for inputname in non_vulnerable_inputnames:
             vulnerable = False
             for payload in vulnUtils.getErrorBasedPayloads():
+                print("there are payloads")
                 # TODO: turn error_based_payloads into a list of tuples instead of splitting it every iteration
                 splitted_payload = payload.getPayload().split(';;')
 
