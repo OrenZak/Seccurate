@@ -93,7 +93,7 @@ class SavedConfigurationCRUD {
 
     getIDByValue(value)
     {
-        const sql = `SELECT * FROM ?? WHERE maxDepth=? AND timeout=? AND interval_crawler=? AND maxConcurrency=?`
+        const sql = `SELECT id FROM ?? WHERE maxDepth=? AND timeout=? AND interval_crawler=? AND maxConcurrency=?`
         this.conn.query(sql,[this.table_name, value.getMaxDepth(), value.getTimeout(), value.getInterval(), value.getMaxConcurrency()], function (err, result) {
             if (!err) {
                 callback(null, result)
