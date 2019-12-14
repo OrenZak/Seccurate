@@ -27,25 +27,22 @@ class LogicService {
         socketManager.start(server);
     }
 
-    async updateScanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description,scanID){
+    async updateScanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description, scanID, savedScanName) {
         let dbName = 'test';
         let savedConfigDao = new SavedConfigurarionDao(dbName);
         let configEntity = new ConfigEntity(scanID, maxDepth, timeout, interval, maxConcurrency, scanType, JSON.stringify(loginInfo), url);
         if (save) {
-            let a = this.configurationHistoryDao.getValue(scanID,(err,data)=>{
-                if(err){
+            let a = this.configurationHistoryDao.getValue(scanID, (err, data) => {
+                if (err) {
                     console.log(err)
-                }
-                else{
-                    console.log(data[0]['timeout']);
-                    let ent = new SavedConfigEntity(null,data[0]['maxDepth'], data[0]['timeout'], data[0]['interval_crawler'], data[0]['maxConcurrency']);
-                    savedConfigDao.getIDByValue(ent,(err,result)=>{
-                        if(err){
+                } else {
+                    let ent = new SavedConfigEntity(null, null, data[0]['maxDepth'], data[0]['timeout'], data[0]['interval_crawler'], data[0]['maxConcurrency']);
+                    savedConfigDao.getIDByValue(ent, (err, result) => {
+                        if (err) {
                             console.log(err);
-                        }
-                        else {
+                        } else {
                             let id = result[0]['id'];
-                            let updatedScan = new SavedConfigEntity(id, maxDepth, timeout, interval, maxConcurrency);
+                            let updatedScan = new SavedConfigEntity(id, savedScanName, maxDepth, timeout, interval, maxConcurrency);
                             savedConfigDao.updateValue(updatedScan);
                         }
                     })
@@ -56,13 +53,13 @@ class LogicService {
         return;
     }
 
-    async scanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description) {
+    async scanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description, savedScanName) {
         let dbName = 'test';
         let configEntity = new ConfigEntity(null, maxDepth, timeout, interval, maxConcurrency, scanType, JSON.stringify(loginInfo), url);
         let configHistoryValue = this.configurationHistoryDao.insertValue(configEntity);
         if (save) {
             let savedConfigDao = new SavedConfigurarionDao(dbName);
-            let savedConfigEntity = new SavedConfigEntity(null, maxDepth, timeout, interval, maxConcurrency);
+            let savedConfigEntity = new SavedConfigEntity(null, savedScanName, maxDepth, timeout, interval, maxConcurrency);
             savedConfigDao.insertValue(savedConfigEntity);
         }
         let scansDao = new ScansDao(dbName);
@@ -71,38 +68,37 @@ class LogicService {
         return configHistoryValue.getID();
     }
 
-    async deleteScan(id){
+    async deleteScan(id) {
         let dbName = 'test';
         this.configurationHistoryDao.deleteValue(id);
         let scansDao = new ScansDao(dbName);
-        scansDao.getByForeignKey(id,(err,data)=>{
-            if(err){
+        scansDao.getByForeignKey(id, (err, data) => {
+            if (err) {
                 console.log(err);
             }
             let scanEntity = new ScanEntity(data[0]['name'], data[0]['scan_timestamp'], data[0]['description'], data[0]['configuration'], data[0]['pageTableName']);
-            scansDao.deleteValue(scanEntity,(err)=>{
+            scansDao.deleteValue(scanEntity, (err) => {
                 console.log(err);
             });
         });
 
     }
 
-    async getScans(page,size,callback){
+    async getScans(page, size, callback) {
         let dbName = 'test';
         let scansDao = new ScansDao(dbName);
-        scansDao.getAll((err,results)=>{
-            if(err){
+        scansDao.getAll((err, results) => {
+            if (err) {
                 console.log(err);
-            }
-            else{
+            } else {
                 let scans = [];
                 results.forEach(element => {
-                    let curEntity = new ScanEntity(element['name'],element['scan_timestamp'],element['configuration'],element['description'],element['pageTableName']);
+                    let curEntity = new ScanEntity(element['name'], element['scan_timestamp'], element['configuration'], element['description'], element['pageTableName']);
                     scans.push(curEntity);
                 });
                 callback(scans);
             }
-        },page,size);
+        }, page, size);
     }
 
     async startCrawl(id) {
@@ -128,10 +124,10 @@ class LogicService {
         });
     }
 
-    async getResults(scanName,callback) {
+    async getResults(scanName, callback) {
         let vulnerabilityGetResultsRequestBoundary = new VulnerabilityGetResultsRequestBoundary(scanName);
         var options = {
-            uri: VULNERABILITY_MICROSERVICE_REST+"/get_results",
+            uri: VULNERABILITY_MICROSERVICE_REST + "/get_results",
             method: 'POST',
             json: {
                 scanName: vulnerabilityGetResultsRequestBoundary.ScanName

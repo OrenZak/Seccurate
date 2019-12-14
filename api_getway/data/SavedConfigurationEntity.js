@@ -1,12 +1,12 @@
 
 class SavedConfigurationEntity {
-    constructor(id=null, name, max_depth, timeout, interval, max_concurrency) {
-        this.id=id,
-        this.name = name,
-        this.max_depth = max_depth
-        this.timeout = timeout
-        this.interval = interval
-        this.max_concurrency = max_concurrency
+    constructor(id=null, name=null, max_depth, timeout, interval, max_concurrency) {
+        this.id=id;
+        this.name = name;
+        this.max_depth = max_depth;
+        this.timeout = timeout;
+        this.interval = interval;
+        this.max_concurrency = max_concurrency;
     }
 
     getID() {
