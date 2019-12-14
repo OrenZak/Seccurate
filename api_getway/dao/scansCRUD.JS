@@ -75,6 +75,18 @@ class ScansDataCRUD {
         })
     }
 
+    getIDByForeignKey(fk, callback){
+        const sql = `SELECT * FROM ?? WHERE configuration=?`
+        this.conn.query(sql,[this.table_name, fk], function (err, result) {
+            if (!err) {
+                callback(null, result)
+            }
+            else {
+                console.log(err)
+            }
+        })
+    }
+
     getAll(callback, page=0, size=20) {
         const sql = `SELECT * from ?? ORDER BY scan_timestamp ASC LIMIT ?,?`
         this.conn.query(sql, [this.table_name, page*size, (page*size)+size], function(err, results) {
