@@ -1,5 +1,5 @@
 class UpdateScanConfigBoundary {
-    constructor(config, scanType, url, loginInfo, name, save, description,scanID) {
+    constructor(config, scanType, url, loginInfo, name, save, description,scanID,savedScanName) {
         this.config = config;
         this.scanType = scanType;
         this.url = url;
@@ -8,6 +8,15 @@ class UpdateScanConfigBoundary {
         this.description = description
         this.save = save;
         this.scanID = scanID
+        this.savedScanName = savedScanName;
+    }
+
+    get SavedScanName() {
+        return this.savedScanName
+    }
+
+    set SavedScanName(savedScanName) {
+        this.savedScanName = savedScanName;
     }
 
     get ScanID() {
@@ -71,7 +80,7 @@ class UpdateScanConfigBoundary {
     }
 
     static deserialize(scanConfigBoundary) {
-        return new UpdateScanConfigBoundary(scanConfigBoundary.config, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save, scanConfigBoundary.description,scanConfigBoundary.scanID);
+        return new UpdateScanConfigBoundary(scanConfigBoundary.config, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save, scanConfigBoundary.description,scanConfigBoundary.scanID,scanConfigBoundary.savedScanName);
     }
 }
 

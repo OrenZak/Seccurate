@@ -36,7 +36,7 @@ class LogicService {
                 if (err) {
                     console.log(err)
                 } else {
-                    let ent = new SavedConfigEntity(null, null, data[0]['maxDepth'], data[0]['timeout'], data[0]['interval_crawler'], data[0]['maxConcurrency']);
+                    let ent = new SavedConfigEntity(null, savedScanName, data[0]['maxDepth'], data[0]['timeout'], data[0]['interval_crawler'], data[0]['maxConcurrency']);
                     savedConfigDao.getIDByValue(ent, (err, result) => {
                         if (err) {
                             console.log(err);
@@ -70,7 +70,6 @@ class LogicService {
 
     async deleteScan(id) {
         let dbName = 'test';
-        this.configurationHistoryDao.deleteValue(id);
         let scansDao = new ScansDao(dbName);
         scansDao.getByForeignKey(id, (err, data) => {
             if (err) {
@@ -81,6 +80,7 @@ class LogicService {
                 console.log(err);
             });
         });
+        this.configurationHistoryDao.deleteValue(id);
 
     }
 
