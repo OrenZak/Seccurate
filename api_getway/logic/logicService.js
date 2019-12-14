@@ -74,11 +74,17 @@ class LogicService {
     async deleteScan(id){
         let dbName = 'test';
         let savedConfigDao = new SavedConfigurarionDao(dbName);
-        this.configurationHistoryDao.deleteValue(id,(err)=>{
-            if(err)
+        this.configurationHistoryDao.deleteValue(id);
+        let scansDao = new ScansDao(dbName);
+        scansDao.getByForeignKey(id,(err,data)=>{
+            if(err){
                 console.log(err);
-        })
-        
+            }
+            let scanEntity = new ScanEntity(data[0]['name'], data[0]['scan_timestamp'], data[0]['description'], data[0]['configuration'], data[0]['pageTableName']);
+            scansDao.deleteValue(scanEntity,(err)=>{
+                console.log(err);
+            });
+        });
 
     }
 

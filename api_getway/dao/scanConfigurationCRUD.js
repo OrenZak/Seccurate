@@ -104,7 +104,7 @@ class ScanConfigHistoryCRUD {
     }
     
     deleteValue(value_id){
-        this.getValue(value_id, this.table_name, function (err, res) {
+        this.getValue(value_id, function (err, res) {
             if (err) {
                 throw new Error('No such value ' + value_id + '\n' + err)
             }

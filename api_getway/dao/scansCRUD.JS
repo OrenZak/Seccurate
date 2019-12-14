@@ -32,7 +32,7 @@ class ScansDataCRUD {
     }
 
     createTable() {
-        const sql = `CREATE TABLE IF NOT EXISTS ?? (name VARCHAR(100), scan_timestamp VARCHAR(30) PRIMARY KEY, description VARCHAR(200), configuration VARCHAR(100), pageTableName VARCHAR(100), FOREIGN KEY(configuration) REFERENCES test.ConfigurationsHistory(id) on delete cascade)`
+        const sql = `CREATE TABLE IF NOT EXISTS ?? (name VARCHAR(100), scan_timestamp VARCHAR(30) PRIMARY KEY, description VARCHAR(200), configuration VARCHAR(100), pageTableName VARCHAR(100), FOREIGN KEY(configuration) REFERENCES test.ConfigurationsHistory(id))`
         this.conn.query(sql, [this.table_name], function(err) {
             if (err) {
                 console.log(err)
@@ -100,7 +100,7 @@ class ScansDataCRUD {
     }
     
     deleteValue(value){
-        this.getValue(value.getTimestamp(), this.table_name, function (err, res) {
+        this.getValue(value.getTimestamp(), function (err, res) {
             if (err) {
                 throw new Error('No such value ' + value.getName() + '\n' + err)
             }
