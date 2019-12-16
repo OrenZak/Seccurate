@@ -1,0 +1,10 @@
+# Don't track content of these folders
+.idea/
+venv/
+install/
+venv3/
+
+node_modules/
+package-lock.json
+
+.vscode/

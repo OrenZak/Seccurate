@@ -12,6 +12,7 @@
     "mocha": "^6.2.2"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+	"start": "node layout\\serverController.js"
   }
 }

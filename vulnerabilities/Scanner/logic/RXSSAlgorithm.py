@@ -1,68 +1,51 @@
 import ConfigParser
-import sys
-import time
+import requests
 
 import VulnerabilitiesCRUD
 from VulnerabilitiesObjects import SimpleVulnerabilityEntity
 from Methods import ParseForms
-
-reload(sys)
-sys.setdefaultencoding('utf8')
-import os
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-from PyQt4.QtWebKit import *
-from PyQt4.QtNetwork import *
 import urllib
 from urlparse import urlparse
 
 
-class JShandle(QMainWindow):
-    def __init__(self, parent=None):
-        super(JShandle, self).__init__(parent)
+# class JShandle(QMainWindow):
+#     def __init__(self, parent=None):
+#         super(JShandle, self).__init__(parent)
+#
+#     def RenderPage(self, html, cj_mechanize, urlform):
+#         self.setWindowTitle("TestingSite")
+#         self.browser = QWebView()
+#         self.cj_mechanize = cj_mechanize
+#         self.updateCookiesMechanizetoQt()
+#         self.networkAccessManager = QNetworkAccessManager()
+#         self.networkAccessManager.setCookieJar(self.cookieJar)
+#         self.browser.page().setNetworkAccessManager(self.networkAccessManager)
+#         self.browser.loadFinished.connect(self.RenderPageFinishedEvent)
+#         self.browser.setHtml(html, QUrl(urlform))
+#         self.setCentralWidget(self.browser)
+#
+#     def RenderPageFinishedEvent(self):
+#         # self.browser.loadFinished.disconnect(self.RenderPageFinishedEvent)
+#         self.htmlResponse = self.browser.page().mainFrame().toHtml().toUtf8()
+#         return self.htmlResponse
+#
+#     def updateCookiesMechanizetoQt(self):
+#         self.cookieJar = QNetworkCookieJar()
+#         QcookieList = []
+#         list = []
+#         for Mcookie in self.cj_mechanize:
+#             Qcookie = QNetworkCookie()
+#             Qcookie.setName(Mcookie.name)
+#             Qcookie.setValue(Mcookie.value)
+#             Qcookie.setDomain(Mcookie.domain)
+#             QcookieList.append(Qcookie)
+#             list.append(Mcookie.name + ":" + Mcookie.value)
+#         self.cookieJar.setAllCookies(QcookieList)
 
-    def RenderPage(self, html, cj_mechanize, urlform):
-        self.setWindowTitle("TestingSite")
-        self.browser = QWebView()
-        self.cj_mechanize = cj_mechanize
-        self.updateCookiesMechanizetoQt()
-        self.networkAccessManager = QNetworkAccessManager()
-        self.networkAccessManager.setCookieJar(self.cookieJar)
-        self.browser.page().setNetworkAccessManager(self.networkAccessManager)
-        self.browser.loadFinished.connect(self.RenderPageFinishedEvent)
-        self.browser.setHtml(html, QUrl(urlform))
-        self.setCentralWidget(self.browser)
 
-    def RenderPageFinishedEvent(self):
-        # self.browser.loadFinished.disconnect(self.RenderPageFinishedEvent)
-        self.htmlResponse = self.browser.page().mainFrame().toHtml().toUtf8()
-        return self.htmlResponse
-
-    def updateCookiesMechanizetoQt(self):
-        self.cookieJar = QNetworkCookieJar()
-        QcookieList = []
-        list = []
-        for Mcookie in self.cj_mechanize:
-            Qcookie = QNetworkCookie()
-            Qcookie.setName(Mcookie.name)
-            Qcookie.setValue(Mcookie.value)
-            Qcookie.setDomain(Mcookie.domain)
-            QcookieList.append(Qcookie)
-            list.append(Mcookie.name + ":" + Mcookie.value)
-        self.cookieJar.setAllCookies(QcookieList)
-
-
-class MainWindow(QMainWindow):
+class MainWindow():
     def __init__(self, table_name=None, db_type=None, *args,
                  **kwargs):
-        self.app = QApplication(sys.argv)
-        self.app.setApplicationName(QString("Chrome"))
-        self.app.setApplicationVersion(QString("53.0.2785.113"))
-        super(MainWindow, self).__init__(*args, **kwargs)
-        self.setWindowTitle("ScarpSite")
-        self.browser = QWebView()
-        self.networkAccessManager = QNetworkAccessManager()
-        self.cookieJar = QNetworkCookieJar()
         self.__VulnCrud = VulnerabilitiesCRUD
         self.__tableName = table_name
         self.get_configuration_properties()
@@ -77,6 +60,9 @@ class MainWindow(QMainWindow):
         self.cookie = self.config.get('Authentication', 'Cookie')
         self.baseAuth = self.config.get('Authentication', 'BasicAuthentication')
 
+        # Get render service URL
+        self.renderServiceURL = self.config.get('RenderServerInfo', 'url')
+
         self.env_type = self.config.get('CurrentEnvironment', 'type')
 
         # form_attributes_indices
@@ -88,41 +74,18 @@ class MainWindow(QMainWindow):
         self.descriptionKey = self.config.get('RXSS', 'rxss')
 
     def ScanPage(self, pageEntity=None, forms=None, links=None, vulnUtils=None):
-        self.browser = QWebView()
         self.forms = forms
         self.links = links
         self.page_entity = pageEntity
         self.vulnUtils = vulnUtils
-        self.updateCookiesMechanizetoQt(self.vulnUtils.getCookieJar())
         self.url = pageEntity.getURL()
-        self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
         self.domain = urlparse(self.url).hostname
-        self.browser.loadFinished.connect(self.__onUrlLoaded)
-        self.browser.loadStarted.connect(self.started)
-        self.browser.loadProgress.connect(self.loadPogress)
-        self.browser.page().networkAccessManager().setCookieJar(self.cookieJar)
-        self.browser.page().userAgentForUrl(QUrl(self.url))
-        curURL = QUrl(self.url)
-        self.browser.load(curURL)
-        self.browser.reload()
-        print("in scan page - page loaded")
-        self.setCentralWidget(self.browser)
-        self.show()
-        self.app.exec_()
-
-    def loadPogress(self, num):
-        print("######load in progress : " + str(num))
-
-    def started(self):
-        print("#######started#######")
+        self.__onUrlLoaded()
 
     def __onUrlLoaded(self):
-        print("RXSS url loaded")
-        self.browser.loadFinished.disconnect(self.__onUrlLoaded)
         self.LoadConfigurations()
         self.ScanLinks()
         self.ScanForms()
-        self.app.closeAllWindows()
 
     def LoadConfigurations(self):
         self.xsspayload = self.vulnUtils.getRXSSPayloads()
@@ -143,9 +106,9 @@ class MainWindow(QMainWindow):
                     check_r = True
                     try:
                         # Get Response From the Server
+                        self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
                         htmlResponse, response_hash, elapsed_time, requestB64 = self.vulnUtils.get_url_open_results(
                             method, data, self.url)
-                        # self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
                     except Exception as e:
                         check_r = False
                         print "<h1>[-]Error:<h1><h2>URL:</h2> " + self.urlform + "<br><h2>Data:</h2> " + data.encode(
@@ -156,36 +119,18 @@ class MainWindow(QMainWindow):
 
     def validatePayload(self, payload=None, method=None, data=None, htmlResponse=None, requestB64=None):
         self.htmlResponse = htmlResponse
-        # self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
-        self.RenderingHandler()
         if (payload.getExpectedResult() in self.htmlResponse) or payload.getPayload() in self.htmlResponse:
             print "**Response Before Rendering** method: " + method + " Maybe XSS: payload " + payload.getPayload() + " return in the response, URL: " + self.url + " payload: " + data + "\n"
-            if payload.getExpectedResult() in self.MainWindowJShandle.htmlResponse:
+            req = requests.post(self.renderServiceURL, data={'content': str(self.htmlResponse)})
+            if payload.getExpectedResult() in req.json()["result"]:
                 self.event = "**XSS Detected After Rendering** method: " + method + " payload " + payload.getPayload() + " URL : " + self.url + " payload: " + data + "\n"
                 self.addEvent(vuln_descriptor=self.descriptionKey, url=self.url,
                               payload=payload.getPayload(),
                               requestB64=requestB64)
             else:  # False Positive
                 print "***Identified False Positive*** method:" + method + " payload " + payload.getPayload() + " URL: " + self.url + " payload: " + data + "\n"
-
-    def RenderingHandler(self):
-        self.MainWindowJShandle = JShandle()
-        self.MainWindowJShandle.RenderPage(self.htmlResponse, self.vulnUtils.getCookieJar(), self.urlform)
-        self.MainWindowJShandle.htmlResponse = self.MainWindowJShandle.RenderPageFinishedEvent()
-
-    def updateCookiesMechanizetoQt(self, cj_mechanize):
-        self.cookieJar = QNetworkCookieJar()
-        QcookieList = []
-        list = []
-        for Mcookie in cj_mechanize:
-            Qcookie = QNetworkCookie()
-            Qcookie.setName(Mcookie.name)
-            Qcookie.setValue(Mcookie.value)
-            Qcookie.setDomain(Mcookie.domain)
-            Qcookie.setPath(Mcookie.path)
-            QcookieList.append(Qcookie)
-            list.append(Mcookie.name + ":" + Mcookie.value)
-        self.cookieJar.setAllCookies(QcookieList)
+        else:
+            print("page : " + self.url + " does not vulnerable to RXSS using the following payload :" + payload.getPayload())
 
     def GetLinkInputFields(self, link):
         self.urlform = urlparse(link).scheme + "://" + urlparse(link).hostname + urlparse(link).path + urlparse(
@@ -215,6 +160,7 @@ class MainWindow(QMainWindow):
                         inputnames[inputname] = originalvalue
                         try:
                             method = "GET"
+                            self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
                             htmlresponse, response_hash, elapsed_time, requestB64 = self.vulnUtils.get_url_open_results(
                                 method, data, self.url)
                             self.validatePayload(payload=payload, method=method, data=data, htmlResponse=htmlresponse,
