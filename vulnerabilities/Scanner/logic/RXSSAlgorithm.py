@@ -34,6 +34,7 @@ class JShandle(QMainWindow):
         self.setCentralWidget(self.browser)
 
     def RenderPageFinishedEvent(self):
+        # self.browser.loadFinished.disconnect(self.RenderPageFinishedEvent)
         self.htmlResponse = self.browser.page().mainFrame().toHtml().toUtf8()
         return self.htmlResponse
 
@@ -54,7 +55,6 @@ class JShandle(QMainWindow):
 class MainWindow(QMainWindow):
     def __init__(self, table_name=None, db_type=None, *args,
                  **kwargs):
-
         self.app = QApplication(sys.argv)
         self.app.setApplicationName(QString("Chrome"))
         self.app.setApplicationVersion(QString("53.0.2785.113"))
@@ -88,34 +88,41 @@ class MainWindow(QMainWindow):
         self.descriptionKey = self.config.get('RXSS', 'rxss')
 
     def ScanPage(self, pageEntity=None, forms=None, links=None, vulnUtils=None):
+        self.browser = QWebView()
         self.forms = forms
         self.links = links
         self.page_entity = pageEntity
         self.vulnUtils = vulnUtils
         self.updateCookiesMechanizetoQt(self.vulnUtils.getCookieJar())
         self.url = pageEntity.getURL()
+        self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
         self.domain = urlparse(self.url).hostname
         self.browser.loadFinished.connect(self.__onUrlLoaded)
+        self.browser.loadStarted.connect(self.started)
+        self.browser.loadProgress.connect(self.loadPogress)
         self.browser.page().networkAccessManager().setCookieJar(self.cookieJar)
         self.browser.page().userAgentForUrl(QUrl(self.url))
         curURL = QUrl(self.url)
-        print(self.url)
         self.browser.load(curURL)
+        self.browser.reload()
         print("in scan page - page loaded")
         self.setCentralWidget(self.browser)
         self.show()
         self.app.exec_()
 
+    def loadPogress(self, num):
+        print("######load in progress : " + str(num))
+
+    def started(self):
+        print("#######started#######")
+
     def __onUrlLoaded(self):
         print("RXSS url loaded")
         self.browser.loadFinished.disconnect(self.__onUrlLoaded)
-        #self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
         self.LoadConfigurations()
         self.ScanLinks()
         self.ScanForms()
         self.app.closeAllWindows()
-        self.browser.stop()
-
 
     def LoadConfigurations(self):
         self.xsspayload = self.vulnUtils.getRXSSPayloads()
@@ -138,7 +145,7 @@ class MainWindow(QMainWindow):
                         # Get Response From the Server
                         htmlResponse, response_hash, elapsed_time, requestB64 = self.vulnUtils.get_url_open_results(
                             method, data, self.url)
-                        #self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
+                        # self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
                     except Exception as e:
                         check_r = False
                         print "<h1>[-]Error:<h1><h2>URL:</h2> " + self.urlform + "<br><h2>Data:</h2> " + data.encode(
@@ -149,7 +156,7 @@ class MainWindow(QMainWindow):
 
     def validatePayload(self, payload=None, method=None, data=None, htmlResponse=None, requestB64=None):
         self.htmlResponse = htmlResponse
-        #self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
+        # self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
         self.RenderingHandler()
         if (payload.getExpectedResult() in self.htmlResponse) or payload.getPayload() in self.htmlResponse:
             print "**Response Before Rendering** method: " + method + " Maybe XSS: payload " + payload.getPayload() + " return in the response, URL: " + self.url + " payload: " + data + "\n"
@@ -159,7 +166,7 @@ class MainWindow(QMainWindow):
                               payload=payload.getPayload(),
                               requestB64=requestB64)
             else:  # False Positive
-                print "***Identified False Positive*** method:" + method + " payload " + payload.getPayload() + " URL: " + self.urlform + " payload: " + data + "\n"
+                print "***Identified False Positive*** method:" + method + " payload " + payload.getPayload() + " URL: " + self.url + " payload: " + data + "\n"
 
     def RenderingHandler(self):
         self.MainWindowJShandle = JShandle()

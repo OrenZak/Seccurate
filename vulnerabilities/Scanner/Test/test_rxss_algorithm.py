@@ -69,7 +69,7 @@ class TestRXSSAlgorithm(unittest.TestCase):
 
     def test_scan_rxss(self):
         url = "http://localhost/bwapp/htmli_post.php"
-        hash = '01167adf28ea9d299b4508b5c10850e8'
+        hash = '160145d0db671bffecb5cada4fa4a2f9'
         forms, links = self.vulnUtils.get_injection_points(PageEntity(url=url, pageHash=hash), self.session_entity)
         self.rxssAlgorithm.ScanPage(PageEntity(url=url, pageHash=hash), forms=forms, links=links,
                                     vulnUtils=self.vulnUtils)

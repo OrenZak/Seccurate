@@ -92,6 +92,8 @@ class LogicService(threading.Thread):
             self.rxssalgo = MainWindow(db_type='test', table_name=self.__tableName)
         while not flag:
             try:
+                print("Calling scanPage")
+                time.sleep(5)
                 self.rxssalgo.ScanPage(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
                 flag = True
             except CookieException:
