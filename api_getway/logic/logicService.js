@@ -14,21 +14,25 @@ let ScansDao = require('../dao/scansCRUD');
 let SavedConfigEntity = require('../data/SavedConfigurationEntity');
 let ScanEntity = require('../data/scanEntity');
 
+let currentID;
+
 class LogicService {
+
     constructor(server) {
         console.log('created');
 
     }
 
     startSocketListen(server) {
-        socketManager.start(server,this.scanDoneCallback);
+        socketManager.start(server, this.scanDoneCallback);
     }
 
-    scanDoneCallback(){
+    scanDoneCallback() {
+        console.log('entered scan Done Callback with '+currentID);
         let dbName = 'test';
         let scansDao = new ScansDao(dbName);
-        scansDao.updateScanFinished(this.currentID,(err, result)=>{
-            if(!err){
+        scansDao.updateScanFinished(currentID, (err, result) => {
+            if (!err) {
                 console.log('dont completing scan at db');
             }
         });
@@ -45,7 +49,7 @@ class LogicService {
     async scanTarget(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, description) {
         let dbName = 'test';
         let scansDao = new ScansDao(dbName);
-        let pageTableID = new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('')+Math.floor(Math.random()*100000);
+        let pageTableID = new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('') + Math.floor(Math.random() * 100000);
         let timestamp = Date.now();
         let scanEntity = new ScanEntity(name, timestamp, description, pageTableID, maxDepth, timeout, interval, maxConcurrency, scanType,
             false, JSON.stringify(loginInfo), url);
@@ -77,7 +81,7 @@ class LogicService {
     }
 
     async startCrawl(id) {
-        this.currentID = id;
+        currentID = id;
         let dbName = 'test';
         let scansDao = new ScansDao(dbName);
         scansDao.getValue(id, (err, value) => {
@@ -91,7 +95,7 @@ class LogicService {
                     timeout: value[0]["timeout"]
                 };
                 let crawlerConfigBoundary = new CrawlerConfigScanBoundary(config, value[0]["vulnsScanned"], value[0]["loginPage"], JSON.parse(value[0]["credentials"]));
-                let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(value[0]["id"], value[0]["vulnsScanned"], value[0]["loginPage"], JSON.parse(value[0]["credentials"]));
+                let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(globals.VULN_TABLE_PREFIX + value[0]["scan_timestamp"], value[0]["vulnsScanned"], value[0]["loginPage"], JSON.parse(value[0]["credentials"]));
                 // INIT vulnerability micro service scan configuration
                 socketManager.configDatabase(vulnerabilityConfigBoundary);
                 console.log("config vulnerability database before scan");
@@ -107,7 +111,7 @@ class LogicService {
             uri: VULNERABILITY_MICROSERVICE_REST + "/get_results",
             method: 'POST',
             json: {
-                scanName: vulnerabilityGetResultsRequestBoundary.ScanName
+                scanName: globals.VULN_TABLE_PREFIX+vulnerabilityGetResultsRequestBoundary.ScanName
             }
         };
         request(options, (error, res, body) => {
@@ -177,7 +181,7 @@ class LogicService {
             } else {
                 let scans = [];
                 results.forEach(element => {
-                    let curEntity = new ScanEntity(element['name'], element['scan_timestamp'], element['configuration'], element['description'], element['pageTableName']);
+                    let curEntity = new ScanEntity(element['name'], element['scan_timestamp'], element['description'], element['pageTableName'], element['maxDepth'], element['timeout'], element['interval_crawler'], element['vulnsScanned'], element['done'], element['credentials'], element['loginPage']);
                     scans.push(curEntity);
                 });
                 callback(scans);

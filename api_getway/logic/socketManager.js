@@ -93,6 +93,9 @@ function start(server, scanDoneCallback) {
         });
         socket.on(ACTIONS.CRAWLER_DONE, async function (results) {
             isCrawlerScanning = false;
+            if(!isCrawlerScanning && !isVulnerabilityScanning && pageQueue.length == 0){
+                scanDoneCallback();
+            }
         });
     });
 }

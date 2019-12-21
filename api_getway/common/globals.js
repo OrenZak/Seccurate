@@ -5,6 +5,7 @@ const TEST_DB = 'C:\\DB\\node_test_api_db.db';
 const PROD_DB = 'C:\\DB\\node_prod_api_db.db';
 const API_GW_DB_NAME = 'test:prod';
 const SCAN_CRUD_TABLE = 'scans';
+const VULN_TABLE_PREFIX = 'vuln_';
 
 module.exports = {
     VULNERABILITY_MICROSERVICE_REST,
@@ -13,5 +14,6 @@ module.exports = {
     TEST_DB,
     PROD_DB,
     API_GW_DB_NAME,
-    SCAN_CRUD_TABLE
+    SCAN_CRUD_TABLE,
+    VULN_TABLE_PREFIX
 };
