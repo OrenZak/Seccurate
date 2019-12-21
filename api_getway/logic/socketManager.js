@@ -12,8 +12,6 @@ const ACTIONS = {
     CRAWLER_DONE: "crawler_done",
     SCAN_RESULTS: "scan_page",
     SCAN_PAGE_DONE: "scan_page_done"
-
-
 };
 
 const EVENTS = {
@@ -56,7 +54,7 @@ function scanPage(pageBoundary) {
     io.emit(EVENTS.SCAN_PAGE, pageBoundary.serialize());
 }
 
-function start(server) {
+function start(server, scanDoneCallback) {
     io = require("socket.io")(server);
     io.on(ACTIONS.CONNECTION, async function (socket, next, a) {
         console.log(`SocketIO - connection`);
@@ -68,8 +66,8 @@ function start(server) {
             let crawlerPageboundary = CrawlerPageBoundary.deserialize(pageBoundary);
             
             //save url discovered using pageCrud
-            page = new pageEntity(crawlerPageboundary.URL)
-            p_crud = new pageCRUD('test', scanID)
+            page = new pageEntity(crawlerPageboundary.URL);
+            p_crud = new pageCRUD('test', scanID);
             p_crud.insertValue(page);
             
             //pass page to vuln service
@@ -81,21 +79,16 @@ function start(server) {
                 pageQueue.push(vulnerabilityPageBoundary);
             }
         });
-        socket.on(ACTIONS.SCAN_RESULTS, async function (results) {
-            console.log("received scan results");
-            var parsedResults = [];
-            results.forEach(element => {
-                parsedResults.push(element);
-            });
-            //TODO send the array somehow
-        });
         socket.on(ACTIONS.SCAN_PAGE_DONE, async function (results) {
             if (pageQueue.length > 0) {
                 let vulnerabilityPageBoundary = pageQueue.shift();
                 isVulnerabilityScanning = true;
                 scanPage(vulnerabilityPageBoundary);
-            } else {
+            } else if(isCrawlerScanning) {
                 isVulnerabilityScanning = false;
+            }
+            else{
+                scanDoneCallback();
             }
         });
         socket.on(ACTIONS.CRAWLER_DONE, async function (results) {

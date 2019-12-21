@@ -144,7 +144,7 @@ class ScansDataCRUD {
     getAllNotCompleted(callback, page=0, size=20) {
         let intPage = parseInt(page, 10);
         let intSize = parseInt(size, 10);
-        const sql = `SELECT * from ?? WHERE done=FALSE ORDER BY scan_timestamp ASC LIMIT ? OFFSET?`;
+        const sql = `SELECT * from ?? WHERE done=FALSE ORDER BY scan_timestamp ASC LIMIT ? OFFSET ?`;
         this.conn.query(sql, [this.table_name,intSize,intPage*intSize], function(err, results) {
             if (!err) {
                 callback(null, results)

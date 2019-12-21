@@ -21,7 +21,18 @@ class LogicService {
     }
 
     startSocketListen(server) {
-        socketManager.start(server);
+        socketManager.start(server,this.scanDoneCallback);
+    }
+
+    scanDoneCallback(){
+        let dbName = 'test';
+        let scansDao = new ScansDao(dbName);
+        scansDao.updateScanFinished(this.currentID,(err, result)=>{
+            if(!err){
+                console.log('dont completing scan at db');
+            }
+        });
+
     }
 
     async updateScanTarget(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, description, target_id) {
@@ -57,7 +68,7 @@ class LogicService {
             } else {
                 let scans = [];
                 results.forEach(element => {
-                    let curEntity = new ScanEntity(element['name'], element['scan_timestamp'], element['configuration'], element['description'], element['pageTableName']);
+                    let curEntity = new ScanEntity(element['name'], element['scan_timestamp'], element['description'], element['pageTableName'], element['maxDepth'], element['timeout'], element['interval_crawler'], element['vulnsScanned'], element['done'], element['credentials'], element['loginPage']);
                     scans.push(curEntity);
                 });
                 callback(scans);
@@ -66,7 +77,10 @@ class LogicService {
     }
 
     async startCrawl(id) {
-        this.configurationHistoryDao.getValue(id, (err, value) => {
+        this.currentID = id;
+        let dbName = 'test';
+        let scansDao = new ScansDao(dbName);
+        scansDao.getValue(id, (err, value) => {
             if (err) {
                 console.log(err);
             } else {
@@ -80,10 +94,9 @@ class LogicService {
                 let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(value[0]["id"], value[0]["vulnsScanned"], value[0]["loginPage"], JSON.parse(value[0]["credentials"]));
                 // INIT vulnerability micro service scan configuration
                 socketManager.configDatabase(vulnerabilityConfigBoundary);
-                console.log("config vulnerability database before scan")
+                console.log("config vulnerability database before scan");
                 socketManager.startCrawl(crawlerConfigBoundary, id);
                 console.log("crawler starts")
-
             }
         });
     }
