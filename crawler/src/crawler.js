@@ -2,8 +2,6 @@ const Crawler = require('simplecrawler'),
 	config = require('../config'),
 	crypto = require('crypto'),
 	events = require('events'),
-	urlLib = require('url'),
-	cheerio = require('cheerio'),
 	request = require('request'),
 	extractDomain = require('./utils').extractDomain;
 
@@ -20,7 +18,6 @@ function doEmit(action, mainUrl, data) {
 
 function startCrawl(mainUrl, loginInfo) {
 	const crawler = Crawler(mainUrl);
-	console.log('Crawler config: \n', crawler_config);
 	crawler.interval = crawler_config.interval;
 	crawler.maxDepth = crawler_config.maxDepth;
 	crawler.maxConcurrency = crawler_config.maxConcurrency;
@@ -33,8 +30,6 @@ function startCrawl(mainUrl, loginInfo) {
 	crawler.filterByDomain = true;
 	crawler.scanSubdomains = false;
 	crawler.acceptCookies = true;
-
-	// console.log(`start crawl -> url:${mainUrl} and  loginInfo: ${loginInfo}`);
 
 	crawler.on('fetchcomplete', function(queueItem, responseBuffer, response) {
 		const hash = createHash(queueItem);
@@ -72,9 +67,6 @@ function startCrawl(mainUrl, loginInfo) {
 }
 
 function startAfterLogin(crawler, loginInfo, mainUrl) {
-	// const loginUrl = `http://${extractDomain(mainUrl)}/${loginInfo.formAction}`;
-	// console.log('Login Url -> ', loginUrl);
-
 	request(
 		loginInfo.formAction,
 		{
@@ -163,17 +155,6 @@ function createHash(queueItem) {
 		.update(`${queueItem.url}${queueItem.stateData.actualDataSize}`)
 		.digest('hex');
 }
-
-// const loginInfo = {
-// 	form: {
-// 		login: 'bee',
-// 		password: 'bug',
-// 		security: 0,
-// 		form: 'submit',
-// 	},
-// 	formAction: 'http://192.168.64.2/bWAPP/login.php',
-// };
-// startCrawl('http://192.168.64.2/bWAPP/login.php', loginInfo);
 
 module.exports = {
 	eventEmitter: new events.EventEmitter(),
