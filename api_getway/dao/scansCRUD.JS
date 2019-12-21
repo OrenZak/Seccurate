@@ -32,7 +32,7 @@ class ScansDataCRUD {
     }
 
     createTable() {
-        const sql = `CREATE TABLE IF NOT EXISTS ?? (name VARCHAR(100), scan_timestamp VARCHAR(30) PRIMARY KEY, description VARCHAR(200), configuration VARCHAR(100), pageTableName VARCHAR(100), FOREIGN KEY(configuration) REFERENCES test.ConfigurationsHistory(id))`
+        const sql = `CREATE TABLE IF NOT EXISTS ?? (name VARCHAR(100), scan_timestamp VARCHAR(30) PRIMARY KEY, description VARCHAR(200), pageTableName VARCHAR(100), maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, maxConcurrency INTEGER, vulnsScanned VARCHAR(100) NOT NULL, credentials VARCHAR(300), loginPage VARCHAR(200))`
         this.conn.query(sql, [this.table_name], function(err) {
             if (err) {
                 console.log(err)
@@ -41,27 +41,57 @@ class ScansDataCRUD {
     }
 
     insertValue(value) {
-        const sql2 = `INSERT INTO ?? VALUES (?,?,?,?,?)`
-        this.conn.query(sql2, [this.table_name, value.getName(), value.getTimestamp(), value.getDescription(), value.getConfiguration(), value.getPageTableName()], (err) => {
-            if (err) {
-                console.log(err)
-            }
-        })
+        if (!value.getCredentials() || !value.getLoginPage()) {
+            const sql2 = `INSERT INTO ?? VALUES (name, scan_timestamp, description, pageTableName, maxDepth, timeout, interval_crawler, maxConcurrency, vulnsScanned)`
+            this.conn.query(sql2, [this.table_name, value.getName(), value.getTimestamp(), value.getDescription(),
+                value.getPageTableName(), value.getMaxDepth(),value.getTimeout(), value.getInterval(), value.getMaxConcurrency(),
+                value.getVulnsScanned()], (err) => {
+                if (err) {
+                    console.log(err)
+                }
+            })
+        }
+        else {
+            const sql = `INSERT INTO ?? VALUES (?,?,?,?,?,?,?,?,?,?,?)`
+            this.conn.query(sql, [this.table_name, value.getName(), value.getTimestamp(), value.getDescription(),
+                value.getPageTableName(), value.getMaxDepth(), value.getTimeout(), value.getInterval(), value.getMaxConcurrency(),
+                value.getVulnsScanned(), value.getCredentials(), value.getLoginPage()], (err) => {
+                if (err) {
+                    console.log(err)
+                }
+            })
+        }
     }
 
-    /*updateValue(new_value) {
-        this.getValue(new_value.getTimestamp(), async function (err, res) {
+    updateValue(new_value) {
+        this.getValue(new_value.getTimestamp(), function (err, res) {
             if (err) {
                 throw new Error('No such value ' + new_value.getName() + '\n' + err)
             }
         })
-        const sql = `UPDATE ?? SET name=?, timeout=?, interval_crawler=?, maxConcurrency=? WHERE id=?`
-        this.conn.query(sql,[this.table_name, new_value.getMaxDepth(), new_value.getTimestamp()], async (err) => {
-            if (err) {
-                console.log(err)
-            }
-        })
-    }*/
+        if (!new_value.getCredentials() || !new_value.getLoginPage()) {
+            const sql = `UPDATE ?? SET name=?, description=?, pageTableName=?, maxDepth=?, timeout=?, interval_crawler=?, maxConcurrency=?, vulnsScanned=? WHERE scan_timestamp=?`
+            this.conn.query(sql, [this.table_name, new_value.getName(), new_value.getDescription(),
+                new_value.getPageTableName(), new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(),
+                new_value.getMaxConcurrency(), new_value.getVulnsScanned(), new_value.getTimestamp()], (err) => {
+                if (err) {
+                    console.log(err)
+                }
+            })
+        }
+        else {
+            const sql = `UPDATE ?? SET name=?, description=?, pageTableName=?, maxDepth=?, timeout=?, interval_crawler=?, maxConcurrency=?, vulnsScanned=?, credentials=?, loginPage=? WHERE scan_timestamp=?`
+            this.conn.query(sql,[this.table_name, new_value.getName(), new_value.getDescription(),
+                new_value.getPageTableName(), new_value.getMaxDepth(),new_value.getTimeout(), new_value.getInterval(),
+                new_value.getMaxConcurrency(), new_value.getVulnsScanned(), new_value.getCredentials(),
+                new_value.getLoginPage(), new_value.getTimestamp()], (err) => {
+                if (err) {
+                    console.log(err)
+                }
+            })
+        }
+        return new_value
+    }
 
     getValue(value_timestamp, callback) {
         const sql = `SELECT * FROM ?? WHERE scan_timestamp=?`
@@ -75,7 +105,7 @@ class ScansDataCRUD {
         })
     }
 
-    getByForeignKey(fk, callback){
+    /*getByForeignKey(fk, callback){
         const sql = `SELECT * FROM ?? WHERE configuration=?`
         this.conn.query(sql,[this.table_name, fk], (err, result)=> {
             if (!err) {
@@ -85,7 +115,7 @@ class ScansDataCRUD {
                 console.log(err)
             }
         })
-    }
+    }*/
 
     getAll(callback, page=0, size=20) {
         const sql = `SELECT * from ?? ORDER BY scan_timestamp ASC LIMIT ?,?`
@@ -99,14 +129,14 @@ class ScansDataCRUD {
         })
     }
     
-    deleteValue(value){
-        this.getValue(value.getTimestamp(), function (err, res) {
+    deleteValue(value_timestamp){
+        this.getValue(value_timestamp, function (err, res) {
             if (err) {
-                throw new Error('No such value ' + value.getName() + '\n' + err)
+                throw new Error('No such value\n' + err)
             }
         })
         const sql = `DELETE FROM ?? WHERE scan_timestamp=?`
-        this.conn.query(sql, [this.table_name, value.getTimestamp(), (err) => {
+        this.conn.query(sql, [this.table_name, value_timestamp, (err) => {
             if (err) {
                 console.log(err)
             }
