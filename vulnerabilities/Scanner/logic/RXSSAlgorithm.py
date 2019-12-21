@@ -124,9 +124,8 @@ class MainWindow():
             req = requests.post(self.renderServiceURL, data={'content': str(self.htmlResponse)})
             if payload.getExpectedResult() in req.json()["result"]:
                 self.event = "**XSS Detected After Rendering** method: " + method + " payload " + payload.getPayload() + " URL : " + self.url + " payload: " + data + "\n"
-                self.addEvent(vuln_descriptor=self.descriptionKey, url=self.url,
-                              payload=payload.getPayload(),
-                              requestB64=requestB64)
+                self.vulnUtils.add_event(name=self.descriptionKey, url=self.url, payload=payload.getPayload(),
+                                    requestB64=requestB64)
             else:  # False Positive
                 print "***Identified False Positive*** method:" + method + " payload " + payload.getPayload() + " URL: " + self.url + " payload: " + data + "\n"
         else:
