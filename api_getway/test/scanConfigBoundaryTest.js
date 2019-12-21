@@ -1,4 +1,4 @@
-const ScanConfigBoundary = require('../layout/boundaries/scanTargetBoundary');
+const ScanConfigBoundary = require('../layout/boundaries/newScanTargetBoundary');
 
 let assert = require('assert');
 let name = "haha";

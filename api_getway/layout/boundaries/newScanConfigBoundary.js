@@ -1,4 +1,4 @@
-class ScanConfigBoundary {
+class NewScanConfigBoundary {
     constructor(name, maxDepth, timeout, interval, maxConcurrency) {
         this._name = name;
         this._maxDepth = maxDepth;
@@ -53,8 +53,8 @@ class ScanConfigBoundary {
     }
 
     static deserialize(scanConfigBoundary) {
-        return new ScanConfigBoundary(scanConfigBoundary._name, scanConfigBoundary._maxDepth, scanConfigBoundary._timeout, scanConfigBoundary._interval, scanConfigBoundary._maxConcurrency);
+        return new NewScanConfigBoundary(scanConfigBoundary._name, scanConfigBoundary._maxDepth, scanConfigBoundary._timeout, scanConfigBoundary._interval, scanConfigBoundary._maxConcurrency);
     }
 }
 
-module.exports = ScanConfigBoundary;
+module.exports = NewScanConfigBoundary;

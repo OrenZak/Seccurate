@@ -2,7 +2,7 @@ let express = require("express");
 let router = express.Router();
 let LogicService = require('../logic/logicService');
 let logicService = new LogicService();
-let ScanTargetBoundary = require('../layout/boundaries/scanTargetBoundary');
+let NewScanTargetBoundary = require('../layout/boundaries/newScanTargetBoundary');
 let UpdateScanTargetBoundary = require('../layout/boundaries/updateTargetBoundary');
 let StartCrawlBoundary = require('../layout/boundaries/startCrawlBoundary');
 let GetScansResponseBoundary = require('../layout/boundaries/getScansResponseBoundary');
@@ -43,7 +43,7 @@ router.post(PATHS.START_SCAN, async function (req, res, next) {
 });
 
 router.post(PATHS.CONFIG_TARGET, async function (req, res, next) {
-    scanConfigBoundary = ScanTargetBoundary.deserialize(req.body);
+    scanConfigBoundary = NewScanTargetBoundary.deserialize(req.body);
     var result = await logicService.scanConfig(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save, scanConfigBoundary.description, scanConfigBoundary.savedScanName);
     res.status(200).send(result);
 });
@@ -95,13 +95,13 @@ router.get(PATHS.GET_RESULTS, function (req, res, next) {
 });
 
 router.get(PATHS.CONFIG_SCAN, async function (req, res, next) {
-    scanConfigBoundary = ScanTargetBoundary.deserialize(req.body);
+    scanConfigBoundary = NewScanTargetBoundary.deserialize(req.body);
     var result = await logicService.scanConfig(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save, scanConfigBoundary.description, scanConfigBoundary.savedScanName);
     res.status(200).send(result);
 });
 
 router.post(PATHS.CONFIG_SCAN, async function (req, res, next) {
-    scanConfigBoundary = ScanTargetBoundary.deserialize(req.body);
+    scanConfigBoundary = NewScanTargetBoundary.deserialize(req.body);
     var result = await logicService.scanConfig(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save, scanConfigBoundary.description, scanConfigBoundary.savedScanName);
     res.status(200).send(result);
 });

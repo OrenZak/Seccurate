@@ -1,4 +1,4 @@
-class ScanTargetBoundary {
+class NewScanTargetBoundary {
     constructor(config, scanType, url, loginInfo, name, save, description, savedScanName) {
         this.config = config;
         this.scanType = scanType;
@@ -72,8 +72,8 @@ class ScanTargetBoundary {
     }
 
     static deserialize(scanConfigBoundary) {
-        return new ScanTargetBoundary(scanConfigBoundary.config, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save, scanConfigBoundary.description, scanConfigBoundary.savedScanName);
+        return new NewScanTargetBoundary(scanConfigBoundary.config, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save, scanConfigBoundary.description, scanConfigBoundary.savedScanName);
     }
 }
 
-module.exports = ScanTargetBoundary;
+module.exports = NewScanTargetBoundary;
