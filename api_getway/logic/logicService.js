@@ -14,7 +14,7 @@ let SavedConfigurarionDao = require('../dao/savedScanConfigurationCRUD')
 let ScansDao = require('../dao/scansCRUD');
 let ConfigEntity = require('../data/ConfigurationEntity');
 let SavedConfigEntity = require('../data/SavedConfigurationEntity')
-let ScanEntity = require('../data/scanEntity');
+let ScanEntity = require('../data/configEntity');
 
 class LogicService {
     constructor(server) {

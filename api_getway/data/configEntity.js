@@ -1,4 +1,4 @@
-class ScanEntity {
+class ConfigEntity {
     constructor(name, timestamp, description, pageTableName, maxDepth, timeout, interval, maxConcurrency, vulnsScanned, credentials=null, loginPage=null) {
         this.name = name;
         this.timestamp = timestamp;
@@ -102,4 +102,4 @@ class ScanEntity {
     }
 }
 
-module.exports = ScanEntity;
+module.exports = ConfigEntity;

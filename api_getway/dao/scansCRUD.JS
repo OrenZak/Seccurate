@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-const scanEntity = require('../data/scanEntity');
+const scanEntity = require('../data/configEntity');
 const configurationCRUD = require('./scanConfigurationCRUD');
 const globals = require('../common/globals');
 
