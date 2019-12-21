@@ -93,6 +93,18 @@ class ScansDataCRUD {
         return new_value
     }
 
+    updateScanFinished(scan_timestamp, callback){
+        const sql = `UPDATE ?? SET done=TRUE WHERE scan_timestamp=?`
+        this.conn.query(sql, [this.table_name, scan_timestamp], function (err, result) {
+            if (!err){
+                callback(null, result)
+            }
+            else{
+                console.log(err)
+            }
+        })
+    }
+
     getValue(value_timestamp, callback) {
         const sql = `SELECT * FROM ?? WHERE scan_timestamp=?`
         this.conn.query(sql,[this.table_name, value_timestamp], function (err, result) {
