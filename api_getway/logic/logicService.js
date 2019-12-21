@@ -27,7 +27,7 @@ class LogicService {
         socketManager.start(server);
     }
 
-    async updateScanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description, scanID, savedScanName) {
+    async updateScanTarget(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description, scanID, savedScanName) {
         let dbName = 'test';
         let savedConfigDao = new SavedConfigurarionDao(dbName);
         let configEntity = new ConfigEntity(scanID, maxDepth, timeout, interval, maxConcurrency, scanType, JSON.stringify(loginInfo), url);
@@ -53,7 +53,7 @@ class LogicService {
         return;
     }
 
-    async scanConfig(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description, savedScanName) {
+    async scanTarget(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description, savedScanName) {
         let dbName = 'test';
         let configEntity = new ConfigEntity(null, maxDepth, timeout, interval, maxConcurrency, scanType, JSON.stringify(loginInfo), url);
         let configHistoryValue = this.configurationHistoryDao.insertValue(configEntity);
@@ -68,7 +68,7 @@ class LogicService {
         return configHistoryValue.getID();
     }
 
-    async deleteScan(id) {
+    async deleteTarget(id) {
         let dbName = 'test';
         let scansDao = new ScansDao(dbName);
         scansDao.getByForeignKey(id, (err, data) => {
@@ -84,7 +84,7 @@ class LogicService {
 
     }
 
-    async getScans(page, size, callback) {
+    async getTargets(page, size, callback) {
         let dbName = 'test';
         let scansDao = new ScansDao(dbName);
         scansDao.getAll((err, results) => {
@@ -144,12 +144,6 @@ class LogicService {
         });
     }
 
-    async addPayload(data) {
-        var payloadBoundary = "";
-        socketManager.updatePayloads(payloadBoundary);
-
-    }
-
     async login() {
 
     }
@@ -157,6 +151,16 @@ class LogicService {
     async register() {
 
     }
+
+    async newConfig(name,interval, maxConcurrency, maxDepth, timeout){}
+
+    async updateConfig(id,name,interval, maxConcurrency, maxDepth, timeout){}
+
+    async deleteConfig(id){}
+
+    async getConfigs(page,size,callback){}
+
+    async getCompleteScans(page,size,callback){}
 
 }
 
