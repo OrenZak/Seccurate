@@ -7,7 +7,7 @@ let NewConfigBoundary = require('../layout/boundaries/newConfigBoundary');
 let UpdateScanTargetBoundary = require('../layout/boundaries/updateTargetBoundary');
 let UpdateScanConfigBoundary = require('../layout/boundaries/configBoundary');
 let StartCrawlBoundary = require('../layout/boundaries/startCrawlBoundary');
-let GetCompleteScansBoundary = require('../layout/boundaries/getCompleteScansBoundary');
+let GetCompletedScansBoundary = require('../layout/boundaries/getCompletedScansBoundary');
 let GetConfigsBoundary = require('../layout/boundaries/getConfigsBoundary');
 let GetTargetsBoundary = require('../layout/boundaries/getTargetsBoundary');
 let DeleteScanBoundary = require('../layout/boundaries/deleteBoundary');
@@ -32,8 +32,8 @@ router.get(PATHS.HOME, function (req, res, next) {
 });
 
 router.get(PATHS.GET_COMPLETE_SCANS, function (req, res, next) {
-    logicService.getCompleteScans(req.query.page, req.query.size, (scans) => {
-        scansResponseBoundary = new GetCompleteScansBoundary(scans);
+    logicService.getCompletedScans(req.query.page, req.query.size, (scans) => {
+        let scansResponseBoundary = new GetCompletedScansBoundary(scans);
         res.status(200).send(scansResponseBoundary.serialize());
     });
 

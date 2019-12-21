@@ -1,4 +1,4 @@
-class GetCompleteScansBoundary {
+class GetCompletedScansBoundary {
     constructor(scanEntityArray) {
         this.scanEntityArray = scanEntityArray;
     }
@@ -20,4 +20,4 @@ class GetCompleteScansBoundary {
     }
 }
 
-module.exports = GetCompleteScansBoundary;
+module.exports = GetCompletedScansBoundary;

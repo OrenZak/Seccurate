@@ -160,7 +160,7 @@ class LogicService {
 
     async getConfigs(page,size,callback){}
 
-    async getCompleteScans(page,size,callback){}
+    async getCompletedScans(page, size, callback){}
 
 }
 
