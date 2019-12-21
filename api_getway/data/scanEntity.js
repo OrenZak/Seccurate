@@ -1,5 +1,5 @@
 class ScanEntity {
-    constructor(name, timestamp, description, pageTableName, maxDepth, timeout, interval, maxConcurrency, vulnsScanned, done, credentials=null, loginPage=null) {
+    constructor(name, timestamp, description, pageTableName=null, maxDepth, timeout, interval, maxConcurrency, vulnsScanned, done, credentials=null, loginPage=null) {
         this.name = name;
         this.timestamp = timestamp;
         this.description = description;

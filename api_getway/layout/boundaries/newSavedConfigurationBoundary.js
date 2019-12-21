@@ -53,7 +53,7 @@ class NewSavedConfigurationBoundary {
     }
 
     static deserialize(scanConfigBoundary) {
-        return new NewSavedConfigurationBoundary(scanConfigBoundary._name, scanConfigBoundary._maxDepth, scanConfigBoundary._timeout, scanConfigBoundary._interval, scanConfigBoundary._maxConcurrency);
+        return new NewSavedConfigurationBoundary(scanConfigBoundary.name, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout, scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency);
     }
 }
 

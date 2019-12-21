@@ -1,15 +1,12 @@
 class NewTargetBoundary {
-    constructor(config, scanType, url, loginInfo, name, save, description, savedScanName) {
+    constructor(config, scanType, url, loginInfo, name, description) {
         this.config = config;
         this.scanType = scanType;
         this.url = url;
         this.loginInfo = loginInfo;
         this.name = name;
         this.description = description;
-        this.save = save;
-        this.savedScanName = savedScanName;
     }
-
 
     get Config() {
         return this.config
@@ -17,14 +14,6 @@ class NewTargetBoundary {
 
     set Config(config) {
         this.config = config;
-    }
-
-    get SavedScanName() {
-        return this.savedScanName
-    }
-
-    set SavedScanName(savedScanName) {
-        this.savedScanName = savedScanName;
     }
 
     get URL() {
@@ -59,20 +48,12 @@ class NewTargetBoundary {
         this.description = description
     }
 
-    get Save() {
-        return this.save
-    }
-
-    set Save(save) {
-        this.save = save;
-    }
-
     serialize() {
         return this;
     }
 
     static deserialize(scanConfigBoundary) {
-        return new NewTargetBoundary(scanConfigBoundary.config, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.save, scanConfigBoundary.description, scanConfigBoundary.savedScanName);
+        return new NewTargetBoundary(scanConfigBoundary.config, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.description);
     }
 }
 

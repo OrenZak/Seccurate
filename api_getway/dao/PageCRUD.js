@@ -10,7 +10,7 @@ class PageCRUD {
             //password: '18031997',
             database: db
         })
-        this.conn.connect(function(err) {
+        this.conn.connect(function (err) {
             if (err) {
                 console.error('error: ' + err);
             } else {
@@ -23,7 +23,7 @@ class PageCRUD {
 
     createTable(table_name) {
         const sql = `CREATE TABLE IF NOT EXISTS ?? (url VARCHAR(100) PRIMARY KEY)`
-        this.conn.query(sql, [table_name], function(err) {
+        this.conn.query(sql, [table_name], function (err) {
             if (err) {
                 console.log("in create: " + err)
             }
@@ -42,29 +42,29 @@ class PageCRUD {
 
     getValue(value_id, callback) {
         const sql = `SELECT * FROM ?? WHERE url=?`
-        this.conn.query(sql,[this.table_name, value_id], function (err, result) {
+        this.conn.query(sql, [this.table_name, value_id], function (err, result) {
             if (!err) {
                 callback(null, result)
-            }
-            else {
+            } else {
                 console.log("in get value: " + err)
             }
         })
     }
 
-    getAll(callback, page=0, size=10) {
-        const sql = `SELECT * from ?? ORDER BY url ASC LIMIT ?,?`
-        this.conn.query(sql, [this.table_name, page*size, (page*size)+size], function(err, results) {
+    getAll(callback, page = 0, size = 10) {
+        let intPage = parseInt(page, 10);
+        let intSize = parseInt(size, 10);
+        const sql = `SELECT * from ?? ORDER BY url ASC LIMIT ? OFFSET?`
+        this.conn.query(sql, [this.table_name,intSize,intPage*intSize], function (err, results) {
             if (!err) {
                 callback(null, results)
-            }
-            else {
+            } else {
                 console.log("in getAll: " + err)
             }
         })
     }
-    
-    deleteValue(value){
+
+    deleteValue(value) {
         this.getValue(value.getURL(), this.table_name, function (err, res) {
             if (err) {
                 throw new Error('No such value ' + value.getURL() + '\n' + err)
@@ -97,7 +97,7 @@ class PageCRUD {
     }
 
     closeConnection() {
-        this.conn.end(function(err) {
+        this.conn.end(function (err) {
             if (err) {
                 console.log(err)
             }
@@ -105,6 +105,7 @@ class PageCRUD {
         console.log('disconnected from db')
     }
 }
+
 module.exports = PageCRUD;
 
 //var table_name = new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('')+Math.random()*100000

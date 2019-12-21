@@ -117,8 +117,10 @@ class SavedConfigurationCRUD {
     }*/
 
     getAll(callback, page=0, size=10) {
-        const sql = `SELECT * from ?? ORDER BY id ASC LIMIT ?,?`
-        this.conn.query(sql, [this.table_name, page*size, (page*size)+size], function(err, results) {
+        let intPage = parseInt(page,10);
+        let intSize = parseInt(size,10);
+        const sql = `SELECT * from ?? ORDER BY id ASC LIMIT ? OFFSET ?`;
+        this.conn.query(sql, [this.table_name,intSize,intPage*intSize], function(err, results) {
             if (!err) {
                 callback(null, results)
             }
@@ -128,14 +130,14 @@ class SavedConfigurationCRUD {
         })
     }
     
-    deleteValue(value){
-        this.getValue(value.getID(), this.table_name, function (err, res) {
+    deleteValue(id){
+        this.getValue(id, function (err, res) {
             if (err) {
-                throw new Error('No such value ' + value.getID() + '\n' + err)
+                throw new Error('No such value ' + id + '\n' + err)
             }
         })
         const sql = `DELETE FROM ?? WHERE id=?`
-        this.conn.query(sql, [this.table_name, value.getID(), (err) => {
+        this.conn.query(sql, [this.table_name, id, (err) => {
             if (err) {
                 console.log(err)
             }

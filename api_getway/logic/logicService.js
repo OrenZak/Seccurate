@@ -9,16 +9,13 @@ let socketManager = require('./socketManager');
 let CrawlerConfigScanBoundary = require('./boundaries/crawlerConfigScanBoundary');
 let VulnerabilityConfigScanBoundary = require('./boundaries/vulnerabilityConfigBoundary');
 let VulnerabilityGetResultsRequestBoundary = require('./boundaries/vulnerabilityGetResultsRequestBoundary');
-let ConfigurationHistoryDao = require('../dao/scanConfigurationCRUD');
-let SavedConfigurarionDao = require('../dao/savedScanConfigurationCRUD')
+let SavedConfigurarionDao = require('../dao/savedScanConfigurationCRUD');
 let ScansDao = require('../dao/scansCRUD');
-let ConfigEntity = require('../data/ConfigurationEntity');
-let SavedConfigEntity = require('../data/SavedConfigurationEntity')
-let ScanEntity = require('../data/configEntity');
+let SavedConfigEntity = require('../data/SavedConfigurationEntity');
+let ScanEntity = require('../data/scanEntity');
 
 class LogicService {
     constructor(server) {
-        this.configurationHistoryDao = new ConfigurationHistoryDao("test");
         console.log('created');
 
     }
@@ -27,45 +24,22 @@ class LogicService {
         socketManager.start(server);
     }
 
-    async updateScanTarget(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description, scanID, savedScanName) {
+    async updateScanTarget(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, description, target_id) {
         let dbName = 'test';
-        let savedConfigDao = new SavedConfigurarionDao(dbName);
-        let configEntity = new ConfigEntity(scanID, maxDepth, timeout, interval, maxConcurrency, scanType, JSON.stringify(loginInfo), url);
-        if (save) {
-            let a = this.configurationHistoryDao.getValue(scanID, (err, data) => {
-                if (err) {
-                    console.log(err)
-                } else {
-                    let ent = new SavedConfigEntity(null, savedScanName, data[0]['maxDepth'], data[0]['timeout'], data[0]['interval_crawler'], data[0]['maxConcurrency']);
-                    savedConfigDao.getIDByValue(ent, (err, result) => {
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            let id = result[0]['id'];
-                            let updatedScan = new SavedConfigEntity(id, savedScanName, maxDepth, timeout, interval, maxConcurrency);
-                            savedConfigDao.updateValue(updatedScan);
-                        }
-                    })
-                }
-            });
-        }
-        let configHistoryValue = this.configurationHistoryDao.updateValue(configEntity);
-        return;
+        let scansDao = new ScansDao(dbName);
+        let scanEntity = new ScanEntity(name, target_id, description, null, maxDepth, timeout, interval, maxConcurrency, scanType, false, JSON.stringify(loginInfo), url)
+        scansDao.updateValue(scanEntity);
     }
 
-    async scanTarget(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, save, description, savedScanName) {
+    async scanTarget(interval, maxConcurrency, maxDepth, timeout, scanType, url, loginInfo, name, description) {
         let dbName = 'test';
-        let configEntity = new ConfigEntity(null, maxDepth, timeout, interval, maxConcurrency, scanType, JSON.stringify(loginInfo), url);
-        let configHistoryValue = this.configurationHistoryDao.insertValue(configEntity);
-        if (save) {
-            let savedConfigDao = new SavedConfigurarionDao(dbName);
-            let savedConfigEntity = new SavedConfigEntity(null, savedScanName, maxDepth, timeout, interval, maxConcurrency);
-            savedConfigDao.insertValue(savedConfigEntity);
-        }
         let scansDao = new ScansDao(dbName);
-        let scanEntity = new ScanEntity(name, Date.now(), configHistoryValue.getID(), description, configHistoryValue.getID());
+        let pageTableID = new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('')+Math.floor(Math.random()*100000);
+        let timestamp = Date.now();
+        let scanEntity = new ScanEntity(name, timestamp, description, pageTableID, maxDepth, timeout, interval, maxConcurrency, scanType,
+            false, JSON.stringify(loginInfo), url);
         scansDao.insertValue(scanEntity);
-        return configHistoryValue.getID();
+        return timestamp;
     }
 
     async deleteTarget(id) {

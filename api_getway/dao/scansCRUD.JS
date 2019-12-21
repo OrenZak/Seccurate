@@ -1,6 +1,4 @@
 const mysql = require('mysql2');
-const scanEntity = require('../data/configEntity');
-const configurationCRUD = require('./scanConfigurationCRUD');
 const globals = require('../common/globals');
 
 class ScansDataCRUD {
@@ -70,9 +68,9 @@ class ScansDataCRUD {
             }
         })
         if (!new_value.getCredentials() || !new_value.getLoginPage()) {
-            const sql = `UPDATE ?? SET name=?, description=?, pageTableName=?, maxDepth=?, timeout=?, interval_crawler=?, maxConcurrency=?, vulnsScanned=?, done=? WHERE scan_timestamp=?`
+            const sql = `UPDATE ?? SET name=?, description=?, maxDepth=?, timeout=?, interval_crawler=?, maxConcurrency=?, vulnsScanned=?, done=? WHERE scan_timestamp=?`
             this.conn.query(sql, [this.table_name, new_value.getName(), new_value.getDescription(),
-                new_value.getPageTableName(), new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(),
+                new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(),
                 new_value.getMaxConcurrency(), new_value.getVulnsScanned(), new_value.getDone(), new_value.getTimestamp()], (err) => {
                 if (err) {
                     console.log(err)
@@ -80,9 +78,9 @@ class ScansDataCRUD {
             })
         }
         else {
-            const sql = `UPDATE ?? SET name=?, description=?, pageTableName=?, maxDepth=?, timeout=?, interval_crawler=?, maxConcurrency=?, vulnsScanned=?, done=?, credentials=?, loginPage=? WHERE scan_timestamp=?`
+            const sql = `UPDATE ?? SET name=?, description=?, maxDepth=?, timeout=?, interval_crawler=?, maxConcurrency=?, vulnsScanned=?, done=?, credentials=?, loginPage=? WHERE scan_timestamp=?`
             this.conn.query(sql,[this.table_name, new_value.getName(), new_value.getDescription(),
-                new_value.getPageTableName(), new_value.getMaxDepth(),new_value.getTimeout(), new_value.getInterval(),
+                new_value.getMaxDepth(),new_value.getTimeout(), new_value.getInterval(),
                 new_value.getMaxConcurrency(), new_value.getVulnsScanned(), new_value.getDone(), new_value.getCredentials(),
                 new_value.getLoginPage(), new_value.getTimestamp()], (err) => {
                 if (err) {
@@ -130,8 +128,10 @@ class ScansDataCRUD {
     }*/
 
     getAllCompleted(callback, page=0, size=20) {
-        const sql = `SELECT * from ?? WHERE done=TRUE ORDER BY scan_timestamp ASC LIMIT ?,?`
-        this.conn.query(sql, [this.table_name, page*size, parseInt((page*size)+size,10)], function(err, results) {
+        let intPage = parseInt(page, 10);
+        let intSize = parseInt(size, 10);
+        const sql = `SELECT * from ?? WHERE done=TRUE ORDER BY scan_timestamp ASC LIMIT ? OFFSET ?`;
+        this.conn.query(sql, [this.table_name,intSize,intPage*intSize], function(err, results) {
             if (!err) {
                 callback(null, results)
             }
@@ -142,8 +142,10 @@ class ScansDataCRUD {
     }
 
     getAllNotCompleted(callback, page=0, size=20) {
-        const sql = `SELECT * from ?? WHERE done=FALSE ORDER BY scan_timestamp ASC LIMIT ?,?`
-        this.conn.query(sql, [this.table_name, page*size, parseInt((page*size)+size,10)], function(err, results) {
+        let intPage = parseInt(page, 10);
+        let intSize = parseInt(size, 10);
+        const sql = `SELECT * from ?? WHERE done=FALSE ORDER BY scan_timestamp ASC LIMIT ? OFFSET?`;
+        this.conn.query(sql, [this.table_name,intSize,intPage*intSize], function(err, results) {
             if (!err) {
                 callback(null, results)
             }
