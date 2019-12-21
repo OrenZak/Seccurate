@@ -71,23 +71,13 @@ class LogicService {
     async deleteTarget(id) {
         let dbName = 'test';
         let scansDao = new ScansDao(dbName);
-        scansDao.getByForeignKey(id, (err, data) => {
-            if (err) {
-                console.log(err);
-            }
-            let scanEntity = new ScanEntity(data[0]['name'], data[0]['scan_timestamp'], data[0]['description'], data[0]['configuration'], data[0]['pageTableName']);
-            scansDao.deleteValue(scanEntity, (err) => {
-                console.log(err);
-            });
-        });
-        this.configurationHistoryDao.deleteValue(id);
-
+        scansDao.deleteValue(id);
     }
 
     async getTargets(page, size, callback) {
         let dbName = 'test';
         let scansDao = new ScansDao(dbName);
-        scansDao.getAll((err, results) => {
+        scansDao.getAllNotCompleted((err, results) => {
             if (err) {
                 console.log(err);
             } else {
@@ -152,15 +142,61 @@ class LogicService {
 
     }
 
-    async newConfig(name,interval, maxConcurrency, maxDepth, timeout){}
+    async newSavedConfig(name, interval, maxConcurrency, maxDepth, timeout) {
+        let dbName = 'test';
+        let savedConfigDao = new SavedConfigurarionDao(dbName);
+        let savedConfigEntity = new SavedConfigEntity(null, name, maxDepth, timeout, interval, maxConcurrency);
+        let newEntity = savedConfigDao.insertValue(savedConfigEntity);
+        return newEntity.getID();
+    }
 
-    async updateConfig(id,name,interval, maxConcurrency, maxDepth, timeout){}
+    async updateSavedConfig(id, name, interval, maxConcurrency, maxDepth, timeout) {
+        let dbName = 'test';
+        let savedConfigDao = new SavedConfigurarionDao(dbName);
+        let configEntity = new SavedConfigEntity(id, name, maxDepth, timeout, interval, maxConcurrency);
+        savedConfigDao.updateValue(configEntity);
+        return;
+    }
 
-    async deleteConfig(id){}
+    async deleteSavedConfig(id) {
+        let dbName = 'test';
+        let savedConfigDao = new SavedConfigurarionDao(dbName);
+        savedConfigDao.deleteValue(id);
+    }
 
-    async getConfigs(page,size,callback){}
+    async getSavedConfigs(page, size, callback) {
+        let dbName = 'test';
+        let savedConfigDao = new SavedConfigurarionDao(dbName);
+        savedConfigDao.getAll((err, results) => {
+            if (err) {
+                console.log(err);
+            } else {
+                let savedConfigs = [];
+                results.forEach(element => {
+                    let curEntity = new SavedConfigEntity(element['id'], element['name'], element['maxDepth'], element['timeout'], element['interval_crawler'], element['maxConcurrency']);
+                    savedConfigs.push(curEntity);
+                });
+                callback(savedConfigs);
+            }
+        }, page, size);
+    }
 
-    async getCompletedScans(page, size, callback){}
+    async getCompletedScans(page, size, callback) {
+        let dbName = 'test';
+        let scansDao = new ScansDao(dbName);
+        scansDao.getAllCompleted((err, results) => {
+            if (err) {
+                console.log(err);
+            } else {
+                let scans = [];
+                results.forEach(element => {
+                    let curEntity = new ScanEntity(element['name'], element['scan_timestamp'], element['configuration'], element['description'], element['pageTableName']);
+                    scans.push(curEntity);
+                });
+                callback(scans);
+            }
+        }, page, size);
+    }
 
 }
 

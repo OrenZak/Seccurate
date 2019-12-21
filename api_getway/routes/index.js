@@ -3,9 +3,9 @@ let router = express.Router();
 let LogicService = require('../logic/logicService');
 let logicService = new LogicService();
 let NewTargetBoundary = require('../layout/boundaries/newTargetBoundary');
-let NewConfigBoundary = require('../layout/boundaries/newConfigBoundary');
-let UpdateScanTargetBoundary = require('../layout/boundaries/updateTargetBoundary');
-let UpdateScanConfigBoundary = require('../layout/boundaries/configBoundary');
+let NewSavedConfigurationBoundary = require('../layout/boundaries/newSavedConfigurationBoundary');
+let UpdateScanTargetBoundary = require('../layout/boundaries/targetBoundary');
+let UpdateSavedConfigBoundary = require('../layout/boundaries/savedConfigurationBoundary');
 let StartCrawlBoundary = require('../layout/boundaries/startCrawlBoundary');
 let GetCompletedScansBoundary = require('../layout/boundaries/getCompletedScansBoundary');
 let GetConfigsBoundary = require('../layout/boundaries/getConfigsBoundary');
@@ -20,18 +20,18 @@ const PATHS = {
     HOME: "/",
     START_SCAN: "/start_scan",
     CONFIG_TARGET: "/config_target",
-    GET_COMPLETE_SCANS: "/complete_scans",
+    GET_COMPLETED_SCANS: "/completed_scans",
     LOGIN: "/login",
     REGISTER: "/register",
     GET_RESULTS: "/results",
-    CONFIG_SCAN: "/config_scan"
+    SAVED_CONFIG: "/saved_config"
 };
 
 router.get(PATHS.HOME, function (req, res, next) {
     res.status(200).send('<h1>Welcome to Seccurate API Gateway</h1>');
 });
 
-router.get(PATHS.GET_COMPLETE_SCANS, function (req, res, next) {
+router.get(PATHS.GET_COMPLETED_SCANS, function (req, res, next) {
     logicService.getCompletedScans(req.query.page, req.query.size, (scans) => {
         let scansResponseBoundary = new GetCompletedScansBoundary(scans);
         res.status(200).send(scansResponseBoundary.serialize());
@@ -99,28 +99,28 @@ router.get(PATHS.GET_RESULTS, function (req, res, next) {
     });
 });
 
-router.get(PATHS.CONFIG_SCAN, async function (req, res, next) {
-    logicService.getConfigs(req.query.page, req.query.size, (configs) => {
+router.get(PATHS.SAVED_CONFIG, async function (req, res, next) {
+    logicService.getSavedConfigs(req.query.page, req.query.size, (configs) => {
         let configsBoundary = new GetConfigsBoundary(configs);
         res.status(200).send(configsBoundary.serialize());
     });
 });
 
-router.post(PATHS.CONFIG_SCAN, async function (req, res, next) {
-    scanConfigBoundary = NewConfigBoundary.deserialize(req.body);
-    var result = await logicService.newConfig(scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout);
+router.post(PATHS.SAVED_CONFIG, async function (req, res, next) {
+    scanConfigBoundary = NewSavedConfigurationBoundary.deserialize(req.body);
+    var result = await logicService.newSavedConfig(scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout);
     res.status(200).send(result);
 });
 
-router.put(PATHS.CONFIG_SCAN, async function (req, res, next) {
-    scanConfigBoundary = UpdateScanConfigBoundary.deserialize(req.body);
-    let result = await logicService.updateConfig(scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout);
+router.put(PATHS.SAVED_CONFIG, async function (req, res, next) {
+    scanConfigBoundary = UpdateSavedConfigBoundary.deserialize(req.body);
+    let result = await logicService.updateSavedConfig(scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout);
     res.status(200).send(result);
 });
 
-router.delete(PATHS.CONFIG_SCAN, async function (req, res, next) {
+router.delete(PATHS.SAVED_CONFIG, async function (req, res, next) {
     deleteBoundary = DeleteScanBoundary.deserialize(req.body);
-    var result = await logicService.deleteConfig(deleteBoundary.ID);
+    var result = await logicService.deleteSavedConfig(deleteBoundary.ID);
     res.status(200).send(result);
 });
 

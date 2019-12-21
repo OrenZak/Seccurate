@@ -1,19 +1,10 @@
-class ConfigBoundary {
-    constructor(id, name, maxDepth, timeout, interval, maxConcurrency) {
-        this._id = id;
+class NewSavedConfigurationBoundary {
+    constructor(name, maxDepth, timeout, interval, maxConcurrency) {
         this._name = name;
         this._maxDepth = maxDepth;
         this._timeout = timeout;
         this._interval = interval;
         this._maxConcurrency = maxConcurrency;
-    }
-
-    get id() {
-        return this._id;
-    }
-
-    set id(value) {
-        this._id = value;
     }
 
 
@@ -62,8 +53,8 @@ class ConfigBoundary {
     }
 
     static deserialize(scanConfigBoundary) {
-        return new ConfigBoundary(scanConfigBoundary._id, scanConfigBoundary._name, scanConfigBoundary._maxDepth, scanConfigBoundary._timeout, scanConfigBoundary._interval, scanConfigBoundary._maxConcurrency);
+        return new NewSavedConfigurationBoundary(scanConfigBoundary._name, scanConfigBoundary._maxDepth, scanConfigBoundary._timeout, scanConfigBoundary._interval, scanConfigBoundary._maxConcurrency);
     }
 }
 
-module.exports = ConfigBoundary;
+module.exports = NewSavedConfigurationBoundary;
