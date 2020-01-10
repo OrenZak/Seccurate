@@ -56,7 +56,11 @@ const useStyles = makeStyles({
     },
 });
 
-const TargetList: React.FC = () => {
+interface Props {
+    onItemSelected: (target: Target) => void;
+}
+
+const TargetList: React.FC<Props> = props => {
     const classes = useStyles();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -84,9 +88,23 @@ const TargetList: React.FC = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => {
+                        {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: Data) => {
                             return (
-                                <TableRow hover role="checkbox" tabIndex={-1} key={row.num}>
+                                <TableRow
+                                    hover
+                                    role="checkbox"
+                                    tabIndex={-1}
+                                    key={row.num}
+                                    onClick={() => {
+                                        props.onItemSelected({
+                                            id: `${row.num}`,
+                                            name: row.name,
+                                            description: row.desc,
+                                            mainURL: row.mainUrl,
+                                            scanType: 'all',
+                                        });
+                                    }}
+                                >
                                     {columns.map(column => {
                                         const value = row[column.id];
                                         return (

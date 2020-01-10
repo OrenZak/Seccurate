@@ -8,7 +8,7 @@ const Screens: { [key: string]: Screen } = {
     TargetsScreen: {
         id: 'TargetsScreen',
         title: 'Targets',
-        generator: () => require('../screens/TargetList').default,
+        generator: () => require('../screens/TargetsList').default,
     },
 };
 

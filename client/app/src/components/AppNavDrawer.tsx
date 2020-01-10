@@ -7,7 +7,7 @@ import ReportIcon from '@material-ui/icons/Report';
 const AppNavDrawer: React.FC = () => {
     const classes = useStyles();
     const drawerTabsData = [
-        { title: 'Scans', icon: <TrackChangesIcon /> },
+        { title: 'Targets', icon: <TrackChangesIcon /> },
         { title: 'Reports', icon: <ReportIcon /> },
     ];
 

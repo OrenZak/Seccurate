@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppNavDrawer from '../../components/AppNavDrawer';
-import TargetsScreen from '../TargetList';
+import TargetsScreen from '../TargetsList/TargetsScreen';
 import Screens from '../screen';
 
 const MainScreen: React.FC = () => {

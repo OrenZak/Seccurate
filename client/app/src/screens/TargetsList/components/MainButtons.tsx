@@ -6,14 +6,27 @@ import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-const MainButtons: React.FC = () => {
+interface Props {
+    onAddTargetClicked: () => void;
+    onEditTargetClicked: () => void;
+    onDeleteTargetClicked: () => void;
+}
+
+const MainButtons: React.FC<Props> = props => {
     const classes = useStyles();
     return (
         <Grid container item direction="column" xs={2} spacing={3}>
             <Grid item>
                 <Grid container item direction="row" xs={12} alignItems="baseline">
                     <Grid item xs={4}>
-                        <Fab className={classes.fabYellow} aria-label="add" size={'small'}>
+                        <Fab
+                            className={classes.fabYellow}
+                            aria-label="add"
+                            size={'small'}
+                            onClick={() => {
+                                props.onAddTargetClicked();
+                            }}
+                        >
                             <AddIcon />
                         </Fab>
                     </Grid>
@@ -25,7 +38,13 @@ const MainButtons: React.FC = () => {
             <Grid item>
                 <Grid container item direction="row" xs={12} alignItems="baseline">
                     <Grid item xs={4}>
-                        <Fab aria-label="edit" size={'small'}>
+                        <Fab
+                            aria-label="edit"
+                            size={'small'}
+                            onClick={() => {
+                                props.onEditTargetClicked();
+                            }}
+                        >
                             <EditIcon />
                         </Fab>
                     </Grid>
@@ -38,7 +57,13 @@ const MainButtons: React.FC = () => {
             <Grid item>
                 <Grid container item direction="row" xs={12} alignItems="baseline">
                     <Grid item xs={4}>
-                        <Fab aria-label="delete" size={'small'}>
+                        <Fab
+                            aria-label="delete"
+                            size={'small'}
+                            onClick={() => {
+                                props.onDeleteTargetClicked();
+                            }}
+                        >
                             <DeleteIcon />
                         </Fab>
                     </Grid>

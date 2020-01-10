@@ -10,9 +10,6 @@ const AppToolBar: React.FC = () => {
         <AppBar position="fixed" className={classes.appBar}>
             <Toolbar className={classes.toolbar}>
                 <AppLogo />
-                <Typography variant="h6" noWrap className={classes.title}>
-                    Seccurate
-                </Typography>
                 <SupervisedUserCircleIcon className={classes.manageButton} />
             </Toolbar>
         </AppBar>
