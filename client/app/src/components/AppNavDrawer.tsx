@@ -25,7 +25,6 @@ const AppNavDrawer: React.FC = () => {
                     <ListItem button key={item.title}>
                         <ListItemIcon className={classes.tabColor}>{item.icon}</ListItemIcon>
                         <ListItemText className={classes.tabColor} primary={item.title} />
-                        {/* {(index <= drawerTabsData.length - 1) ? <Divider/> : <div/>} */}
                     </ListItem>
                 ))}
             </List>

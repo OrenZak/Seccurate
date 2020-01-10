@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppNavDrawer from '../../components/AppNavDrawer';
-import TargetsScreen from '../TargetsList/TargetsScreen';
 import Screens from '../screen';
 
 const MainScreen: React.FC = () => {
@@ -17,6 +16,8 @@ const MainScreen: React.FC = () => {
                 <AppNavDrawer />
             </div>
             <CurrentScreen />
+
+            
         </div>
     );
 };
