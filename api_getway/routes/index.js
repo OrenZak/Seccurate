@@ -11,10 +11,38 @@ let GetCompletedScansBoundary = require('../layout/boundaries/getCompletedScansB
 let GetConfigsBoundary = require('../layout/boundaries/getConfigsBoundary');
 let GetTargetsBoundary = require('../layout/boundaries/getTargetsBoundary');
 let DeleteScanBoundary = require('../layout/boundaries/deleteBoundary');
-let GetResultsResponseBoundary = require('../layout/boundaries/getResultsResponseBoundary');
+let UsersBoundary = require('../layout/boundaries/userBoundary');
+let LoginBoundary = require('../layout/boundaries/loginBoundary');
+
+let session = require('express-session');
+let bodyParser = require('body-parser');
+let cookieParser = require('cookie-parser');
 
 router.use(express.json());
-router.use(express.urlencoded({extended: false}));
+//router.use(express.urlencoded({extended: false}));
+// initialize body-parser to parse incoming parameters requests to req.body
+router.use(bodyParser.urlencoded({extended: true}));
+
+// initialize cookie-parser to allow us access the cookies stored in the browser.
+router.use(cookieParser());
+router.use(session({
+    key: 'user_sid',
+    secret: 'NkoeH#&XN&7+M4$',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        expires: 600000
+    }
+}));
+
+// This middleware will check if user's cookie is still saved in browser and user is not set, then automatically log the user out.
+// This usually happens when you stop your express server after login, your cookie still remains saved in the browser.
+router.use((req, res, next) => {
+    if (req.cookies.user_sid && !req.session.user) {
+        res.clearCookie('user_sid');
+    }
+    next();
+});
 
 const PATHS = {
     HOME: "/",
@@ -22,13 +50,26 @@ const PATHS = {
     CONFIG_TARGET: "/config_target",
     GET_COMPLETED_SCANS: "/completed_scans",
     LOGIN: "/login",
-    REGISTER: "/register",
+    LOGOUT: "/logout",
+    USERS: "/users",
+    MANAGE_USERS: "/manage_users",
     GET_RESULTS: "/results",
     SAVED_CONFIG: "/saved_config"
 };
 
-router.get(PATHS.HOME, function (req, res, next) {
-    res.status(200).send('<h1>Welcome to Seccurate API Gateway</h1>');
+// middleware function to check for logged-in users
+let sessionChecker = (req, res, next) => {
+    if (req.session.user && req.cookies.user_sid) {
+        res.redirect('/dashboard');
+    } else {
+        next();
+    }
+};
+
+
+// route for Home-Page
+router.get(PATHS.HOME, sessionChecker, (req, res) => {
+    res.redirect('/login');
 });
 
 router.get(PATHS.GET_COMPLETED_SCANS, function (req, res, next) {
@@ -53,13 +94,13 @@ router.post(PATHS.CONFIG_TARGET, async function (req, res, next) {
 
 router.put(PATHS.CONFIG_TARGET, async function (req, res, next) {
     scanConfigBoundary = UpdateScanTargetBoundary.deserialize(req.body);
-    var result = await logicService.updateScanTarget(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.description, scanConfigBoundary.scanID);
+    let result = await logicService.updateScanTarget(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.description, scanConfigBoundary.scanID);
     res.status(200).send(result);
 });
 
 router.delete(PATHS.CONFIG_TARGET, async function (req, res, next) {
     deleteBoundary = DeleteScanBoundary.deserialize(req.body);
-    var result = await logicService.deleteTarget(deleteBoundary.ID);
+    let result = await logicService.deleteTarget(deleteBoundary.ID);
     res.status(200).send(result);
 });
 
@@ -71,11 +112,39 @@ router.get(PATHS.CONFIG_TARGET, async function (req, res, next) {
 });
 
 router.post(PATHS.LOGIN, function (req, res, next) {
-    res.status(200).send('<h1>Hello world</h1>');
+    let loginBoundary = LoginBoundary.deserialize(req.body);
+    let isUser = logicService.login(loginBoundary.username, loginBoundary.password);
+    if (!isUser) {
+        res.redirect(PATHS.LOGIN);
+    } else {
+        req.session.user = user.dataValues;
+        res.redirect(PATHS.HOME);
+    }
 });
 
-router.post(PATHS.REGISTER, function (req, res, next) {
-    res.status(200).send('<h1>Hello world</h1>');
+router.post(PATHS.LOGOUT, function (req, res, next) {
+    if (req.session.user && req.cookies.user_sid) {
+        res.clearCookie('user_sid');
+        res.redirect(PATHS.HOME);
+    } else {
+        res.redirect(PATHS.LOGIN);
+    }
+});
+
+router.post(PATHS.MANAGE_USERS, function (req, res, next) {
+    let usersBoundary = UsersBoundary.deserialize(req.body);
+    let user = logicService.register(usersBoundary.username, usersBoundary.password, usersBoundary.role);
+    res.redirect(PATHS.HOME);
+});
+
+router.delete(PATHS.MANAGE_USERS, function (req, res, next) {
+    logicService.deleteUser(req.query.userName);
+});
+
+router.put(PATHS.MANAGE_USERS, function (req, res, next) {
+    let usersBoundary = UsersBoundary.deserialize(req.body);
+    let user = logicService.updateUser(usersBoundary.username, usersBoundary.password, usersBoundary.role);
+    res.redirect(PATHS.HOME);
 });
 
 router.get(PATHS.GET_RESULTS, function (req, res, next) {
@@ -108,19 +177,19 @@ router.get(PATHS.SAVED_CONFIG, async function (req, res, next) {
 
 router.post(PATHS.SAVED_CONFIG, async function (req, res, next) {
     let scanConfigBoundary = NewSavedConfigurationBoundary.deserialize(req.body);
-    var result = await logicService.newSavedConfig(scanConfigBoundary.name, scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth,scanConfigBoundary.timeout);
+    let result = await logicService.newSavedConfig(scanConfigBoundary.name, scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout);
     res.status(200).send(result);
 });
 
 router.put(PATHS.SAVED_CONFIG, async function (req, res, next) {
-    scanConfigBoundary = UpdateSavedConfigBoundary.deserialize(req.body);
-    let result = await logicService.updateSavedConfig(scanConfigBoundary.id,scanConfigBoundary.name,scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout);
+    let scanConfigBoundary = UpdateSavedConfigBoundary.deserialize(req.body);
+    let result = await logicService.updateSavedConfig(scanConfigBoundary.id, scanConfigBoundary.name, scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout);
     res.status(200).send(result);
 });
 
 router.delete(PATHS.SAVED_CONFIG, async function (req, res, next) {
-    deleteBoundary = DeleteScanBoundary.deserialize(req.body);
-    var result = await logicService.deleteSavedConfig(deleteBoundary.ID);
+    let deleteBoundary = DeleteScanBoundary.deserialize(req.body);
+    let result = await logicService.deleteSavedConfig(deleteBoundary.ID);
     res.status(200).send(result);
 });
 
@@ -129,10 +198,9 @@ function setServer(httpServer) {
 
 }
 
-
-// Default error handling
-router.use('*', function (req, res, next) {
-    res.status(500).send({status: 500, message: 'bad path', type: 'internal'});
+// route for handling 404 requests(unavailable routes)
+router.use(function (req, res, next) {
+    res.status(404).send("Sorry can't find that!")
 });
 
 module.exports = {router, setServer};

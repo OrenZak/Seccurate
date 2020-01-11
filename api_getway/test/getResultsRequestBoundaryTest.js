@@ -1,14 +1,14 @@
 const GetResultsRequestBoundary = require('../layout/boundaries/getResultsResponseBoundary');
 
-var assert = require('assert');
-var json = '{"scanName":"scan"}';
-var scanName = "scan";
-var boundary = new GetResultsRequestBoundary(scanName);
+let assert = require('assert');
+let json = '{"scanName":"scan"}';
+let scanName = "scan";
+let boundary = new GetResultsRequestBoundary(scanName);
 
 
 describe('Test serialize', function () {
     it('Should serialzie to {"scanName":"scan"}', function () {
-        var serialize = boundary.serialize();
+        let serialize = boundary.serialize();
         assert.equal(boundary.scanName, JSON.parse(serialize).scanName);
     });
 });

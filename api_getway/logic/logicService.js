@@ -13,8 +13,10 @@ let SavedConfigurarionDao = require('../dao/savedScanConfigurationCRUD');
 let ScansDao = require('../dao/scansCRUD');
 let SavedConfigEntity = require('../data/SavedConfigurationEntity');
 let ScanEntity = require('../data/scanEntity');
+let bcrypt = require('bcrypt');
 
 let currentID;
+let saltRounds = 10;
 
 class LogicService {
 
@@ -28,7 +30,7 @@ class LogicService {
     }
 
     scanDoneCallback() {
-        console.log('entered scan Done Callback with '+currentID);
+        console.log('entered scan Done Callback with ' + currentID);
         let dbName = 'test';
         let scansDao = new ScansDao(dbName);
         scansDao.updateScanFinished(currentID, (err, result) => {
@@ -111,7 +113,7 @@ class LogicService {
             uri: VULNERABILITY_MICROSERVICE_REST + "/get_results",
             method: 'POST',
             json: {
-                scanName: globals.VULN_TABLE_PREFIX+vulnerabilityGetResultsRequestBoundary.ScanName
+                scanName: globals.VULN_TABLE_PREFIX + vulnerabilityGetResultsRequestBoundary.ScanName
             }
         };
         request(options, (error, res, body) => {
@@ -125,12 +127,36 @@ class LogicService {
         });
     }
 
-    async login() {
+    async login(username, password) {
+        // TODO get user entity from DB
+        let userEntity = null; // Guy fix later
+        if (bcrypt.compareSync(password, userEntity.hash)) {
+            // true
+            return true;
+        } else {
+            // false
+            return false;
+        }
 
     }
 
-    async register() {
+    async register(username, password, role) {
+        //TODO Check if username already exist in the db
+        let salt = bcrypt.genSaltSync(saltRounds);
+        let hash = bcrypt.hashSync(password, salt);
+        //TODO store the username hash,role
 
+    }
+
+    async updateUser(username, password, role) {
+        //TODO Check if username already exist in the db
+        let salt = bcrypt.genSaltSync(saltRounds);
+        let hash = bcrypt.hashSync(password, salt);
+        //TODO store the username hash,role
+    }
+
+    async deleteUser(username){
+        // TODO elete user using the username
     }
 
     async newSavedConfig(name, interval, maxConcurrency, maxDepth, timeout) {

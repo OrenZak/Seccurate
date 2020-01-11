@@ -39,7 +39,7 @@ describe('Test deserialize', function () {
 
 describe('Test serialize', function () {
     it('Should serialzie to {interval: 1000, maxConcurrency: 3, maxDepth: 5, timeout: 10000, scanType: 2, url: url, loginInfo: loginInfo, name: name, save: save}', function () {
-        var serialize = boundary.serialize();
+        let serialize = boundary.serialize();
         assert.equal(boundary.config.interval, serialize.config.interval);
         assert.equal(boundary.config.maxConcurrency, serialize.config.maxConcurrency);
         assert.equal(boundary.config.maxDepth, serialize.config.maxDepth);
