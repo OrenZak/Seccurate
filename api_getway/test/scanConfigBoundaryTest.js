@@ -3,7 +3,6 @@ const ScanConfigBoundary = require('../layout/boundaries/newTargetBoundary');
 let assert = require('assert');
 let name = "haha";
 let description = "description";
-let save = true;
 let config = {interval: 1000, maxConcurrency: 3, maxDepth: 5, timeout: 10000};
 let loginInfo = {form: {login: "bee", password: "bug", security: "0", form: "submit"}, formAction: "login.php"};
 let url = "http://example/bWAPP/login.php";
@@ -13,11 +12,10 @@ let jsonScanConfig = {
     url: url,
     loginInfo: loginInfo,
     name: name,
-    save: save,
     description: description
 };
 
-let boundary = new ScanConfigBoundary(config, 2, url, loginInfo, name, save);
+let boundary = new ScanConfigBoundary(config, 2, url, loginInfo, name);
 
 describe('Test deserialize', function () {
     it('Should create ScanConfigBoundary with correct parameters', function () {
@@ -35,7 +33,6 @@ describe('Test deserialize', function () {
         assert.equal(scanBoundary.loginInfo.form.security, loginInfo.form.security);
         assert.equal(scanBoundary.loginInfo.form.form, loginInfo.form.form);
         assert.equal(scanBoundary.name, name);
-        assert.equal(scanBoundary.save, save);
         assert.equal(scanBoundary.description, description);
     });
 });
@@ -54,7 +51,6 @@ describe('Test serialize', function () {
         assert.equal(boundary.loginInfo.form.security, serialize.loginInfo.form.security);
         assert.equal(boundary.loginInfo.form.form, serialize.loginInfo.form.form);
         assert.equal(boundary.name, serialize.name);
-        assert.equal(boundary.save, serialize.save);
         assert.equal(boundary.description, serialize.description);
     });
 });
