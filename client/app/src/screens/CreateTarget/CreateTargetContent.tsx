@@ -13,10 +13,7 @@ import ScanConfigList from './components/ScanConfigList';
 
 interface Props {}
 
-interface Field {
-    name: string;
-    value: string;
-}
+
 
 const CreateTargetContent: React.FC<Props> = props => {
     const classes = useStyles();
@@ -25,6 +22,7 @@ const CreateTargetContent: React.FC<Props> = props => {
     const [isSaveChecked, setIsSaveChecked] = useState(false);
     const [hasSiteLogin, setHasSiteLogin] = useState(false);
     const [loginFormFields, setLoginFormFields] = useState([]);
+    const [addFieldShow, setAddFieldShow] = useState(false);
 
     const handleScanTypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
         setScanType(event.target.value as string);
@@ -146,6 +144,8 @@ const CreateTargetContent: React.FC<Props> = props => {
         ));
     };
 
+    const handleAddField = () => {};
+
     const renderAddLoginFormButton = () => {
         return (
             <Button
@@ -154,6 +154,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                 className={classes.button}
                 startIcon={<AddIcon />}
                 disabled={!hasSiteLogin}
+                onClick={handleAddField}
             >
                 Add another field
             </Button>
