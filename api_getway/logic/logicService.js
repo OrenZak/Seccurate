@@ -11,8 +11,10 @@ let VulnerabilityConfigScanBoundary = require('./boundaries/vulnerabilityConfigB
 let VulnerabilityGetResultsRequestBoundary = require('./boundaries/vulnerabilityGetResultsRequestBoundary');
 let SavedConfigurarionDao = require('../dao/savedScanConfigurationCRUD');
 let ScansDao = require('../dao/scansCRUD');
+let UsersDao = require('../dao/usersCRUD');
 let SavedConfigEntity = require('../data/SavedConfigurationEntity');
 let ScanEntity = require('../data/scanEntity');
+let UsersEntity = require('../data/userEntity');
 let bcrypt = require('bcrypt');
 
 let currentID;
@@ -128,35 +130,122 @@ class LogicService {
     }
 
     async login(username, password) {
-        // TODO get user entity from DB
-        let userEntity = null; // Guy fix later
-        if (bcrypt.compareSync(password, userEntity.hash)) {
-            // true
-            return true;
-        } else {
-            // false
-            return false;
-        }
-
+        let dbName = 'test';
+        let usersDao = new UsersDao(dbName);
+        usersDao.getValue(username, (err, results) => {
+            if (err) {
+                console.log(err);
+            } else {
+                // check if user exist
+                if (results["username"] == username) {
+                    // user exists
+                    let userEntity = new UsersEntity(results["username"], results["hash"], results["salt"], results["admin"]);
+                    if (bcrypt.compareSync(password, userEntity.hash)) {
+                        // true
+                        return true;
+                    } else {
+                        // false, bad password
+                        return false;
+                    }
+                } else {
+                    // user does not exists
+                    return null;
+                }
+            }
+        });
     }
 
-    async register(username, password, role) {
-        //TODO Check if username already exist in the db
-        let salt = bcrypt.genSaltSync(saltRounds);
-        let hash = bcrypt.hashSync(password, salt);
-        //TODO store the username hash,role
+    async register(username, password, role, callback) {
+        if (!username.trim() || !password.trim()) {
+            callback(false);
+        }
+        let dbName = 'test';
+        let usersDao = new UsersDao(dbName);
+        usersDao.getValue(username, (err, results) => {
+            if (err) {
+                console.log(err);
+                callback(null);
+            } else {
+                // check if user exist
+                if (results.length == 1) {
+                    // user exists
+                    callback(false);
+                } else {
+                    let isAdmin = false;
+                    if (role == "ADMIN") {
+                        isAdmin = true;
+                    }
+                    let salt = bcrypt.genSaltSync(saltRounds);
+                    let hash = bcrypt.hashSync(password, salt);
+                    let userEntity = new UsersEntity(username, salt, hash, isAdmin);
+                    // store user in the db
+                    usersDao.insertValue(userEntity, (err, newUser) => {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            callback(newUser);
+                        }
+                    });
+                }
+            }
+        });
 
     }
 
     async updateUser(username, password, role) {
-        //TODO Check if username already exist in the db
-        let salt = bcrypt.genSaltSync(saltRounds);
-        let hash = bcrypt.hashSync(password, salt);
-        //TODO store the username hash,role
+        let dbName = 'test';
+        let usersDao = new UsersDao(dbName);
+        // check if user exist
+        usersDao.getValue(username, (err, results) => {
+            if (err) {
+                console.log(err);
+            } else {
+                // check if user exist
+                if (results["username"] == username) {
+                    // user exists
+                    return null;
+                } else {
+                    let isAdmin = false;
+                    if (role == "ADMIN") {
+                        isAdmin = true;
+                    }
+                    let salt = bcrypt.genSaltSync(saltRounds);
+                    let hash = bcrypt.hashSync(password, salt);
+                    let userEntity = new UsersEntity(username, salt, hash, isAdmin);
+                    // store user in the db
+                    let newUser = usersDao.updateValue(userEntity);
+                }
+            }
+        });
+
     }
 
-    async deleteUser(username){
-        // TODO elete user using the username
+    async deleteUser(username, callback) {
+        let dbName = 'test';
+        let usersDao = new UsersDao(dbName);
+        // check if user exist
+        usersDao.getValue(username, (err, results) => {
+            if (err) {
+                console.log(err);
+                callback(null);
+            } else {
+                // check if user exist
+                if (results.length == 1) {
+                    usersDao.deleteValue(username, (err) => {
+                        if (err) {
+                            callback(null);
+                        } else {
+                            // user deleted
+                            callback(true);
+                        }
+                    });
+                } else {
+                    // user does not exists
+                    callback(false);
+                }
+
+            }
+        });
     }
 
     async newSavedConfig(name, interval, maxConcurrency, maxDepth, timeout) {

@@ -112,7 +112,7 @@ router.get(PATHS.CONFIG_TARGET, async function (req, res, next) {
 });
 
 router.post(PATHS.LOGIN, function (req, res, next) {
-    let loginBoundary = LoginBoundary.deserialize(req.body);
+    let loginBoundary = LoginBoundary.deserialize(req.query.userName);
     let isUser = logicService.login(loginBoundary.username, loginBoundary.password);
     if (!isUser) {
         res.redirect(PATHS.LOGIN);
@@ -133,12 +133,27 @@ router.post(PATHS.LOGOUT, function (req, res, next) {
 
 router.post(PATHS.MANAGE_USERS, function (req, res, next) {
     let usersBoundary = UsersBoundary.deserialize(req.body);
-    let user = logicService.register(usersBoundary.username, usersBoundary.password, usersBoundary.role);
-    res.redirect(PATHS.HOME);
+    logicService.register(usersBoundary.username, usersBoundary.password, usersBoundary.role, (user) => {
+        if (user == null) {
+            res.status(200).send("something bad happened");
+        } else if (user == false) {
+            res.status(200).send("choose another username or password");
+        } else {
+            res.status(200).send("registered");
+        }
+    });
 });
 
 router.delete(PATHS.MANAGE_USERS, function (req, res, next) {
-    logicService.deleteUser(req.query.userName);
+    logicService.deleteUser(req.query.userName,(result)=>{
+        if (result == null) {
+            res.status(200).send("something bad happened");
+        } else if (result == false) {
+            res.status(200).send("username does not exists");
+        } else {
+            res.status(200).send("user deleted");
+        }
+    });
 });
 
 router.put(PATHS.MANAGE_USERS, function (req, res, next) {
