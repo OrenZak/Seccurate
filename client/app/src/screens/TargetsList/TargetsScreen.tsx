@@ -4,6 +4,7 @@ import Grid from '@material-ui/core/Grid';
 import TargetList from './components/TargetsList';
 import MainButtons from './components/MainButtons';
 import CreateTargetModal from '../CreateTarget';
+import AddFieldModal from '../CreateTarget/components/AddField';
 
 const TargetsScreen: React.FC = () => {
     const classes = useStyles();
@@ -27,6 +28,10 @@ const TargetsScreen: React.FC = () => {
         setOpenCrateTargetModal(false);
     };
 
+    const close = () => {};
+
+    const field = (fields: Field[]) => {};
+
     return (
         <div>
             <Grid container direction="row" xs={12} spacing={4} className={classes.listFabContainer}>
@@ -40,6 +45,7 @@ const TargetsScreen: React.FC = () => {
                 />
             </Grid>
             <div>
+                <AddFieldModal isOpen={true} onClose={close} onFieldsAdded={field} />
                 <CreateTargetModal isOpen={openCrateTargetModal} onClose={handleCreateTargetModalClose} />
             </div>
         </div>

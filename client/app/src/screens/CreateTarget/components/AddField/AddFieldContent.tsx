@@ -20,8 +20,8 @@ const AddFieldContent: React.FC<Props> = props => {
                     <TextField id="standard-basic" label={`${field.name}`} value={field.value} fullWidth />
                 </Grid>
                 <Grid item>
-                    <Button disabled={00000}>
-                        <DoneIcon />
+                    <Button disabled={false}>
+                        <DeleteIcon />
                     </Button>
                 </Grid>
             </Grid>
@@ -29,15 +29,21 @@ const AddFieldContent: React.FC<Props> = props => {
     };
 
     const renderNextField = () => {
-        <Grid container item direction={'row'} justify={'center'} alignItems={'center'}>
-            <Grid item>
-                <TextField id="field-name" label="Name" variant="outlined" />
+        return (
+            <Grid container item direction={'row'}>
+                <Grid item>
+                    <TextField size={'small'} id="field-name" label="Name" variant="outlined" />
+                </Grid>
+                <Grid item>
+                    <TextField size={'small'} id="field-value" label="Value" variant="outlined" />
+                </Grid>
+                <Grid item>
+                    <Button disabled={nextFieldEmpty}>
+                        <DoneIcon />
+                    </Button>
+                </Grid>
             </Grid>
-            <Grid item>
-                <TextField id="field-value" label="Value" variant="outlined" />
-            </Grid>
-            <Grid item></Grid>
-        </Grid>;
+        );
     };
 
     return (
@@ -48,8 +54,12 @@ const AddFieldContent: React.FC<Props> = props => {
             {renderLoginFormFieldList()}
             {renderNextField()}
             <Grid item>
-                <Button>Done</Button>
+                <Button variant="contained" size={'medium'} color={'primary'}>
+                    Done
+                </Button>
             </Grid>
         </Grid>
     );
 };
+
+export default AddFieldContent;

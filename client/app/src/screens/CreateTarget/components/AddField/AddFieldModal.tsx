@@ -3,7 +3,7 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
-import CreateTargetContent from '../../CreateTargetContent';
+import AddFieldContent from './AddFieldContent';
 
 interface Props {
     isOpen: boolean;
@@ -52,8 +52,8 @@ const useStyles = makeStyles((theme: Theme) =>
         paper: {
             backgroundColor: 'white',
             boxShadow: theme.shadows[5],
-            width: '70%',
-            height: '75%',
+            width: '50%',
+            // height: '75%',
             borderRadius: 10,
             padding: theme.spacing(2, 4, 3),
             outline: 'none',

@@ -10,6 +10,7 @@ import Checkbox, { CheckboxProps } from '@material-ui/core/Checkbox';
 import { Switch, Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import ScanConfigList from './components/ScanConfigList';
+import AddFieldModal from './components/AddField/AddFieldModal';
 
 interface Props {}
 
