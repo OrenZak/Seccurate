@@ -52,8 +52,6 @@ const useStyles = makeStyles((theme: Theme) =>
         paper: {
             backgroundColor: 'white',
             boxShadow: theme.shadows[5],
-            width: '50%',
-            // height: '75%',
             borderRadius: 10,
             padding: theme.spacing(2, 4, 3),
             outline: 'none',
