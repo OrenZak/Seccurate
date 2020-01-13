@@ -11,10 +11,14 @@ let VulnerabilityConfigScanBoundary = require('./boundaries/vulnerabilityConfigB
 let VulnerabilityGetResultsRequestBoundary = require('./boundaries/vulnerabilityGetResultsRequestBoundary');
 let SavedConfigurarionDao = require('../dao/savedScanConfigurationCRUD');
 let ScansDao = require('../dao/scansCRUD');
+let UsersDao = require('../dao/usersCRUD');
 let SavedConfigEntity = require('../data/SavedConfigurationEntity');
 let ScanEntity = require('../data/scanEntity');
+let UsersEntity = require('../data/userEntity');
+let bcrypt = require('bcrypt');
 
 let currentID;
+let saltRounds = 10;
 
 class LogicService {
 
@@ -28,7 +32,7 @@ class LogicService {
     }
 
     scanDoneCallback() {
-        console.log('entered scan Done Callback with '+currentID);
+        console.log('entered scan Done Callback with ' + currentID);
         let dbName = 'test';
         let scansDao = new ScansDao(dbName);
         scansDao.updateScanFinished(currentID, (err, result) => {
@@ -111,7 +115,7 @@ class LogicService {
             uri: VULNERABILITY_MICROSERVICE_REST + "/get_results",
             method: 'POST',
             json: {
-                scanName: globals.VULN_TABLE_PREFIX+vulnerabilityGetResultsRequestBoundary.ScanName
+                scanName: globals.VULN_TABLE_PREFIX + vulnerabilityGetResultsRequestBoundary.ScanName
             }
         };
         request(options, (error, res, body) => {
@@ -125,12 +129,148 @@ class LogicService {
         });
     }
 
-    async login() {
+    async login(username, password, callback) {
+        let dbName = 'test';
+        let usersDao = new UsersDao(dbName);
+        usersDao.getValue(username, (err, results) => {
+            if (err) {
+                console.log(err);
+                callback(null);
+            } else {
+                // check if user exist
+                if (results.length == 1) {
+                    // user exists
+                    let userEntity = new UsersEntity(results[0]["username"], results[0]["salt"], results[0]["passwordHash"], results[0]["admin"]);
+                    if (bcrypt.compareSync(password, userEntity.passwordHash)) {
+                        // true
+                        callback(results);
+                    } else {
+                        // false, bad password
+                        callback(false);
+                    }
+                } else {
+                    // user does not exists
+                    callback(null);
+                }
+            }
+        });
+    }
+
+    async register(username, password, role, callback) {
+        if (!username.trim() || !password.trim()) {
+            callback(false);
+        }
+        let dbName = 'test';
+        let usersDao = new UsersDao(dbName);
+        usersDao.getValue(username, (err, results) => {
+            if (err) {
+                console.log(err);
+                callback(null);
+            } else {
+                // check if user exist
+                if (results.length == 1) {
+                    // user exists
+                    callback(false);
+                } else {
+                    let isAdmin = false;
+                    if (role == "ADMIN") {
+                        isAdmin = true;
+                    }
+                    let salt = bcrypt.genSaltSync(saltRounds);
+                    let hash = bcrypt.hashSync(password, salt);
+                    let userEntity = new UsersEntity(username, salt, hash, isAdmin);
+                    // store user in the db
+                    usersDao.insertValue(userEntity, (err, newUser) => {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            callback(newUser);
+                        }
+                    });
+                }
+            }
+        });
 
     }
 
-    async register() {
+    async getAllUsers(callback) {
+        let dbName = 'test';
+        let usersDao = new UsersDao(dbName);
+        usersDao.getAll((err, results) => {
+            if (err) {
+                callback(null);
+            } else {
+                callback(results);
+            }
+        }, 0, 200)
+    }
 
+    async updateUser(username, password, role, callback) {
+        if (!username.trim() || !password.trim()) {
+            callback(null);
+            return;
+        }
+        let dbName = 'test';
+        let usersDao = new UsersDao(dbName);
+        // check if user exist
+        usersDao.getValue(username, (err, results) => {
+            if (err) {
+                console.log(err);
+                callback(null);
+            } else {
+                // check if user exist
+                if (results.length == 1) {
+                    // user exists
+                    let isAdmin = false;
+                    if (role == "ADMIN") {
+                        isAdmin = true;
+                    }
+                    let salt = bcrypt.genSaltSync(saltRounds);
+                    let hash = bcrypt.hashSync(password, salt);
+                    let userEntity = new UsersEntity(username, salt, hash, isAdmin);
+                    // store user in the db
+                    let newUser = usersDao.updateValue(userEntity, (err2, results2) => {
+                        if (err) {
+                            console.log(err);
+                            callback(null);
+                        } else {
+                            callback(newUser);
+                        }
+                    });
+                } else {
+                    callback(false);
+                }
+            }
+        });
+
+    }
+
+    async deleteUser(username, callback) {
+        let dbName = 'test';
+        let usersDao = new UsersDao(dbName);
+        // check if user exist
+        usersDao.getValue(username, (err, results) => {
+            if (err) {
+                console.log(err);
+                callback(null);
+            } else {
+                // check if user exist
+                if (results.length == 1) {
+                    usersDao.deleteValue(username, (err) => {
+                        if (err) {
+                            callback(null);
+                        } else {
+                            // user deleted
+                            callback(true);
+                        }
+                    });
+                } else {
+                    // user does not exists
+                    callback(false);
+                }
+
+            }
+        });
     }
 
     async newSavedConfig(name, interval, maxConcurrency, maxDepth, timeout) {

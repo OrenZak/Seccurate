@@ -15,7 +15,7 @@ describe('Test deserialize', function () {
 
 describe('Test serialize', function () {
     it('Should serialize to jsonCrawl String', function () {
-        var serialize = boundary.serialize();
+        let serialize = boundary.serialize();
         assert.equal(boundary.id, JSON.parse(serialize).id);
         // assert.equal(boundary.loginInfo.formAction, JSON.parse(serialize).loginInfo.formAction);
         // assert.equal(boundary.loginInfo.form.login, JSON.parse(serialize).loginInfo.form.login);
