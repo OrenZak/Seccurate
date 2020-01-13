@@ -55,8 +55,8 @@ class UsersCRUD {
             }
         });
         const sql = `UPDATE ?? SET salt=?, passwordHash=?, admin=? WHERE username=?`
-        this.conn.query(sql, [this.table_name, value.getSalt(), value.getPasswordHash(),
-            value.getAdmin(), value.getUsername()], (err, result) => {
+        this.conn.query(sql, [this.table_name, new_value.getSalt(), new_value.getPasswordHash(),
+            new_value.getAdmin(), new_value.getUsername()], (err, result) => {
             if (err) {
                 console.log(err);
             } else {
@@ -70,9 +70,10 @@ class UsersCRUD {
         const sql = `SELECT * FROM ?? WHERE username=?`
         this.conn.query(sql, [this.table_name, username], function (err, result) {
             if (!err) {
-                callback(null, result)
+                callback(null, result);
             } else {
-                console.log(err)
+                console.log(err);
+                callback(err, result);
             }
         })
     }
