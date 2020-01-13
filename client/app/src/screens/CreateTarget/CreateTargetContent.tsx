@@ -10,21 +10,18 @@ import Checkbox, { CheckboxProps } from '@material-ui/core/Checkbox';
 import { Switch, Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import ScanConfigList from './components/ScanConfigList';
+import AddFieldModal from './components/AddField/AddFieldModal';
 
 interface Props {}
-
-interface Field {
-    name: string;
-    value: string;
-}
 
 const CreateTargetContent: React.FC<Props> = props => {
     const classes = useStyles();
 
-    const [scanType, setScanType] = useState('All');
-    const [isSaveChecked, setIsSaveChecked] = useState(false);
-    const [hasSiteLogin, setHasSiteLogin] = useState(false);
-    const [loginFormFields, setLoginFormFields] = useState([]);
+    const [scanType, setScanType] = useState<string>('All');
+    const [isSaveChecked, setIsSaveChecked] = useState<boolean>(false);
+    const [hasSiteLogin, setHasSiteLogin] = useState<boolean>(false);
+    const [loginFormFields, setLoginFormFields] = useState<Field[]>([]);
+    const [addFieldShow, setAddFieldShow] = useState<boolean>(false);
 
     const handleScanTypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
         setScanType(event.target.value as string);
@@ -154,8 +151,11 @@ const CreateTargetContent: React.FC<Props> = props => {
                 className={classes.button}
                 startIcon={<AddIcon />}
                 disabled={!hasSiteLogin}
+                onClick={() => {
+                    setAddFieldShow(true);
+                }}
             >
-                Add another field
+                Add field
             </Button>
         );
     };
@@ -167,33 +167,6 @@ const CreateTargetContent: React.FC<Props> = props => {
                     <FormControlLabel
                         control={<Switch checked={hasSiteLogin} onChange={handleHashSiteLoginChange} color="primary" />}
                         label="Site Login"
-                    />
-                </Grid>
-                <Grid item xs>
-                    <TextField
-                        id="standard-basic"
-                        label="Login URL"
-                        placeholder={'Enter Login URL'}
-                        disabled={!hasSiteLogin}
-                        fullWidth
-                    />
-                </Grid>
-                <Grid item xs>
-                    <TextField
-                        id="standard-basic"
-                        label="Username"
-                        placeholder={'Enter Username'}
-                        disabled={!hasSiteLogin}
-                        fullWidth
-                    />
-                </Grid>
-                <Grid item xs>
-                    <TextField
-                        id="standard-basic"
-                        label="Password"
-                        placeholder={'Enter Password'}
-                        disabled={!hasSiteLogin}
-                        fullWidth
                     />
                 </Grid>
                 {renderLoginFormFieldList()}
@@ -210,28 +183,47 @@ const CreateTargetContent: React.FC<Props> = props => {
         return <ScanConfigList onItemSelected={onScanConfigSelected} />;
     };
 
+    const handleAddFields = (fields: Field[]) => {
+        loginFormFields.push(...fields);
+        setAddFieldShow(false);
+    };
+
     return (
-        <Grid container direction={'column'} spacing={1} justify={'center'} alignItems={'center'}>
-            <Grid item>
-                <h2>Add New Target</h2>
-            </Grid>
-            <Grid container item direction={'row'} spacing={3}>
-                <Grid item xs>
-                    {renderMainForm()}
+        <div>
+            <AddFieldModal
+                isOpen={addFieldShow}
+                onClose={() => {
+                    setAddFieldShow(false);
+                }}
+                onFieldsAdded={handleAddFields}
+            />
+            <Grid container direction={'column'} spacing={1} justify={'center'} alignItems={'center'}>
+                <Grid item>
+                    <h2>Add New Target</h2>
                 </Grid>
-                <Grid item xs>
-                    {renderLoginSiteForm()}
-                </Grid>
-                <Grid container direction={'row'} item xs justify={'flex-end'} alignItems={'center'}>
-                    <Grid item>{renderScanConfigList()}</Grid>
-                    <Grid item>
-                        <Button size="medium" variant="contained" color="primary" className={classes.addTargetButton}>
-                            Add Target
-                        </Button>
+                <Grid container item direction={'row'} spacing={3}>
+                    <Grid item xs>
+                        {renderMainForm()}
+                    </Grid>
+                    <Grid item xs>
+                        {renderLoginSiteForm()}
+                    </Grid>
+                    <Grid container direction={'row'} item xs justify={'flex-end'} alignItems={'center'}>
+                        <Grid item>{renderScanConfigList()}</Grid>
+                        <Grid item>
+                            <Button
+                                size="medium"
+                                variant="contained"
+                                color="primary"
+                                className={classes.addTargetButton}
+                            >
+                                Add Target
+                            </Button>
+                        </Grid>
                     </Grid>
                 </Grid>
             </Grid>
-        </Grid>
+        </div>
     );
 };
 
