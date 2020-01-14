@@ -1,18 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Toolbar, Typography } from '@material-ui/core';
+import { AppBar, Toolbar, Button } from '@material-ui/core';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import AppLogo from '../components/AppLogo';
+import ManageUsersModal from '../screens/ManageUsers';
 
 const AppToolBar: React.FC = () => {
     const classes = useStyles();
+
+    const [manageUsersShow, setManageUsersShow] = useState<boolean>(false);
+
     return (
-        <AppBar position="fixed" className={classes.appBar}>
-            <Toolbar className={classes.toolbar}>
-                <AppLogo />
-                <SupervisedUserCircleIcon className={classes.manageButton} />
-            </Toolbar>
-        </AppBar>
+        <div>
+            <ManageUsersModal isOpen={manageUsersShow} close={() => setManageUsersShow(false)} />
+            <AppBar position="fixed" className={classes.appBar}>
+                <Toolbar className={classes.toolbar}>
+                    <AppLogo />
+                    <Button
+                        onClick={() => {
+                            setManageUsersShow(true);
+                        }}
+                    >
+                        <SupervisedUserCircleIcon className={classes.manageButton} />
+                    </Button>
+                </Toolbar>
+            </AppBar>
+        </div>
     );
 };
 

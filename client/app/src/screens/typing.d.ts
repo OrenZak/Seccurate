@@ -13,3 +13,9 @@ declare interface ScanConfig {
     interval: number;
     timeout: number;
 }
+
+declare interface User {
+    id: string;
+    name: string;
+    role: 'Admin' | 'User';
+}
