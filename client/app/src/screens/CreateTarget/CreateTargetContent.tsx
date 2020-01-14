@@ -31,7 +31,7 @@ const CreateTargetContent: React.FC<Props> = props => {
         setIsSaveChecked(event.target.checked);
     };
 
-    const handleHashSiteLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleHasSiteLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setHasSiteLogin(event.target.checked);
     };
 
@@ -165,7 +165,7 @@ const CreateTargetContent: React.FC<Props> = props => {
             <Grid container direction={'column'} justify={'center'} alignItems={'center'}>
                 <Grid item>
                     <FormControlLabel
-                        control={<Switch checked={hasSiteLogin} onChange={handleHashSiteLoginChange} color="primary" />}
+                        control={<Switch checked={hasSiteLogin} onChange={handleHasSiteLoginChange} color="primary" />}
                         label="Site Login"
                     />
                 </Grid>
