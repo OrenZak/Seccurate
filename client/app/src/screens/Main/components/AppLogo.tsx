@@ -5,8 +5,12 @@ const AppLogo: React.FC = () => {
     const classes = useStyles();
     return (
         <div className={classes.root}>
-            <img src={require('../assets/images/Seccurate_logo_image.png')} className={classes.logo_image} alt="" />
-            <img src={require('../assets/images/SeccurateName_logo.png')} className={classes.logo_title} alt="" />
+            <img
+                src={require('../../../assets/images/Seccurate_logo_image.png')}
+                className={classes.logo_image}
+                alt=""
+            />
+            <img src={require('../../../assets/images/SeccurateName_logo.png')} className={classes.logo_title} alt="" />
         </div>
     );
 };

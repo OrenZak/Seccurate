@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar, Button } from '@material-ui/core';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
-import AppLogo from '../components/AppLogo';
-import ManageUsersModal from '../screens/ManageUsers';
+import AppLogo from './AppLogo';
+import ManageUsersModal from '../../ManageUsers';
 
 const AppToolBar: React.FC = () => {
     const classes = useStyles();
