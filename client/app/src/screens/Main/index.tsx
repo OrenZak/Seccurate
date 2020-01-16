@@ -1,23 +1,26 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import AppNavDrawer from '../../components/AppNavDrawer';
+import AppNavDrawer from './components/AppNavDrawer';
 import Screens from '../screen';
 
 const MainScreen: React.FC = () => {
     const classes = useStyles();
 
-    const [selectedScreen, setSelectedScreen] = useState(Screens.TargetsScreen.id);
+    const [selectedScreen, setSelectedScreen] = useState<string>(Screens.TargetsScreen.id);
 
-    const CurrentScreen = Screens[selectedScreen].generator();
+    const CurrentScreen: React.ComponentType<any> = Screens[selectedScreen].generator();
 
     return (
         <div className={classes.container}>
             <div>
-                <AppNavDrawer />
+                <AppNavDrawer
+                    firstScreenId={Screens.TargetsScreen.id}
+                    onScreenChanged={(screenId: string) => {
+                        setSelectedScreen(screenId);
+                    }}
+                />
             </div>
             <CurrentScreen />
-
-            
         </div>
     );
 };

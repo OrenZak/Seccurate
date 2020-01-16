@@ -4,7 +4,6 @@ import Grid from '@material-ui/core/Grid';
 import TargetList from './components/TargetsList';
 import MainButtons from './components/MainButtons';
 import CreateTargetModal from '../CreateTarget';
-import AddFieldModal from '../CreateTarget/components/AddField';
 
 const TargetsScreen: React.FC = () => {
     const classes = useStyles();

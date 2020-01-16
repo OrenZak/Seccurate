@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles, createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
-import AppToolBar from './components/AppToolBar';
+import AppToolBar from './screens/Main/components/AppToolBar';
 import MainScreen from './screens/Main';
 
 const theme = createMuiTheme({
