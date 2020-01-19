@@ -21,7 +21,7 @@ const AppToolBar: React.FC = () => {
                             setManageUsersShow(true);
                         }}
                     >
-                        <SupervisedUserCircleIcon className={classes.manageButton} />
+                        <SupervisedUserCircleIcon fontSize="large" className={classes.manageButton} />
                     </Button>
                 </Toolbar>
             </AppBar>

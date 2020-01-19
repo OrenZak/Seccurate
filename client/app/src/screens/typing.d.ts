@@ -22,10 +22,13 @@ declare interface User {
     role: Role;
 }
 
-declare interface Report {
-    id: string;
-    mainUrl: string;
+declare interface Result {
     name: string;
-    desc: string;
-    scanType: ScanType;
+    description: string;
+    payload: string;
+    recommendation: string;
+    requestB64: string;
+    severity: string;
+    url: string;
+    vulnID: string;
 }
