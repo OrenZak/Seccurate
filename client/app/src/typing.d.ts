@@ -1,7 +1,7 @@
 type ScanType = 'all' | 'rxss' | 'sqli';
 type Role = 'Admin' | 'User';
 declare interface Target {
-    id: string;
+    id?: string;
     name: string;
     description: string;
     mainURL: string;
@@ -9,11 +9,12 @@ declare interface Target {
 }
 
 declare interface ScanConfig {
-    id: string;
+    id?: string;
     name: string;
-    max_depth: number;
+    maxDepth: number;
     interval: number;
     timeout: number;
+    loginInfo: { [key: string]: string };
 }
 
 declare interface User {
