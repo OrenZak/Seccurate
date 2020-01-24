@@ -1,42 +1,74 @@
 import { createSlice, PayloadAction, createAction } from '@reduxjs/toolkit';
-import { ServerError } from '../../services/gateway.api';
 
 interface AppState {
-    accessToken?: string;
-    loginError?: string;
+    login: {
+        isLoading: boolean;
+        isLoggedIn: boolean;
+        loginError?: string;
+    };
 }
 
 const initialState: AppState = {
-    accessToken: undefined,
+    login: {
+        isLoading: false,
+        isLoggedIn: false,
+    },
 };
 
 const appSlice = createSlice({
     name: 'app',
     initialState,
     reducers: {
-        loginSucceed(state, action: PayloadAction<AppState>) {
-            return { ...state, ...action.payload };
+        loginStart(state) {
+            return {
+                ...state,
+                login: {
+                    loginError: undefined,
+                    isLoggedIn: false,
+                    isLoading: true,
+                },
+            };
         },
-        loginFailed(state, action: PayloadAction<ServerError>) {
-            return { ...state, loginError: action.payload };
+        loginSucceed(state) {
+            return {
+                ...state,
+                login: {
+                    loginError: undefined,
+                    isLoggedIn: true,
+                    isLoading: false,
+                },
+            };
+        },
+        loginFailed(state, action: PayloadAction<{ error: string }>) {
+            return {
+                ...state,
+                login: {
+                    loginError: action.payload.error,
+                    isLoggedIn: false,
+                    isLoading: false,
+                },
+            };
         },
     },
 });
 
 // -- STATE SELECTORS --//
-export function selectAccessToken(state: { app: AppState }) {
-    return state.app.accessToken;
+export function selectIsLoggedIn(state: { app: AppState }) {
+    return state.app.login.isLoggedIn;
 }
 
 export function selectLoginError(state: { app: AppState }) {
-    return state.app.loginError;
+    return state.app.login.loginError;
+}
+
+export function selectLoginLoading(state: { app: AppState }) {
+    return state.app.login.isLoading;
 }
 
 // -- SAGA ACTIONS -- //
 export const login = createAction<LoginParams>(appSlice.name + '/login');
 
 // -- SAGA ACTIONS -- //
-export const { loginSucceed, loginFailed } = appSlice.actions;
+export const { loginStart, loginSucceed, loginFailed } = appSlice.actions;
 
 export default appSlice.reducer;
-

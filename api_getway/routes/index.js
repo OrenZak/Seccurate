@@ -137,14 +137,20 @@ router.post(PATHS.LOGIN, function(req, res, next) {
 	if (req.session.user && req.cookies.user_sid) {
 		res.status(200).send('Already logged in');
 	} else {
-		let isUser = logicService.login(loginBoundary.username, loginBoundary.password, user => {
+		logicService.login(loginBoundary.username, loginBoundary.password, user => {
 			if (user == null) {
-				res.status(200).send('Bad username/password');
+				res.status(401).send({
+					error: 'Bad username/password',
+				});
 			} else if (!user) {
-				res.status(200).send('Bad username/password');
+				res.status(401).send({
+					error: 'Bad username/password',
+				});
 			} else {
 				req.session.user = user;
-				res.status(200).send('Connected');
+				res.status(200).send({
+					result: 'Connected',
+				});
 			}
 		});
 	}

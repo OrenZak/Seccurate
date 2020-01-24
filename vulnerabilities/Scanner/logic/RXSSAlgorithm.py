@@ -55,7 +55,7 @@ class MainWindow():
 
     def get_configuration_properties(self):
         self.config = ConfigParser.RawConfigParser()
-        self.config.read('..\common\config.properties')
+        self.config.read('../common/config.properties')
         # means for authentication
         self.cookie = self.config.get('Authentication', 'Cookie')
         self.baseAuth = self.config.get('Authentication', 'BasicAuthentication')

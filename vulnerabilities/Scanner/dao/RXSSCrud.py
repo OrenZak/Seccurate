@@ -6,7 +6,7 @@ import ConfigParser
 
 config = ConfigParser.RawConfigParser()
 config.read(
-    '..\common\config.properties')
+    '../common/config.properties')
 
 def createTable(env):
     with sqlite3.connect(config.get('VulnServiceDB', env)) as db:

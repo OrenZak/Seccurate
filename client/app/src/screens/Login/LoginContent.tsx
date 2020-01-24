@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
-import { Button } from '@material-ui/core';
+import { Button, FormHelperText, FormControl } from '@material-ui/core';
 
 interface Props {
+    loginError?: string;
+    loginLoading: boolean;
     onLoginSubmit: ({ username, password }: { username: string; password: string }) => void;
 }
 
@@ -67,7 +69,7 @@ const LoginContent: React.FC<Props> = props => {
     };
 
     const setPasswordError = (password: string) => {
-        if (password && password.length > 5) {
+        if (password && password.length >= 5) {
             setErrors({
                 usernameError: errors.usernameError,
                 passwordError: FIELD_ERRORS.none,
@@ -97,13 +99,17 @@ const LoginContent: React.FC<Props> = props => {
                     <TextField id="standard-basic" label="Username" fullWidth onChange={handleUsernameChanged} />
                 </Grid>
                 <Grid item xs>
-                    <TextField
-                        id="standard-basic"
-                        label="Password"
-                        type={'password'}
-                        fullWidth
-                        onChange={handlePasswordChanged}
-                    />
+                    <FormControl fullWidth>
+                        <TextField
+                            id="standard-basic"
+                            label="Password"
+                            type={'password'}
+                            onChange={handlePasswordChanged}
+                        />
+                        <FormHelperText error>
+                            {props.loginError && !props.loginLoading ? props.loginError : ''}
+                        </FormHelperText>
+                    </FormControl>
                 </Grid>
             </Grid>
             <Grid container item xs justify={'flex-end'} alignItems={'center'}>
@@ -112,9 +118,6 @@ const LoginContent: React.FC<Props> = props => {
                         size="small"
                         variant="contained"
                         color={'primary'}
-                        disabled={
-                            !(errors.usernameError === FIELD_ERRORS.none && errors.passwordError === FIELD_ERRORS.none)
-                        }
                         onClick={handleSubmit}
                         className={classes.button}
                     >

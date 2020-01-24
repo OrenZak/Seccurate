@@ -1,5 +1,5 @@
 const END_POINTS = {
-    gateway: 'localhost:3000',
+    gatewayURL: 'http://localhost:3001',
 };
 
 export { END_POINTS };

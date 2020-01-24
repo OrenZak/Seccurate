@@ -19,7 +19,7 @@ class SQLIAlgorithm():
     def get_configuration_properties(self):
         self.config = ConfigParser.RawConfigParser()
         self.config.read(
-            '..\common\config.properties')
+            '../common/config.properties')
 
         # form_attributes_indices
         self.method_index = int(self.config.get('FormAttributes', 'method'))

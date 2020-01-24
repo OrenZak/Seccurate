@@ -5,7 +5,7 @@ from ResponseObject import ResponseEntity
 import ConfigParser
 
 config = ConfigParser.RawConfigParser()
-config.read('..\\common\\config.properties')
+config.read('../common/config.properties')
 # config.read(
 #     'C:\\Users\\Guy Shakked\\PycharmProjects\\Seccurate\\vulnerabilities\\Scanner\\common\\config.properties')
 

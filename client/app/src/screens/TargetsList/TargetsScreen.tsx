@@ -29,7 +29,7 @@ const TargetsScreen: React.FC = () => {
 
     return (
         <div>
-            <Grid container direction="row" xs={12} spacing={4} className={classes.listFabContainer}>
+            <Grid container direction="row" spacing={4} className={classes.listFabContainer}>
                 <Grid item xs={8}>
                     <TargetList onItemSelected={onItemSelected} />
                 </Grid>

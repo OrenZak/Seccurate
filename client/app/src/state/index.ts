@@ -1,1 +1,1 @@
-export { store } from "./createStore";
+export { store } from './createStore';

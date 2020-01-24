@@ -7,7 +7,7 @@ import ConfigParser
 
 __tables = []
 config = ConfigParser.RawConfigParser()
-config.read('..\\common\\config.properties')
+config.read('../common/config.properties')
 
 def createTable(table_name, env):
     """Creates the Vulns_Objects table if it doesn't exist"""
