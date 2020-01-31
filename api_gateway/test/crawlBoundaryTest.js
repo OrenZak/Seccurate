@@ -1,4 +1,4 @@
-const CrawlBoundaryBoundary = require('../layout/boundaries/startCrawlBoundary');
+const CrawlBoundaryBoundary = require('layout/boundaries/startCrawlBoundary');
 
 let assert = require('assert');
 let id = 1;

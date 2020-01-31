@@ -1,4 +1,4 @@
-const GetResultsRequestBoundary = require('../layout/boundaries/getResultsResponseBoundary');
+const GetResultsRequestBoundary = require('layout/boundaries/getResultsResponseBoundary');
 
 let assert = require('assert');
 let json = '{"scanName":"scan"}';

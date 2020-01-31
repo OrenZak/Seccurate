@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-const globals = require('./../common/globals');
+const globals = require('common/globals');
 
 class UsersCRUD {
     constructor(db_type) {//should be read from globals

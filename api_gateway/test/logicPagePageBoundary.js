@@ -1,4 +1,4 @@
-const CrawlerPageBoundary = require('../logic/boundaries/crawlerPageBoundary');
+const CrawlerPageBoundary = require('logic/boundaries/crawlerPageBoundary');
 
 let assert = require('assert');
 let jsonScanConfig = {url: "http://google.com",pageHash: 311321,type: "Cookie",value: "SESSIONID=123"};
