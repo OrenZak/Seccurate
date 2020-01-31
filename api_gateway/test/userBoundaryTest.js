@@ -1,4 +1,4 @@
-const UserBoundary = require('../layout/boundaries/userBoundary');
+const UserBoundary = require('./../layout/boundaries/userBoundary');
 
 let assert = require('assert');
 let json = {"username":"user","password":"password1","role":"ADMIN"};

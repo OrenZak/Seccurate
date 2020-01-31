@@ -22,7 +22,7 @@ services:
       secNetwork:
   mySQL:
     image: 'seccurate:mySQL'
+    environment:
+      ['MYSQL_ROOT_PASSWORD=311248496',MYSQL_PORT=3306]
     networks:
       secNetwork:
-    environment:
-      MYSQL_ROOT_PASSWORD=311248496

@@ -4,7 +4,7 @@ let session = require('express-session');
 let bodyParser = require('body-parser');
 let cookieParser = require('cookie-parser');
 
-let indexRouter = require('../routes/index');
+let indexRouter = require('./../routes/index');
 indexRouter.setServer(http);
 // set up Restful listener
 http.listen(3001, function () {

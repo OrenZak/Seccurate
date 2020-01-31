@@ -2,5 +2,4 @@ FROM node:12-alpine3.9
 ADD Seccurate/api_gateway/ /opt/Seccurate/api_gateway/
 WORKDIR /opt/Seccurate/api_gateway/
 RUN npm install
-ENTRYPOINT npm start
 EXPOSE 3001
