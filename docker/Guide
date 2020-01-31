@@ -4,4 +4,5 @@ docker build . -f RenderDockerfile -t seccurate:render
 docker build . -f CrawlerDockerfile -t seccurate:crawler
 docker build . -f APIGatewayDockerfile -t seccurate:apiGateway
 docker build . -f MySQLDockerFile -t seccurate:mySQL
+docker build . -f VulnerabilitiesDockerFile -t seccurate:vulnerabilities
 docker-compose up

@@ -26,3 +26,7 @@ services:
       ['MYSQL_ROOT_PASSWORD=311248496',MYSQL_PORT=3306]
     networks:
       secNetwork:
+  vulnerabilities:
+    image: 'seccurate:vulnerabilities'
+    networks:
+      secNetwork:
