@@ -1,20 +1,20 @@
 //import {VULNERABILITY_MICROSERVICE_REST} from "../common/globals";
 
-let VULNERABILITY_MICROSERVICE_REST = require("common/globals").VULNERABILITY_MICROSERVICE_REST;
+let VULNERABILITY_MICROSERVICE_REST = require("../common/globals").VULNERABILITY_MICROSERVICE_REST;
 
 const https = require('https');
 const request = require('request');
-const globals = require('common/globals');
+const globals = require('../common/globals');
 let socketManager = require('./socketManager');
 let CrawlerConfigScanBoundary = require('./boundaries/crawlerConfigScanBoundary');
 let VulnerabilityConfigScanBoundary = require('./boundaries/vulnerabilityConfigBoundary');
 let VulnerabilityGetResultsRequestBoundary = require('./boundaries/vulnerabilityGetResultsRequestBoundary');
-let SavedConfigurarionDao = require('dao/savedScanConfigurationCRUD');
-let ScansDao = require('dao/scansCRUD');
-let UsersDao = require('dao/usersCRUD');
-let SavedConfigEntity = require('data/SavedConfigurationEntity');
-let ScanEntity = require('data/scanEntity');
-let UsersEntity = require('data/userEntity');
+let SavedConfigurarionDao = require('../dao/savedScanConfigurationCRUD');
+let ScansDao = require('../dao/scansCRUD');
+let UsersDao = require('../dao/usersCRUD');
+let SavedConfigEntity = require('../data/SavedConfigurationEntity');
+let ScanEntity = require('../data/scanEntity');
+let UsersEntity = require('../data/userEntity');
 let bcrypt = require('bcrypt-nodejs');
 
 let currentID;

@@ -1,8 +1,8 @@
 events = require("events");
 var CrawlerPageBoundary = require('./boundaries/crawlerPageBoundary');
 var VulnerabilityPageBoundary = require('./boundaries/vulnerabilityPageBoundary');
-var pageCRUD = require('dao/PageCRUD');
-var pageEntity = require('data/PageEntity');
+var pageCRUD = require('../dao/PageCRUD');
+var pageEntity = require('../data/PageEntity');
 
 
 const ACTIONS = {

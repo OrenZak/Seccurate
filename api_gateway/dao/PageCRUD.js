@@ -1,5 +1,5 @@
 const mysql = require('mysql2')
-const pageEntity = require('data/PageEntity')
+const pageEntity = require('../data/PageEntity')
 
 
 class PageCRUD {
