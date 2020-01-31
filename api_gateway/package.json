@@ -17,6 +17,6 @@
   },
   "scripts": {
     "test": "mocha",
-    "start": "node layout\\serverController.js"
+    "start": "node layout/serverController.js"
   }
 }
