@@ -1,0 +1,8 @@
+# Don't track content of these folders
+.idea/
+render/
+api_gateway/
+client/
+vulnerabilities/
+crawler/
+Seccurate/

@@ -7,7 +7,7 @@ class SavedConfigurationCRUD {
             host: 'localhost',
             port: 3306,
             user: 'root',
-            //password: '18031997',
+            password: '311248496',
             database: db
         })
         this.conn.connect(function(err) {

@@ -1,0 +1,6 @@
+FROM node:12-alpine3.9
+ADD Seccurate/render /opt/Seccurate/render/
+WORKDIR /opt/Seccurate/render/
+RUN npm install
+ENTRYPOINT npm start
+EXPOSE 3005

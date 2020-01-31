@@ -1,0 +1,7 @@
+git clone https://github.com/OrenZak/Seccurate.git
+********************from the docker folder run the following:******************
+docker build . -f RenderDockerfile -t seccurate:render
+docker build . -f CrawlerDockerfile -t seccurate:crawler
+docker build . -f APIGatewayDockerfile -t seccurate:apiGateway
+docker build . -f MySQLDockerFile -t seccurate:mySQL
+docker-compose up

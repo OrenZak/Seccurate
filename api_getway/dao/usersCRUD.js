@@ -13,7 +13,7 @@ class UsersCRUD {
             host: 'localhost',
             port: 3306,
             user: 'root',
-            //password: '18031997',
+            password: '311248496',
             database: globals.API_GW_DB_NAME.split(':')[index]
         })
         this.conn.connect(function (err) {

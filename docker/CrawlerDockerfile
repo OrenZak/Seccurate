@@ -1,0 +1,5 @@
+FROM node:12-alpine3.9
+ADD Seccurate/crawler/ /opt/Seccurate/crawler/
+WORKDIR /opt/Seccurate/crawler/
+RUN npm install
+ENTRYPOINT npm start

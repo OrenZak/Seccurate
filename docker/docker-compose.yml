@@ -1,0 +1,28 @@
+version: '3.0'
+
+networks:
+  secNetwork:
+
+services:
+  rendering:
+    image: 'seccurate:render'
+    networks:
+      secNetwork:
+  crawler:
+    image: 'seccurate:crawler'
+    networks:
+      secNetwork:
+  api_gateway:
+    image: 'seccurate:apiGateway'
+    ports:
+      - '3001:3001'
+    depends_on:
+      - mySQL
+    networks:
+      secNetwork:
+  mySQL:
+    image: 'seccurate:mySQL'
+    networks:
+      secNetwork:
+    environment:
+      MYSQL_ROOT_PASSWORD=311248496
