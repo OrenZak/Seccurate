@@ -1,5 +1,6 @@
 const mysql = require('mysql2')
-const pageEntity = require('./../data/PageEntity')
+const pageEntity = require('../data/PageEntity')
+
 
 class PageCRUD {
     constructor(db, table_name) {//should become db_type and read from globals

@@ -1,5 +1,5 @@
 const mysql = require('mysql2')
-const configurationEntity = require('./../data/SavedConfigurationEntity')
+const configurationEntity = require('../data/SavedConfigurationEntity')
 
 class SavedConfigurationCRUD {
     constructor(db) {//should become db_type and read from globals

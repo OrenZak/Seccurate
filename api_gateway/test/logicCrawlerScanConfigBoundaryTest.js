@@ -1,4 +1,4 @@
-const CrawlerScanConfigBoundary = require('./../logic/boundaries/crawlerConfigScanBoundary');
+const CrawlerScanConfigBoundary = require('../logic/boundaries/crawlerConfigScanBoundary');
 
 let assert = require('assert');
 let name = "haha";
