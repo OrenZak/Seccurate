@@ -3,5 +3,3 @@ Flask
 Bs4
 Python-engineio
 Python-socketio
-Sqlite3
-cookielib
