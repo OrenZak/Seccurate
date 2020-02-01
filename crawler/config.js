@@ -6,6 +6,6 @@ module.exports = {
     timeout: 10000 // 10sec
   },
   paths: {
-    API_GATEWAY: 'http://localhost:3001'
+    API_GATEWAY: 'http://127.0.0.1:3001'
   }
 };
