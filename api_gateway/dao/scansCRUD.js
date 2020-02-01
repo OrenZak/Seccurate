@@ -12,7 +12,7 @@ class ScansDataCRUD {
         }
         else throw new Error('Wrong DB type specified - ' + db_type);
         this.conn = mysql.createConnection({
-            host: 'localhost',
+            host: 'mySQL',
             port: 3306,
             user: 'root',
             password: '311248496',
