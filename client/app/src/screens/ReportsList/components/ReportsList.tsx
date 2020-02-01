@@ -11,7 +11,7 @@ import TableRow from '@material-ui/core/TableRow';
 import { Typography, Link, CircularProgress } from '@material-ui/core';
 
 interface Column {
-    id: 'id' | 'mainURL' | 'name' | 'description' | 'num' | 'scanType' | 'report';
+    id: 'id' | 'url' | 'name' | 'description' | 'num' | 'scanType' | 'report';
     label: string;
     minWidth?: number;
     align: 'right' | 'left' | 'center';
@@ -19,7 +19,7 @@ interface Column {
 
 const columns: Column[] = [
     { id: 'num', label: '#', minWidth: 10, align: 'left' },
-    { id: 'mainURL', label: 'MainUrl', minWidth: 100, align: 'center' },
+    { id: 'url', label: 'MainUrl', minWidth: 100, align: 'center' },
     {
         id: 'name',
         label: 'Scan Name',
@@ -47,7 +47,7 @@ const columns: Column[] = [
 ];
 
 function createData(id: string, mainURL: string, name: string, description: string, scanType: ScanType): Target {
-    return { id, mainURL, name, description, scanType };
+    return { id, url: mainURL, name, description, scanType };
 }
 
 const rows = [createData('id_29348', 'www.walla.com', 'first page', 'do all scan types', 'all')];

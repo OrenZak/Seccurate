@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
@@ -12,27 +12,106 @@ import AddIcon from '@material-ui/icons/Add';
 import ScanConfigList from './components/ScanConfigList';
 import AddFieldModal from './components/AddField/AddFieldModal';
 
-interface Props {}
+interface Props {
+    onTargetAdded: ({ target }: AddTargetParams) => void;
+}
 
 const CreateTargetContent: React.FC<Props> = props => {
     const classes = useStyles();
 
+    const [target, setTarget] = useState<Target>({
+        description: '',
+        url: '',
+        name: '',
+        scanType: 'all',
+        config: {
+            interval: 250,
+            maxDepth: 3,
+            timeout: 30,
+        },
+    });
     const [scanType, setScanType] = useState<string>('All');
     const [isSaveChecked, setIsSaveChecked] = useState<boolean>(false);
+    const [configName, setConfigName] = useState<string>();
     const [hasSiteLogin, setHasSiteLogin] = useState<boolean>(false);
-    const [loginFormFields, setLoginFormFields] = useState<Field[]>([]);
+    const [loginFormFields, setLoginFormFields] = useState<{ [key: string]: string }>({});
     const [addFieldShow, setAddFieldShow] = useState<boolean>(false);
 
     const handleScanTypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-        setScanType(event.target.value as string);
+        const scanTypeVal: 'all' | 'rxss' | 'sqli' = event.target.value as ScanType;
+        setScanType(scanTypeVal);
+        setTarget({ ...target, scanType: scanTypeVal });
+    };
+
+    const handleNameChange = (event: React.ChangeEvent<{ value: string }>) => {
+        const name = event.target.value;
+        setTarget({ ...target, name });
+    };
+
+    const handleMainURLChange = (event: React.ChangeEvent<{ value: string }>) => {
+        const url = event.target.value;
+        setTarget({ ...target, url });
+    };
+
+    const handleDescriptionChange = (event: React.ChangeEvent<{ value: string }>) => {
+        const description = event.target.value;
+        setTarget({ ...target, description });
+    };
+
+    const handleIntervalChange = (event: React.ChangeEvent<{ value: string }>) => {
+        const interval = event.target.value;
+        const scanConfig: ScanConfig = Object.assign({}, target.config, { interval });
+        setTarget({ ...target, config: scanConfig });
+    };
+    const handleTimeoutChange = (event: React.ChangeEvent<{ value: string }>) => {
+        const timeout = event.target.value;
+        const scanConfig: ScanConfig = Object.assign({}, target.config, { timeout });
+        setTarget({ ...target, config: scanConfig });
+    };
+
+    const handleDepthChange = (event: React.ChangeEvent<{ value: string }>) => {
+        const maxDepth = event.target.value;
+        const scanConfig: ScanConfig = Object.assign({}, target.config, { maxDepth });
+        setTarget({ ...target, config: scanConfig });
     };
 
     const handleSaveCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setIsSaveChecked(event.target.checked);
+        const save = event.target.checked;
+        const scanConfig: ScanConfig = Object.assign({}, target.config, { save });
+        setTarget({ ...target, config: scanConfig });
+    };
+
+    const handleConfigNameChange = (event: React.ChangeEvent<{ value: string }>) => {
+        setConfigName(event.target.value);
     };
 
     const handleHasSiteLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setHasSiteLogin(event.target.checked);
+        if (event.target.checked) {
+            setLoginInfo(loginFormFields);
+        } else {
+            setLoginInfo();
+        }
+    };
+
+    useEffect(() => {
+        if (isSaveChecked) {
+            const scanConfig: ScanConfig = Object.assign({}, target.config, { name: configName });
+            setTarget({ ...target, config: scanConfig });
+        } else {
+            const scanConfig: ScanConfig = Object.assign({}, target.config, { name: undefined });
+            setTarget({ ...target, config: scanConfig });
+        }
+    }, [isSaveChecked, configName]);
+
+    useEffect(() => {
+        setLoginInfo(loginFormFields);
+    }, [loginFormFields]);
+
+    const setLoginInfo = (info?: { [key: string]: string }) => {
+        const loginInfo: LoginInfo = Object.assign({}, target.loginInfo, { form: info, formAction: 'walla.com' });
+        setTarget({ ...target, loginInfo });
     };
 
     const renderMainForm = () => {
@@ -43,13 +122,21 @@ const CreateTargetContent: React.FC<Props> = props => {
                     label="Application MainURL"
                     placeholder={'Enter Application MainURL'}
                     fullWidth
+                    onChange={handleMainURLChange}
                 />
-                <TextField id="standard-basic" label="Scan Name" placeholder={'Enter Scan Name'} fullWidth />
+                <TextField
+                    id="standard-basic"
+                    label="Scan Name"
+                    placeholder={'Enter Scan Name'}
+                    fullWidth
+                    onChange={handleNameChange}
+                />
                 <TextField
                     id="standard-basic"
                     label="Scan Description"
                     placeholder={'Enter Scan Description'}
                     fullWidth
+                    onChange={handleDescriptionChange}
                 />
 
                 <Grid container direction={'column'}>
@@ -59,7 +146,12 @@ const CreateTargetContent: React.FC<Props> = props => {
                                 <h5>Crawl Depth:</h5>
                             </Grid>
                             <Grid item xs>
-                                <TextField id="standard-basic" placeholder={'1-10'} size={'small'} />
+                                <TextField
+                                    id="standard-basic"
+                                    placeholder={'1-10'}
+                                    size={'small'}
+                                    onChange={handleDepthChange}
+                                />
                             </Grid>
                         </Grid>
                     </Grid>
@@ -69,7 +161,12 @@ const CreateTargetContent: React.FC<Props> = props => {
                                 <h5>Crawl Interval:</h5>
                             </Grid>
                             <Grid item xs>
-                                <TextField id="standard-basic" placeholder={'250-1000(milis)'} size={'small'} />
+                                <TextField
+                                    id="standard-basic"
+                                    placeholder={'250-1000(milis)'}
+                                    size={'small'}
+                                    onChange={handleIntervalChange}
+                                />
                             </Grid>
                         </Grid>
                     </Grid>
@@ -79,7 +176,12 @@ const CreateTargetContent: React.FC<Props> = props => {
                                 <h5>Crawl Timeout:</h5>
                             </Grid>
                             <Grid item xs>
-                                <TextField id="standard-basic" placeholder={'10-30(sec)'} size={'small'} />
+                                <TextField
+                                    id="standard-basic"
+                                    placeholder={'10-30(sec)'}
+                                    size={'small'}
+                                    onChange={handleTimeoutChange}
+                                />
                             </Grid>
                         </Grid>
                     </Grid>
@@ -122,6 +224,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                             placeholder={'Enter Config Name'}
                             disabled={!isSaveChecked}
                             fullWidth
+                            onChange={handleConfigNameChange}
                         />
                     </Grid>
                 </Grid>
@@ -130,17 +233,13 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const renderLoginFormFieldList = () => {
-        return loginFormFields.map((field: Field) => (
-            <Grid item xs>
-                <TextField
-                    id="standard-basic"
-                    label={`${field.name}`}
-                    value={field.value}
-                    disabled={!hasSiteLogin}
-                    fullWidth
-                />
-            </Grid>
-        ));
+        return Object.entries(loginFormFields).forEach(([key, value]) => {
+            return (
+                <Grid item xs>
+                    <TextField id="standard-basic" label={`${key}`} value={value} disabled={!hasSiteLogin} fullWidth />
+                </Grid>
+            );
+        });
     };
 
     const renderAddLoginFormButton = () => {
@@ -184,7 +283,14 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const handleAddFields = (fields: Field[]) => {
-        loginFormFields.push(...fields);
+        let simpifiedFields: { [key: string]: string } = {};
+        const x = fields.map((field: Field) => {
+            simpifiedFields[field.name] = field.value;
+            return { [field.name]: field.value };
+        });
+
+        console.log(x);
+        setLoginFormFields(simpifiedFields);
         setAddFieldShow(false);
     };
 
@@ -216,6 +322,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                                 variant="contained"
                                 color="primary"
                                 className={classes.addTargetButton}
+                                onClick={() => props.onTargetAdded({ target })}
                             >
                                 Add Target
                             </Button>

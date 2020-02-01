@@ -16,6 +16,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/login`, {
                 method: 'POST',
                 headers: { ...BASE_HEADERS },
+                credentials: 'same-origin',
                 body: JSON.stringify({ username, password }),
             })
                 .then(checkStatus)
@@ -26,23 +27,25 @@ export default class ApiGateway {
     };
 
     targets = {
-        async fetchAll(page: number = 0, page_count: number = 20): Promise<any> {
-            return fetch(`${END_POINTS.gatewayURL}/config_target`, {
+        async fetchAll(page: number = 0, pageCount: number = 20): Promise<ApiResult<FetchAllResponse>> {
+            return fetch(`${END_POINTS.gatewayURL}/config_target?page=${page}&size=${pageCount}`, {
                 method: 'GET',
                 headers: { ...BASE_HEADERS },
-                body: JSON.stringify({ page, size: page_count }),
+                credentials: 'same-origin',
             })
                 .then(checkStatus)
                 .then(parseJSON)
-                .then(({}) => ({ response: {} }))
+                .then(response => {
+                    return { response: { targets: [...response._configEntityArray] } };
+                })
                 .catch(error => ({ error: error.msg }));
         },
 
-        async add(target: Target, config: ScanConfig): Promise<any> {
+        async add(target: Target): Promise<any> {
             return fetch(`${END_POINTS.gatewayURL}/config_target`, {
                 method: 'POST',
                 headers: { ...BASE_HEADERS },
-                body: JSON.stringify({ ...target, ...config }),
+                body: JSON.stringify({ ...target }),
             })
                 .then(checkStatus)
                 .then(parseJSON)
@@ -50,11 +53,11 @@ export default class ApiGateway {
                 .catch(error => ({ error: error.msg }));
         },
 
-        async update(scanId: string, target: Target, config: ScanConfig): Promise<any> {
+        async update(target: Target): Promise<any> {
             return fetch(`${END_POINTS.gatewayURL}/config_target`, {
                 method: 'PUT',
                 headers: { ...BASE_HEADERS },
-                body: JSON.stringify({ scanId, ...target, ...config }),
+                body: JSON.stringify({ ...target }),
             })
                 .then(checkStatus)
                 .then(parseJSON)
@@ -81,7 +84,6 @@ async function checkStatus(response: Response) {
         return response;
     } else {
         const { error } = (await parseJSON(response)) as ServerError;
-        console.log('Error : ', error);
         throw error;
     }
 }

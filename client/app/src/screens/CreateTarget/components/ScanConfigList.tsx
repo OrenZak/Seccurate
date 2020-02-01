@@ -23,7 +23,7 @@ const columns: Column[] = [
 ];
 
 function createData(id: string, name: string, interval: number, timeout: number, max_depth: number): ScanConfig {
-    return { id, name, interval, timeout, maxDepth: max_depth, loginInfo: {} };
+    return { id, name, interval, timeout, maxDepth: max_depth };
 }
 
 const rows = [createData('1', 'Best Config Ever', 500, 30, 3)];
