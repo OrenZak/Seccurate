@@ -4,18 +4,6 @@ WORKDIR /opt/Seccurate/vulnerabilities/
 RUN pip install -r requirements.txt
 RUN apk add sqlite
 RUN touch /usr/bin/VulnServiceDB.db
-RUN export PYTHONPATH=/opt/Seccurate/
-RUN export PYTHONPATH=$PYTHONPATH:/opt/Seccurate/vulnerabilities/
-RUN export PYTHONPATH=$PYTHONPATH:/opt/Seccurate/vulnerabilities/Scanner/common/
-RUN export PYTHONPATH=$PYTHONPATH:/opt/Seccurate/vulnerabilities/Scanner/dao/
-RUN export PYTHONPATH=$PYTHONPATH:/opt/Seccurate/vulnerabilities/Scanner/data/
-RUN export PYTHONPATH=$PYTHONPATH:/opt/Seccurate/vulnerabilities/Scanner/layout/
-RUN export PYTHONPATH=$PYTHONPATH:/opt/Seccurate/vulnerabilities/Scanner/logic/
-RUN export PYTHONPATH=$PYTHONPATH:/opt/Seccurate/vulnerabilities/Scanner/Test/
-RUN export PYTHONPATH=$PYTHONPATH:/opt/Seccurate/vulnerabilities/Scanner/
-RUN export PYTHONPATH=$PYTHONPATH:/opt/Seccurate/vulnerabilities/Scanner/layout/boundaries/
-RUN export PYTHONPATH=$PYTHONPATH:/opt/Seccurate/vulnerabilities/Scanner/common/exceptions/
-RUN export PYTHONPATH=$PYTHONPATH:/opt/Seccurate/vulnerabilities/Scanner/common/QueueMessages/
 WORKDIR /opt/Seccurate/vulnerabilities/Scanner/layout
-#RUN python Main.py
+RUN python Main.py
 EXPOSE 5000
