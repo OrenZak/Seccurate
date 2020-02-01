@@ -30,3 +30,9 @@ services:
     image: 'seccurate:vulnerabilities'
     networks:
       secNetwork:
+  client:
+    image: 'seccurate:client'
+    networks:
+      secNetwork:
+  ports:
+    - '3000:30000'
