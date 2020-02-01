@@ -3,4 +3,4 @@ ADD Seccurate/api_gateway/ /opt/Seccurate/api_gateway/
 WORKDIR /opt/Seccurate/api_gateway/
 RUN npm install
 EXPOSE 3001
-CMD [ "node", "layout/serverController.js" ]
+CMD [ "node", "serverController.js" ]
