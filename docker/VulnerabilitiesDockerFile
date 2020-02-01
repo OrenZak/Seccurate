@@ -5,5 +5,5 @@ RUN pip install -r requirements.txt
 RUN apk add sqlite
 RUN touch /usr/bin/VulnServiceDB.db
 WORKDIR /opt/Seccurate/vulnerabilities/Scanner/layout
-RUN python Main.py
+ENTRYPOINT python Main.py
 EXPOSE 5000
