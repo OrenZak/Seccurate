@@ -10,3 +10,10 @@ docker build . -f MySQLDockerFile -t seccurate:mySQL
 docker build . -f VulnerabilitiesDockerFile -t seccurate:vulnerabilities
 docker build . -f ClientDockerFile -t seccurate:client
 docker-compose up -d
+
+
+****** usefull command ******
+docker images -- show local images
+docker ps -- show current running containers
+docker system prune -- delete all unused containers and images
+docker run -it <repositoryName:Tag> /bin/sh -- open a shell inside the container
