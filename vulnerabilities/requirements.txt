@@ -3,3 +3,5 @@ Flask
 Bs4
 Python-engineio
 Python-socketio
+requests
+dateutils
