@@ -1,6 +1,7 @@
 FROM python:2.7-alpine3.11
 ADD Seccurate/vulnerabilities/ /opt/Seccurate/vulnerabilities/
 WORKDIR /opt/Seccurate/vulnerabilities/
-#RUN pip install -r requirements.txt
-#RUN python \Scanner\layout\Main.py
+RUN pip install -r requirements.txt
+WORKDIR /opt/Seccurate/vulnerabilities/Scanner/layout
+RUN python Main.py
 EXPOSE 5000
