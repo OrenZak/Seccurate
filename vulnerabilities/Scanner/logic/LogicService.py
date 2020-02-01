@@ -24,7 +24,7 @@ class LogicService(threading.Thread):
     def __init__(self, db_type):
         super(LogicService, self).__init__()
         config = ConfigParser.RawConfigParser()
-        config.read('..\common\config.properties')
+        config.read('../common/config.properties')
         self.env_type = config.get('CurrentEnvironment', 'type')
         self.__vulnCrud = VulnerabilitiesCRUD
         self.__vulnDescriptor = VulnerabilityDescriptionCRUD
