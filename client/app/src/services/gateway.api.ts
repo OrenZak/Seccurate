@@ -65,11 +65,11 @@ export default class ApiGateway {
                 .catch(error => ({ error: error.msg }));
         },
 
-        async delete(scanId: string): Promise<any> {
+        async delete(id: string): Promise<any> {
             return fetch(`${END_POINTS.gatewayURL}/config_target`, {
                 method: 'DELETE',
                 headers: { ...BASE_HEADERS },
-                body: JSON.stringify({ id: scanId }),
+                body: JSON.stringify({ id }),
             })
                 .then(checkStatus)
                 .then(parseJSON)

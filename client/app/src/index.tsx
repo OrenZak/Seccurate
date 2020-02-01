@@ -12,22 +12,4 @@ ReactDOM.render(<App />, document.getElementById('root'));
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
 const api = new ApiGateway();
-api.targets.add({
-    name: 'x',
-    description: 'y',
-    scanType: 'all',
-    url: 'walla.com',
-    config: {
-        interval: 250,
-        maxDepth: 3,
-        timeout: 30,
-        name: 'something',
-        save: true,
-    },
-    loginInfo: {
-        form: {
-            user: 'name',
-        },
-        formAction: 'walla.com/login.php',
-    },
-});
+api.targets.delete('1577139216870');

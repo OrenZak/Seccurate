@@ -120,6 +120,7 @@ router.put(PATHS.CONFIG_TARGET, async function(req, res, next) {
 });
 
 router.delete(PATHS.CONFIG_TARGET, async function(req, res, next) {
+	console.log('req.body: ', req.body);
 	deleteBoundary = DeleteScanBoundary.deserialize(req.body);
 	let result = await logicService.deleteTarget(deleteBoundary.ID);
 	res.status(200).send(result);

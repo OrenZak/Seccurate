@@ -2,6 +2,7 @@ type ScanType = 'all' | 'rxss' | 'sqli';
 type Role = 'Admin' | 'User';
 declare interface Target {
     id?: string;
+    scanID?: string;
     timestamp?: string;
     name: string;
     description: string;
