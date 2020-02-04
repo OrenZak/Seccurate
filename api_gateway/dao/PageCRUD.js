@@ -5,12 +5,11 @@ const pageEntity = require('../data/PageEntity')
 class PageCRUD {
     constructor(db, table_name) {//should become db_type and read from globals
         this.conn = mysql.createConnection({
-            host: 'mySQL',
-            port: 3306,
-            user: 'root',
-            password: '311248496',
-            database: db
-        })
+			host: 'localhost',
+			port: 3306,
+			user: 'root',
+			database: db,
+		});
         this.conn.connect(function (err) {
             if (err) {
                 console.error('error: ' + err);

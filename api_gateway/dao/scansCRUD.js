@@ -12,12 +12,11 @@ class ScansDataCRUD {
         }
         else throw new Error('Wrong DB type specified - ' + db_type);
         this.conn = mysql.createConnection({
-            host: 'mySQL',
-            port: 3306,
-            user: 'root',
-            password: '311248496',
-            database: globals.API_GW_DB_NAME.split(':')[index]
-        })
+			host: 'localhost',
+			port: 3306,
+			user: 'root',
+			database: globals.API_GW_DB_NAME.split(':')[index],
+		});
         this.conn.connect(function(err) {
             if (err) {
                 console.error('error: ' + err);
@@ -154,7 +153,7 @@ class ScansDataCRUD {
             }
         })
     }
-    
+
     deleteValue(value_timestamp){
         this.getValue(value_timestamp, function (err, res) {
             if (err) {
