@@ -1,6 +1,6 @@
 import { sagaCreator } from '../../utils/saga';
 import { put, call } from 'redux-saga/effects';
-import { login, loginStart, loginSucceed, loginFailed } from './app.slice';
+import { login, logout, loginStart, loginSucceed, loginFailed, logoutSucceed } from './app.slice';
 import ApiGateway from '../../services/gateway.api';
 
 function handleLogin({ apiGateway }: { apiGateway: ApiGateway }) {
@@ -8,7 +8,6 @@ function handleLogin({ apiGateway }: { apiGateway: ApiGateway }) {
         yield put(loginStart());
         const result = yield call(apiGateway.user.login, payload.username, payload.password);
         if (result.error) {
-            console.log('results Error: ', result);
             yield put(loginFailed({ error: result.error }));
         } else if (result.response) {
             yield put(loginSucceed());
@@ -16,6 +15,18 @@ function handleLogin({ apiGateway }: { apiGateway: ApiGateway }) {
     };
 }
 
+function handleLogout({ apiGateway }: { apiGateway: ApiGateway }) {
+    return function*() {
+        const result = yield call(apiGateway.user.logout);
+        if (result.error) {
+            yield put(loginFailed({ error: result.error }));
+        } else if (result.response) {
+            yield put(logoutSucceed());
+        }
+    };
+}
+
 export default sagaCreator({
     [login.type]: { handler: handleLogin },
+    [logout.type]: { handler: handleLogout },
 });

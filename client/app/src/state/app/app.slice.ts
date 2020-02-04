@@ -49,6 +49,16 @@ const appSlice = createSlice({
                 },
             };
         },
+        logoutSucceed(state) {
+            return {
+                ...state,
+                login: {
+                    loginError: undefined,
+                    isLoggedIn: false,
+                    isLoading: false,
+                },
+            };
+        },
     },
 });
 
@@ -67,8 +77,9 @@ export function selectLoginLoading(state: { app: AppState }) {
 
 // -- SAGA ACTIONS -- //
 export const login = createAction<LoginParams>(appSlice.name + '/login');
+export const logout = createAction<LoginParams>(appSlice.name + '/logout');
 
 // -- SAGA ACTIONS -- //
-export const { loginStart, loginSucceed, loginFailed } = appSlice.actions;
+export const { loginStart, logoutSucceed, loginSucceed, loginFailed } = appSlice.actions;
 
 export default appSlice.reducer;

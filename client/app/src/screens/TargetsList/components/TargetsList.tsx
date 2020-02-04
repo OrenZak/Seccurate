@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -50,8 +50,9 @@ interface Props {
 
 const TargetList: React.FC<Props> = props => {
     const classes = useStyles();
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
 
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
@@ -84,9 +85,15 @@ const TargetList: React.FC<Props> = props => {
                                     <TableRow
                                         hover
                                         role="checkbox"
+                                        selected={selectedIndex === key}
                                         tabIndex={-1}
                                         key={key}
                                         onClick={() => {
+                                            if (selectedIndex === key) {
+                                                setSelectedIndex(-1);
+                                            } else {
+                                                setSelectedIndex(key);
+                                            }
                                             props.onItemSelected({ ...target });
                                         }}
                                     >

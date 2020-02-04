@@ -39,8 +39,8 @@ const AddUserModal: React.FC<Props> = props => {
                     <Grid item>
                         <FormControl className={classes.formControl}>
                             <Select value={roleType} onChange={handleRoleChange}>
-                                <MenuItem value={'Admin'}>Admin</MenuItem>
-                                <MenuItem value={'User'}>User</MenuItem>
+                                <MenuItem value={'ADMIN'}>Admin</MenuItem>
+                                <MenuItem value={'USER'}>User</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>

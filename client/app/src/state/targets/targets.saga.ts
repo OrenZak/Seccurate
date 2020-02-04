@@ -35,9 +35,7 @@ function handleFetchAll({ apiGateway }: { apiGateway: ApiGateway }) {
 
 function handleAddTarget({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: AddTargetParams }) {
-        console.log('handleAddTarget Before result: ');
         const result: ApiResult<AddTargetParams> = yield call(apiGateway.targets.add, payload.target);
-        console.log('handleAddTarget result: ', result);
         if (result.error) {
             yield put(addTargetsFailed({ error: result.error }));
         } else if (result.response) {
@@ -49,7 +47,6 @@ function handleAddTarget({ apiGateway }: { apiGateway: ApiGateway }) {
 function handleUpdateTarget({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: UpdateTargetParams }) {
         const result: ApiResult<UpdateTargetParams> = yield call(apiGateway.targets.update, payload.target);
-        console.log('handleUpdateTarget result: ', result);
         if (result.error) {
             yield put(updateTargetsFailed({ error: result.error }));
         } else if (result.response) {
@@ -61,7 +58,6 @@ function handleUpdateTarget({ apiGateway }: { apiGateway: ApiGateway }) {
 function handleDeleteTarget({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: DeleteTargetParams }) {
         const result: ApiResult<DeleteTargetParams> = yield call(apiGateway.targets.delete, payload.id);
-        console.log('handleDeleteTarget result: ', result);
         if (result.error) {
             yield put(deleteTargetsFailed({ error: result.error }));
         } else if (result.response) {

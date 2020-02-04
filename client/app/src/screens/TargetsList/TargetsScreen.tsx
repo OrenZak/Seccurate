@@ -6,7 +6,13 @@ import MainButtons from './components/MainButtons';
 import CreateTargetModal from '../CreateTarget';
 import { RootState } from '../../state/rootReducer';
 import { Dispatch, bindActionCreators } from 'redux';
-import { fetchAllTargets, selectFetchTargetsInfo, selectTargets } from '../../state/targets/targets.slice';
+import {
+    fetchAllTargets,
+    deleteTarget,
+    selectFetchTargetsInfo,
+    selectDeleteTargetsInfo,
+    selectTargets,
+} from '../../state/targets/targets.slice';
 import { connect } from 'react-redux';
 import { selectIsLoggedIn } from '../../state/app/app.slice';
 
@@ -16,30 +22,42 @@ interface ConnectedProps {
     isLoggedIn: boolean;
     targets: Target[];
     fetch: { isLoading: boolean; error?: string };
+    delete: { succeed?: boolean; error?: string };
 }
 
 interface DispatchProps {
     fetchAllTargets: ({ page, pageCount }: FetchAllParams) => void;
+    deleteTarget: ({ id }: DeleteTargetParams) => void;
 }
 
 type Props = OwnProps & ConnectedProps & DispatchProps;
 
 const TargetsScreen: React.FC<Props> = props => {
     const classes = useStyles();
-    const [selecteTarget, setSelectedTarget] = useState<Target>();
+    const [selectedTarget, setSelectedTarget] = useState<Target>();
     const [openCrateTargetModal, setOpenCrateTargetModal] = useState(false);
 
     const onAddTargetClicked = () => {
         if (!openCrateTargetModal) {
+            setSelectedTarget(undefined); //remove selection
             setOpenCrateTargetModal(true);
         }
     };
 
-    const onEditTargetClicked = () => {};
+    const onEditTargetClicked = () => {
+        if (selectedTarget) {
+            setOpenCrateTargetModal(true);
+        }
+    };
 
-    const onDeleteTargetClicked = () => {};
+    const onDeleteTargetClicked = () => {
+        if (selectedTarget && selectedTarget.scanID) {
+            props.deleteTarget({ id: selectedTarget.scanID });
+        }
+    };
 
     const onItemSelected = (target: Target) => {
+        console.log('target: ', target);
         setSelectedTarget(target);
     };
 
@@ -64,7 +82,11 @@ const TargetsScreen: React.FC<Props> = props => {
                 />
             </Grid>
             <div>
-                <CreateTargetModal isOpen={openCrateTargetModal} onClose={handleCreateTargetModalClose} />
+                <CreateTargetModal
+                    isOpen={openCrateTargetModal}
+                    onClose={handleCreateTargetModalClose}
+                    target={selectedTarget}
+                />
             </div>
         </div>
     );
@@ -86,6 +108,7 @@ function mapStateToProps(state: RootState, ownProps: OwnProps): ConnectedProps {
         isLoggedIn: selectIsLoggedIn(state),
         targets: selectTargets(state),
         fetch: selectFetchTargetsInfo(state),
+        delete: selectDeleteTargetsInfo(state),
     };
 }
 
@@ -93,6 +116,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
     return bindActionCreators(
         {
             fetchAllTargets,
+            deleteTarget,
         },
         dispatch,
     );

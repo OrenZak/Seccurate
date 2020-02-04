@@ -6,31 +6,27 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox, { CheckboxProps } from '@material-ui/core/Checkbox';
+import Checkbox from '@material-ui/core/Checkbox';
 import { Switch, Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import ScanConfigList from './components/ScanConfigList';
 import AddFieldModal from './components/AddField/AddFieldModal';
 
 interface Props {
+    target?: Target;
     onTargetAdded: ({ target }: AddTargetParams) => void;
 }
 
 const CreateTargetContent: React.FC<Props> = props => {
     const classes = useStyles();
 
-    const [target, setTarget] = useState<Target>({
+    const [target, setTarget] = useState<Target>(props.target || {
         description: '',
         url: '',
         name: '',
         scanType: 'all',
-        config: {
-            interval: 250,
-            maxDepth: 3,
-            timeout: 30,
-        },
     });
-    const [scanType, setScanType] = useState<string>('All');
+
     const [isSaveChecked, setIsSaveChecked] = useState<boolean>(false);
     const [configName, setConfigName] = useState<string>();
     const [hasSiteLogin, setHasSiteLogin] = useState<boolean>(false);
@@ -38,9 +34,8 @@ const CreateTargetContent: React.FC<Props> = props => {
     const [addFieldShow, setAddFieldShow] = useState<boolean>(false);
 
     const handleScanTypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-        const scanTypeVal: 'all' | 'rxss' | 'sqli' = event.target.value as ScanType;
-        setScanType(scanTypeVal);
-        setTarget({ ...target, scanType: scanTypeVal });
+        const scanType: 'all' | 'rxss' | 'sqli' = event.target.value as ScanType;
+        setTarget({ ...target, scanType });
     };
 
     const handleNameChange = (event: React.ChangeEvent<{ value: string }>) => {
@@ -122,6 +117,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                     label="Application MainURL"
                     placeholder={'Enter Application MainURL'}
                     fullWidth
+                    value={target.url}
                     onChange={handleMainURLChange}
                 />
                 <TextField
@@ -129,6 +125,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                     label="Scan Name"
                     placeholder={'Enter Scan Name'}
                     fullWidth
+                    value={target.name}
                     onChange={handleNameChange}
                 />
                 <TextField
@@ -136,6 +133,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                     label="Scan Description"
                     placeholder={'Enter Scan Description'}
                     fullWidth
+                    value={target.description}
                     onChange={handleDescriptionChange}
                 />
 
@@ -147,9 +145,9 @@ const CreateTargetContent: React.FC<Props> = props => {
                             </Grid>
                             <Grid item xs>
                                 <TextField
-                                    id="standard-basic"
                                     placeholder={'1-10'}
                                     size={'small'}
+                                    value={target.config?.maxDepth}
                                     onChange={handleDepthChange}
                                 />
                             </Grid>
@@ -162,9 +160,9 @@ const CreateTargetContent: React.FC<Props> = props => {
                             </Grid>
                             <Grid item xs>
                                 <TextField
-                                    id="standard-basic"
                                     placeholder={'250-1000(milis)'}
                                     size={'small'}
+                                    value={target.config?.interval}
                                     onChange={handleIntervalChange}
                                 />
                             </Grid>
@@ -177,9 +175,9 @@ const CreateTargetContent: React.FC<Props> = props => {
                             </Grid>
                             <Grid item xs>
                                 <TextField
-                                    id="standard-basic"
                                     placeholder={'10-30(sec)'}
                                     size={'small'}
+                                    value={target.config?.timeout}
                                     onChange={handleTimeoutChange}
                                 />
                             </Grid>
@@ -192,12 +190,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                             </Grid>
                             <Grid item xs>
                                 <FormControl className={classes.formControl}>
-                                    <Select
-                                        labelId="demo-simple-select-label"
-                                        id="demo-simple-select"
-                                        value={scanType}
-                                        onChange={handleScanTypeChange}
-                                    >
+                                    <Select value={target.scanType} onChange={handleScanTypeChange}>
                                         <MenuItem value={'all'}>All</MenuItem>
                                         <MenuItem value={'rxx'}>RXSS</MenuItem>
                                         <MenuItem value={'sqli'}>SQLI</MenuItem>
@@ -289,7 +282,6 @@ const CreateTargetContent: React.FC<Props> = props => {
             return { [field.name]: field.value };
         });
 
-        console.log(x);
         setLoginFormFields(simpifiedFields);
         setAddFieldShow(false);
     };

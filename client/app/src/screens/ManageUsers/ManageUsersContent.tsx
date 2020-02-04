@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import { Button, makeStyles, Theme, createStyles, Paper, Divider, Fab } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
@@ -6,40 +6,58 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import EditUserModal from './components/EditUserRoleModal';
 import AddUserModal from './components/AddUserModal';
+import { RootState } from '../../state/rootReducer';
+import { Dispatch, bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { fetchAllUsers, createUser, updateUser, deleteUser, selectUsers } from '../../state/users/users.slice';
 
-const ManageUsersContent: React.FC = _ => {
+interface OwnProps {}
+
+interface ConnectedProps {
+    users: User[];
+}
+
+interface DispatchProps {
+    fetchAllUsers: () => void;
+    createUser: ({ user }: CreateUserParams) => void;
+    updateUser: ({ user }: UpdateUserParams) => void;
+    deleteUser: ({ userName }: DeleteUserParams) => void;
+}
+
+type Props = OwnProps & ConnectedProps & DispatchProps;
+
+const ManageUsersContent: React.FC<Props> = props => {
     const classes = useStyles();
-    const [usersList, setUsersList] = useState<User[]>([
-        { id: '1', name: 'orenz@seccurate.com', role: 'Admin' },
-        { id: '2', name: 'zuru@seccurate.com', role: 'User' },
-    ]);
 
     const [showAddUserModal, setShowAddUserModal] = useState<boolean>(false);
     const [showEditRoleModal, setShowEditRoleModal] = useState<boolean>(false);
     const [userToEdit, setUserToEdit] = useState<User>();
 
-    const handleEdit = (user: User) => {
+    useEffect(() => {
+        props.fetchAllUsers();
+    }, []);
+
+    const handleEditClicked = (user: User) => {
         setUserToEdit(user);
         setShowEditRoleModal(true);
     };
 
     const handleDelete = (user: User) => {
-        const newList = usersList.filter((useri: User) => useri.id != user.id);
-        setUsersList(newList);
+        props.deleteUser({ userName: user.username });
     };
 
     const renderDivider = (index: number) => {
-        if (index < usersList.length - 1) {
+        if (index < props.users.length - 1) {
             return <div style={{ height: '1px', width: '100%', backgroundColor: '#D7D7D7' }} />;
         }
     };
 
     const renderUsersRows = () => {
-        return usersList.map((user: User, index: number) => {
+        return props.users.map((user: User, index: number) => {
             return (
                 <Grid container item xs={12} direction={'row'} justify={'center'} alignItems={'center'}>
                     <Grid item xs={12} sm={6}>
-                        <h5 className={classes.columnText}>{user.name}</h5>
+                        <h5 className={classes.columnText}>{user.username}</h5>
                     </Grid>
                     <Grid item xs={12} sm={6}>
                         <Grid container item xs={12} direction={'row'} justify={'center'} alignItems={'center'}>
@@ -47,7 +65,7 @@ const ManageUsersContent: React.FC = _ => {
                                 <h5 className={classes.columnRole}>{user.role}</h5>
                             </Grid>
                             <Grid item xs={6} sm={2}>
-                                <Button onClick={() => handleEdit(user)}>
+                                <Button onClick={() => handleEditClicked(user)}>
                                     <EditIcon />
                                 </Button>
                             </Grid>
@@ -103,7 +121,7 @@ const ManageUsersContent: React.FC = _ => {
                 isOpen={showAddUserModal}
                 close={() => setShowAddUserModal(false)}
                 onUserAdded={(user: User) => {
-                    //TODO: handle add user
+                    props.createUser({ user });
                 }}
             />
             <EditUserModal
@@ -111,10 +129,7 @@ const ManageUsersContent: React.FC = _ => {
                 close={() => setShowEditRoleModal(false)}
                 user={userToEdit}
                 onRoleChange={(updatedUser: User) => {
-                    const newList = usersList.map((user: User) => {
-                        return user.id === updatedUser.id ? updatedUser : user;
-                    });
-                    setUsersList(newList);
+                    props.updateUser({ user: updatedUser });
                     setShowEditRoleModal(false);
                 }}
             />
@@ -157,4 +172,22 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-export default ManageUsersContent;
+function mapStateToProps(state: RootState, ownProps: OwnProps): ConnectedProps {
+    return {
+        users: selectUsers(state),
+    };
+}
+
+function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
+    return bindActionCreators(
+        {
+            fetchAllUsers,
+            createUser,
+            updateUser,
+            deleteUser,
+        },
+        dispatch,
+    );
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ManageUsersContent);

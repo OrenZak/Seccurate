@@ -222,7 +222,7 @@ class LogicService {
                 if (results.length == 1) {
                     // user exists
                     let isAdmin = false;
-                    if (role == "ADMIN") {
+                    if (role === "ADMIN") {
                         isAdmin = true;
                     }
                     let salt = bcrypt.genSaltSync(saltRounds);
@@ -249,6 +249,7 @@ class LogicService {
         let dbName = 'test';
         let usersDao = new UsersDao(dbName);
         // check if user exist
+        console.log('');
         usersDao.getValue(username, (err, results) => {
             if (err) {
                 console.log(err);

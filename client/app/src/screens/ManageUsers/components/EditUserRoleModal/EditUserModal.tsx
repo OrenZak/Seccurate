@@ -20,7 +20,7 @@ const EditUserModal: React.FC<Props> = props => {
             return (
                 <Grid container direction={'column'} justify={'center'} alignItems={'center'}>
                     <Grid item>
-                        <h4>Edit Role - {props.user.name}</h4>
+                        <h4>Edit Role - {props.user.username}</h4>
                     </Grid>
                     <Grid container item direction={'row'} spacing={2} justify={'center'} alignItems={'center'}>
                         <Grid item>
@@ -31,8 +31,9 @@ const EditUserModal: React.FC<Props> = props => {
                                     if (props.user) {
                                         props.onRoleChange({
                                             id: props.user.id,
-                                            name: props.user.name,
-                                            role: 'Admin',
+                                            username: props.user.username,
+                                            password: props.user.password,
+                                            role: 'ADMIN',
                                         });
                                     }
                                 }}
@@ -48,8 +49,9 @@ const EditUserModal: React.FC<Props> = props => {
                                     if (props.user) {
                                         props.onRoleChange({
                                             id: props.user.id,
-                                            name: props.user.name,
-                                            role: 'User',
+                                            username: props.user.username,
+                                            password: props.user.password,
+                                            role: 'USER',
                                         });
                                     }
                                 }}
