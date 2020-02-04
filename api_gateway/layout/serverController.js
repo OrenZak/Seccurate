@@ -5,7 +5,7 @@ let bodyParser = require('body-parser');
 let cookieParser = require('cookie-parser');
 const cors = require('cors');
 
-let indexRouter = require('../routes/index');
+let indexRouter = require('../routes');
 indexRouter.setServer(http);
 // set up Restful listener
 http.listen(3001, function() {

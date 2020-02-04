@@ -15,7 +15,7 @@ let UsersDao = require('../dao/usersCRUD');
 let SavedConfigEntity = require('../data/SavedConfigurationEntity');
 let ScanEntity = require('../data/scanEntity');
 let UsersEntity = require('../data/userEntity');
-let bcrypt = require('bcrypt');
+let bcrypt = require('bcrypt-nodejs');
 
 let currentID;
 let saltRounds = 10;

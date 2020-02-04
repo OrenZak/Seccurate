@@ -5,9 +5,9 @@ class DAO {
     constructor(db) {//should become db_type and read from globals
         //this.db = new sqlite3.Database(db)
         this.db = mysql.connect({
-            host: 'localhost',
+            host: 'mySQL',
             user: 'root',
-            //password: '18031997',
+            password: '311248496',
             database: db
         })
     }

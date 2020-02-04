@@ -1,13 +1,14 @@
 const mysql = require('mysql2')
 const pageEntity = require('../data/PageEntity')
 
+
 class PageCRUD {
     constructor(db, table_name) {//should become db_type and read from globals
         this.conn = mysql.createConnection({
-            host: 'localhost',
+            host: 'mySQL',
             port: 3306,
             user: 'root',
-            //password: '18031997',
+            password: '311248496',
             database: db
         })
         this.conn.connect(function (err) {
