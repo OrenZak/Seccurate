@@ -10,8 +10,19 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import { Typography, Link, CircularProgress } from '@material-ui/core';
 
+// name: string;
+// timestamp: string;
+// description: string;
+// maxDepth: string;
+// timeout: string;
+// interval: string;
+// vulnsScanned: string;
+// done: boolean;
+// credentials: any;
+// loginPage: any;
 interface Column {
-    id: 'id' | 'url' | 'name' | 'description' | 'num' | 'scanType' | 'report';
+    // 'url  | 'scanType'
+    id: 'num' | 'name' | 'description' | 'report';
     label: string;
     minWidth?: number;
     align: 'right' | 'left' | 'center';
@@ -19,7 +30,7 @@ interface Column {
 
 const columns: Column[] = [
     { id: 'num', label: '#', minWidth: 10, align: 'left' },
-    { id: 'url', label: 'MainUrl', minWidth: 100, align: 'center' },
+    // { id: 'url', label: 'MainUrl', minWidth: 100, align: 'center' },
     {
         id: 'name',
         label: 'Scan Name',
@@ -32,12 +43,12 @@ const columns: Column[] = [
         minWidth: 170,
         align: 'center',
     },
-    {
-        id: 'scanType',
-        label: 'Scan Type',
-        minWidth: 80,
-        align: 'center',
-    },
+    // {
+    //     id: 'scanType',
+    //     label: 'Scan Type',
+    //     minWidth: 80,
+    //     align: 'center',
+    // },
     {
         id: 'report',
         label: 'Report',
@@ -45,12 +56,6 @@ const columns: Column[] = [
         align: 'center',
     },
 ];
-
-function createData(id: string, mainURL: string, name: string, description: string, scanType: ScanType): Target {
-    return { id, url: mainURL, name, description, scanType };
-}
-
-const rows = [createData('id_29348', 'www.walla.com', 'first page', 'do all scan types', 'all')];
 
 const useStyles = makeStyles({
     root: {
@@ -62,8 +67,9 @@ const useStyles = makeStyles({
 });
 
 interface Props {
-    onItemClicked: (target: Target, index: number) => void;
-    targetLoadingIndex: number;
+    completedScans: Scan[];
+    onItemClicked: (scan: Scan, index: number) => void;
+    scanLoadingIndex: number;
 }
 
 const ReportsList: React.FC<Props> = props => {
@@ -80,15 +86,15 @@ const ReportsList: React.FC<Props> = props => {
         setPage(0);
     };
 
-    const renderValue = (column: Column, target: Target, index: number): any => {
+    const renderValue = (column: Column, scan: Scan, index: number): any => {
         switch (column.id) {
             case 'report':
-                if (props.targetLoadingIndex === index) {
+                if (props.scanLoadingIndex === index) {
                     return <CircularProgress />;
                 } else {
                     return (
                         <Typography>
-                            <Link href="#" onClick={() => props.onItemClicked(target, index)}>
+                            <Link href="#" onClick={() => props.onItemClicked(scan, index)}>
                                 Show Report
                             </Link>
                         </Typography>
@@ -98,10 +104,10 @@ const ReportsList: React.FC<Props> = props => {
             case 'num':
                 return index;
             default:
-                return target[column.id];
+                return scan[column.id];
         }
     };
-
+    const { completedScans } = props;
     return (
         <Paper className={classes.root}>
             <TableContainer className={classes.container}>
@@ -116,26 +122,29 @@ const ReportsList: React.FC<Props> = props => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: Target) => {
-                            return (
-                                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                                    {columns.map((column: Column, index: number) => {
-                                        return (
-                                            <TableCell key={column.id} align={column.align}>
-                                                {renderValue(column, row, index)}
-                                            </TableCell>
-                                        );
-                                    })}
-                                </TableRow>
-                            );
-                        })}
+                        {completedScans
+                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                            .map((scan: Scan, index: number) => {
+                                const key = page * (index + 1) + index + 1;
+                                return (
+                                    <TableRow hover role="checkbox" tabIndex={-1} key={key}>
+                                        {columns.map((column: Column, index: number) => {
+                                            return (
+                                                <TableCell key={column.id} align={column.align}>
+                                                    {renderValue(column, scan, index)}
+                                                </TableCell>
+                                            );
+                                        })}
+                                    </TableRow>
+                                );
+                            })}
                     </TableBody>
                 </Table>
             </TableContainer>
             <TablePagination
                 rowsPerPageOptions={[10, 25, 100]}
                 component="div"
-                count={rows.length}
+                count={completedScans.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onChangePage={handleChangePage}

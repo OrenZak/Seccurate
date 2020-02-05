@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { Button, createStyles, Divider, Fab, makeStyles, Theme } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
-import { Button, makeStyles, Theme, createStyles, Paper, Divider, Fab } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
-import EditUserModal from './components/EditUserRoleModal';
-import AddUserModal from './components/AddUserModal';
-import { RootState } from '../../state/rootReducer';
-import { Dispatch, bindActionCreators } from 'redux';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { fetchAllUsers, createUser, updateUser, deleteUser, selectUsers } from '../../state/users/users.slice';
+import { bindActionCreators, Dispatch } from 'redux';
+import { RootState } from '../../state/rootReducer';
+import { createUser, deleteUser, fetchAllUsers, selectUsers, updateUser } from '../../state/users/users.slice';
+import AddUserModal from './components/AddUserModal';
+import EditUserModal from './components/EditUserRoleModal';
 
 interface OwnProps {}
 

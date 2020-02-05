@@ -9,6 +9,9 @@ declare interface FetchAllUsersResponse {
 declare interface FetchAllConfigsResponse {
     configs: ScanConfig[];
 }
+declare interface FetchScanResults {
+    results: Result[];
+}
 
 declare interface FetchAllCompletedScansResponse {
     scans: Scan[];

@@ -223,7 +223,9 @@ export default class ApiGateway {
                 .then(response => {
                     return { response: { scans: [...response.scanEntityArray] } };
                 })
-                .catch(error => ({ error: error.msg }));
+                .catch(error => {
+                    return { error: error.msg };
+                });
         },
 
         async start(scanId: string): Promise<ApiResult<{ msg: string }>> {
@@ -241,19 +243,20 @@ export default class ApiGateway {
                 .catch(error => ({ error: error.msg }));
         },
 
-        async getResults(scanName: string): Promise<ApiResult<{ msg: string }>> {
-            return fetch(`${END_POINTS.gatewayURL}/results`, {
-                method: 'POST',
+        async getResults(scanId: string): Promise<ApiResult<{ results: Result[] }>> {
+            return fetch(`${END_POINTS.gatewayURL}/results?scanName=${scanId}`, {
+                method: 'GET',
                 headers: { ...BASE_HEADERS },
                 credentials: 'same-origin',
-                body: JSON.stringify({ scanName }),
             })
                 .then(checkStatus)
                 .then(parseJSON)
-                .then(() => {
-                    return { response: { msg: 'started' } };
+                .then(results => {
+                    return { response: { results } };
                 })
-                .catch(error => ({ error: error.msg }));
+                .catch(error => {
+                    return { error: error.msg };
+                });
         },
     };
 }

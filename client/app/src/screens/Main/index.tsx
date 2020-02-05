@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import AppNavDrawer from './components/AppNavDrawer';
-import Screens from '../screen';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { RootState } from '../../state/rootReducer';
-import { Dispatch, bindActionCreators } from 'redux';
+import { bindActionCreators, Dispatch } from 'redux';
 import { login, selectIsLoggedIn, selectLoginError, selectLoginLoading } from '../../state/app/app.slice';
+import { RootState } from '../../state/rootReducer';
 import LoginModal from '../Login';
+import Screens from '../screen';
+import AppNavDrawer from './components/AppNavDrawer';
 
 interface OwnProps {}
 

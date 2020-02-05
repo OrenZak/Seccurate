@@ -21,7 +21,6 @@ function handleFetchAllUsers({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*() {
         yield put(fetchUsersStart());
         const result: ApiResult<FetchAllUsersResponse> = yield call(apiGateway.users.fetchAll);
-        console.log('handleFetchAllUsers: ', result);
         if (result.error) {
             yield put(fetchUsersFailed({ error: result.error }));
         } else if (result.response) {
@@ -44,7 +43,6 @@ function handleCreateUser({ apiGateway }: { apiGateway: ApiGateway }) {
 function handleUpdateUser({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: UpdateUserParams }) {
         const result: ApiResult<{ msg: string }> = yield call(apiGateway.users.updateUser, payload);
-        console.log('handleUpdateUser: ', payload, result);
         if (result.error) {
             yield put(updateUserFailed({ error: result.error }));
         } else if (result.response) {

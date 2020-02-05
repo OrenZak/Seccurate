@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import { Button, Switch } from '@material-ui/core';
 import Checkbox from '@material-ui/core/Checkbox';
-import { Switch, Button } from '@material-ui/core';
+import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Grid from '@material-ui/core/Grid';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
 import AddIcon from '@material-ui/icons/Add';
-import ScanConfigList from './components/ScanConfigList';
+import React, { useEffect, useState } from 'react';
 import AddFieldModal from './components/AddField/AddFieldModal';
+import ScanConfigList from './components/ScanConfigList';
 
 interface Props {
     target?: Target;
@@ -20,17 +20,20 @@ interface Props {
 const CreateTargetContent: React.FC<Props> = props => {
     const classes = useStyles();
 
-    const [target, setTarget] = useState<Target>(props.target || {
-        description: '',
-        url: '',
-        name: '',
-        scanType: 'all',
-    });
+    const [target, setTarget] = useState<Target>(
+        props.target || {
+            description: '',
+            url: '',
+            name: '',
+            scanType: 'all',
+        },
+    );
 
     const [isSaveChecked, setIsSaveChecked] = useState<boolean>(false);
     const [configName, setConfigName] = useState<string>();
     const [hasSiteLogin, setHasSiteLogin] = useState<boolean>(false);
-    const [loginFormFields, setLoginFormFields] = useState<{ [key: string]: string }>({});
+    const [formAction, setFormAction] = useState<string>('');
+    const [loginFormFields, setLoginFormFields] = useState<{ [key: string]: string }>({ formAction: '' });
     const [addFieldShow, setAddFieldShow] = useState<boolean>(false);
 
     const handleScanTypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -105,7 +108,7 @@ const CreateTargetContent: React.FC<Props> = props => {
     }, [loginFormFields]);
 
     const setLoginInfo = (info?: { [key: string]: string }) => {
-        const loginInfo: LoginInfo = Object.assign({}, target.loginInfo, { form: info, formAction: 'walla.com' });
+        const loginInfo: LoginInfo = Object.assign({}, target.loginInfo, { form: info });
         setTarget({ ...target, loginInfo });
     };
 
@@ -252,6 +255,13 @@ const CreateTargetContent: React.FC<Props> = props => {
         );
     };
 
+    const handleFormActionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const formAction = event.target.value as string;
+        setFormAction(formAction);
+        const loginInfo: LoginInfo = Object.assign({}, target.loginInfo, { formAction });
+        setTarget({ ...target, loginInfo });
+    };
+
     const renderLoginSiteForm = () => {
         return (
             <Grid container direction={'column'} justify={'center'} alignItems={'center'}>
@@ -259,6 +269,15 @@ const CreateTargetContent: React.FC<Props> = props => {
                     <FormControlLabel
                         control={<Switch checked={hasSiteLogin} onChange={handleHasSiteLoginChange} color="primary" />}
                         label="Site Login"
+                    />
+                </Grid>
+                <Grid item xs>
+                    <TextField
+                        id="standard-basic"
+                        label={'Form Action'}
+                        disabled={!hasSiteLogin}
+                        fullWidth
+                        onChange={handleFormActionChange}
                     />
                 </Grid>
                 {renderLoginFormFieldList()}
@@ -277,13 +296,30 @@ const CreateTargetContent: React.FC<Props> = props => {
 
     const handleAddFields = (fields: Field[]) => {
         let simpifiedFields: { [key: string]: string } = {};
-        const x = fields.map((field: Field) => {
+        fields.forEach((field: Field) => {
             simpifiedFields[field.name] = field.value;
-            return { [field.name]: field.value };
         });
 
         setLoginFormFields(simpifiedFields);
         setAddFieldShow(false);
+    };
+
+    const verifyValues = () => {
+        if (hasSiteLogin && formAction.trim().length == 0) {
+            return false;
+        }
+
+        if (isSaveChecked && configName?.trim().length == 0) {
+            return false;
+        }
+
+        if (
+            target.name.trim().length === 0 ||
+            target.description.trim().length === 0 ||
+            target.url.trim().length === 0
+        ) {
+            return false;
+        }
     };
 
     return (
@@ -314,7 +350,11 @@ const CreateTargetContent: React.FC<Props> = props => {
                                 variant="contained"
                                 color="primary"
                                 className={classes.addTargetButton}
-                                onClick={() => props.onTargetAdded({ target })}
+                                onClick={() => {
+                                    if (verifyValues()) {
+                                        props.onTargetAdded({ target });
+                                    }
+                                }}
                             >
                                 Add Target
                             </Button>

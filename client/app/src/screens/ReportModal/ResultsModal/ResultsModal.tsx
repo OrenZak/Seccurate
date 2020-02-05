@@ -63,7 +63,7 @@ const ResultsModal: React.FC<Props> = props => {
                             <h4>Request(Base64):</h4>
                         </Grid>
                         <Grid item>
-                            <h5 className={classes.text}> {result.requestB64}</h5>
+                            <div className={classes.request}> {result.requestB64}</div>
                         </Grid>
                     </Grid>
                     <Grid container item direction={'row'} justify={'flex-start'} alignItems={'center'} spacing={2}>
@@ -125,6 +125,11 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         text: {
             color: '#757575',
+        },
+        request: {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            width: '200px',
         },
     }),
 );
