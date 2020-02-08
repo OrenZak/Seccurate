@@ -1,15 +1,13 @@
-const mysql = require('mysql2')
-const Promise = require('bluebird')
+const mysql = require('mysql2');
+const Promise = require('bluebird');
+const globals = require('../common/globals');
 
 class DAO {
     constructor(db) {//should become db_type and read from globals
         //this.db = new sqlite3.Database(db)
-        this.db = mysql.connect({
-			host: 'localhost',
-			port: 3306,
-			user: 'root',
-			database: db,
-		});
+        let dbInfo = globals.DB_INFO;
+        dbInfo.database = db;
+        this.db = mysql.connect(dbInfo);
     }
 
     run(sql_command, params=[]) {

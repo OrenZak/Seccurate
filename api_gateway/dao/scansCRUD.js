@@ -11,19 +11,16 @@ class ScansDataCRUD {
             index = 1;
         }
         else throw new Error('Wrong DB type specified - ' + db_type);
-        this.conn = mysql.createConnection({
-			host: 'localhost',
-			port: 3306,
-			user: 'root',
-			database: globals.API_GW_DB_NAME.split(':')[index],
-		});
+        let dbInfo = globals.DB_INFO;
+        dbInfo.database = globals.API_GW_DB_NAME.split(':')[index];
+        this.conn = mysql.createConnection(dbInfo);
         this.conn.connect(function(err) {
             if (err) {
                 console.error('error: ' + err);
             } else {
                 console.log("mysql connected")
             }
-        })
+        });
         this.table_name = globals.SCAN_CRUD_TABLE;
         this.createTable()
     }

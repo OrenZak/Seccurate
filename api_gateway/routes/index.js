@@ -73,252 +73,261 @@ router.get(PATHS.HOME, sessionChecker, (req, res) => {
 	res.redirect('/login');
 });
 
-router.get(PATHS.GET_COMPLETED_SCANS, function(req, res, next) {
-	console.log('GET_COMPLETED_SCANS" ', req.query);
-	logicService.getCompletedScans(req.query.page, req.query.size, scans => {
-		let scansResponseBoundary = new GetCompletedScansBoundary(scans);
-		res.status(200).send(scansResponseBoundary.serialize());
-	});
+router.get(PATHS.GET_COMPLETED_SCANS, function (req, res, next) {
+    try {
+        logicService.getCompletedScans(req.query.page, req.query.size, (scans) => {
+            let scansResponseBoundary = new GetCompletedScansBoundary(scans);
+            res.status(200).send(scansResponseBoundary.serialize());
+        });
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.post(PATHS.START_SCAN, async function(req, res, next) {
-	crawlBoundary = StartCrawlBoundary.deserialize(req.body);
-	logicService.startCrawl(crawlBoundary.id);
-	res.status(200).send('<h1>Hello world</h1>');
+router.post(PATHS.START_SCAN, async function (req, res, next) {
+    try {
+        crawlBoundary = StartCrawlBoundary.deserialize(req.body);
+        logicService.startCrawl(crawlBoundary.id);
+        res.status(200).send("started crawling");
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.post(PATHS.CONFIG_TARGET, async function(req, res, next) {
-	let scanConfigBoundary = NewTargetBoundary.deserialize(req.body);
-	let result = await logicService.scanTarget(
-		scanConfigBoundary.config.interval,
-		scanConfigBoundary.config.maxConcurrency,
-		scanConfigBoundary.config.maxDepth,
-		scanConfigBoundary.config.timeout,
-		scanConfigBoundary.scanType,
-		scanConfigBoundary.url,
-		scanConfigBoundary.loginInfo,
-		scanConfigBoundary.name,
-		scanConfigBoundary.description,
-	);
-	res.status(200).send({ result });
+router.post(PATHS.CONFIG_TARGET, async function (req, res, next) {
+    try {
+        let scanConfigBoundary = NewTargetBoundary.deserialize(req.body);
+        let result = await logicService.scanTarget(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.description);
+        res.status(200).send({result});
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.put(PATHS.CONFIG_TARGET, async function(req, res, next) {
-	scanConfigBoundary = UpdateScanTargetBoundary.deserialize(req.body);
-	let result = await logicService.updateScanTarget(
-		scanConfigBoundary.config.interval,
-		scanConfigBoundary.config.maxConcurrency,
-		scanConfigBoundary.config.maxDepth,
-		scanConfigBoundary.config.timeout,
-		scanConfigBoundary.scanType,
-		scanConfigBoundary.url,
-		scanConfigBoundary.loginInfo,
-		scanConfigBoundary.name,
-		scanConfigBoundary.description,
-		scanConfigBoundary.scanID,
-	);
-	res.status(200).send(result);
+router.put(PATHS.CONFIG_TARGET, async function (req, res, next) {
+    try {
+        scanConfigBoundary = UpdateScanTargetBoundary.deserialize(req.body);
+        let result = await logicService.updateScanTarget(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.description, scanConfigBoundary.scanID);
+        res.status(200).send(result);
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.delete(PATHS.CONFIG_TARGET, async function(req, res, next) {
-	console.log('req.body: ', req.body);
-	deleteBoundary = DeleteScanBoundary.deserialize(req.body);
-	let result = await logicService.deleteTarget(deleteBoundary.ID);
-	res.status(200).send(result);
+router.delete(PATHS.CONFIG_TARGET, async function (req, res, next) {
+    try {
+        deleteBoundary = DeleteScanBoundary.deserialize(req.body);
+        let result = await logicService.deleteTarget(deleteBoundary.ID);
+        res.status(200).send(result);
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.get(PATHS.CONFIG_TARGET, async function(req, res, next) {
-	logicService.getTargets(req.query.page, req.query.size, scans => {
-		let targetsBoundary = new GetTargetsBoundary(scans);
-		res.status(200).send(targetsBoundary.serialize());
-	});
+router.get(PATHS.CONFIG_TARGET, async function (req, res, next) {
+    try {
+        logicService.getTargets(req.query.page, req.query.size, (scans) => {
+            let targetsBoundary = new GetTargetsBoundary(scans);
+            res.status(200).send(targetsBoundary.serialize());
+        });
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.post(PATHS.LOGIN, function(req, res, next) {
-	let loginBoundary = LoginBoundary.deserialize(req.body);
-	if (req.session.user && req.cookies.user_sid) {
-		res.status(200).send('Already logged in');
-	} else {
-		logicService.login(loginBoundary.username, loginBoundary.password, user => {
-			if (user == null) {
-				res.status(401).send({
-					error: 'Bad username/password',
-				});
-			} else if (!user) {
-				res.status(401).send({
-					error: 'Bad username/password',
-				});
-			} else {
-				req.session.user = user;
-				res.status(200).send({
-					result: 'Connected',
-				});
-			}
-		});
-	}
+router.post(PATHS.LOGIN, function (req, res, next) {
+    try {
+        let loginBoundary = LoginBoundary.deserialize(req.body);
+        if (req.session.user && req.cookies.user_sid) {
+            res.status(500).send({"error": "Already logged in"});
+        } else {
+            let isUser = logicService.login(loginBoundary.username, loginBoundary.password, (user) => {
+                if (user == null) {
+                    res.status(500).send({"error": "Bad username/password"});
+                } else if (!user) {
+                    res.status(500).send({"error": "Bad username/password"});
+                } else {
+                    req.session.user = user;
+                    res.status(200).send("Connected");
+                }
+            });
+        }
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.post(PATHS.LOGOUT, function(req, res, next) {
-	if (req.session.user && req.cookies.user_sid) {
-		res.clearCookie('user_sid');
-		res.status(200).send('logged out');
-	} else {
-		res.status(200).send('Login first');
-	}
+router.post(PATHS.LOGOUT, function (req, res, next) {
+    try {
+        if (req.session.user && req.cookies.user_sid) {
+            res.clearCookie('user_sid');
+            res.status(200).send("logged out");
+        } else {
+            res.status(500).send({"error": "Login first"});
+        }
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.post(PATHS.MANAGE_USERS, function(req, res, next) {
-	let usersBoundary = UsersBoundary.deserialize(req.body);
-	logicService.register(usersBoundary.username, usersBoundary.password, usersBoundary.role, user => {
-		if (user == null) {
-			res.status(200).send('something bad happened');
-		} else if (user == false) {
-			res.status(200).send('choose another username or password');
-		} else {
-			res.status(200).send('registered');
-		}
-	});
+router.post(PATHS.MANAGE_USERS, function (req, res, next) {
+    try {
+        let usersBoundary = UsersBoundary.deserialize(req.body);
+        logicService.register(usersBoundary.username, usersBoundary.password, usersBoundary.role, (user) => {
+            if (user == null) {
+                res.status(500).send({"error": "something bad happened"});
+            } else if (user == false) {
+                res.status(500).send({"error": "choose another username or password"});
+            } else {
+                res.status(200).send("registered");
+            }
+        });
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.delete(PATHS.MANAGE_USERS, function(req, res, next) {
-	if (req.session.user && req.cookies.user_sid) {
-		if (req.session.user[0].admin == 1) {
-			logicService.deleteUser(req.body.userName, result => {
-				if (result == null) {
-					res.status(200).send('something bad happened');
-				} else if (result == false) {
-					res.status(200).send('username does not exists');
-				} else {
-					res.status(200).send('user deleted');
-				}
-			});
-		}
-	}
+router.delete(PATHS.MANAGE_USERS, function (req, res, next) {
+    try {
+        if (req.session.user && req.cookies.user_sid) {
+            if (req.session.user[0].admin == 1) {
+                logicService.deleteUser(req.query.userName, (result) => {
+                    if (result == null) {
+                        res.status(500).send({"error": "something bad happened"});
+                    } else if (result == false) {
+                        res.status(500).send({"error": "username does not exists"});
+                    } else {
+                        res.status(200).send("user deleted");
+                    }
+                });
+            }
+        }
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.put(PATHS.MANAGE_USERS, function(req, res, next) {
-	console.log('MANAGE_USERS', req.body);
-	if (req.session.user && req.cookies.user_sid) {
-		if (req.session.user[0].admin == 1) {
-			let usersBoundary = UsersBoundary.deserialize(req.body);
-			let user = logicService.updateUser(
-				usersBoundary.username,
-				usersBoundary.password,
-				usersBoundary.role,
-				user => {
-					console.log('MANAGE_USERS - update user: ', user);
-					if (user == null) {
-						res.status(200).send('something bad happened');
-					} else if (user == false) {
-						res.status(200).send('username does not exists');
-					} else {
-						res.status(200).send('updated');
-					}
-				},
-			);
-		} else {
-			res.status(200).send('This method can be performed only by admin');
-		}
-	} else {
-		res.status(200).send('This method can be performed only by admin');
-	}
+router.put(PATHS.MANAGE_USERS, function (req, res, next) {
+    try {
+        if (req.session.user && req.cookies.user_sid) {
+            if (req.session.user[0].admin == 1) {
+                let usersBoundary = UsersBoundary.deserialize(req.body);
+                let user = logicService.updateUser(usersBoundary.username, usersBoundary.password, usersBoundary.role, (user) => {
+                    if (user == null) {
+                        res.status(500).send({"error": "something bad happened"});
+                    } else if (user == false) {
+                        res.status(500).send({"error": "username does not exists"});
+                    } else {
+                        res.status(200).send("updated");
+                    }
+                });
+            } else {
+                res.status(200).send("This method can be performed only by admin");
+            }
+        } else {
+            res.status(200).send("This method can be performed only by admin");
+        }
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.get(PATHS.USERS, function(req, res, next) {
-	// console.log('req, ', req);
-	// console.log('req.session.user, ', req.session.user);
-	// console.log('req.cookies.user_sid, ', req.cookies.user_sid);
-	if (req.session.user && req.cookies.user_sid) {
-		console.log('req.session.user[0].admin, ', req.session.user[0].admin);
-		if (req.session.user[0].admin === 1) {
-			logicService.getAllUsers(usersEntity => {
-				console.log('Inside get all users');
-				if (usersEntity == null) {
-					console.log('something bad happened');
-					res.status(200).send('something bad happened');
-				} else {
-					let usersArray = [];
-					usersEntity.forEach(user => {
-						let roleName = 'USER';
-						if (user['admin'] == 1) {
-							roleName = 'ADMIN';
-						}
-						usersArray.push({
-							username: user['username'],
-							role: roleName,
-						});
-					});
-					console.log('usersArray: ', usersArray);
-					res.status(200).send(usersArray);
-				}
-			});
-		} else {
-			console.log('This method can be performed only by admin');
-			res.status(200).send('This method can be performed only by admin');
-		}
-	} else {
-		console.log('This method can be performed only by admin2');
-		res.status(200).send('This method can be performed only by admin');
-	}
+router.get(PATHS.USERS, function (req, res, next) {
+    try {
+        if (req.session.user && req.cookies.user_sid) {
+            if (req.session.user[0].admin == 1) {
+                logicService.getAllUsers((usersEntity) => {
+                    if (usersEntity == null) {
+                        res.status(200).send("something bad happened");
+                    } else {
+                        let usersArray = [];
+                        usersEntity.forEach(user => {
+                            let roleName = "USER";
+                            if (user["admin"] == 1) {
+                                roleName = "ADMIN";
+                            }
+                            usersArray.push({
+                                username: user["username"],
+                                role: roleName
+                            });
+                        });
+                        res.status(200).send(usersArray);
+                    }
+                });
+            } else {
+                res.status(401).send({"error": "This method can be performed only by admin"});
+            }
+        } else {
+            res.status(401).send({"error": "This method can be performed only by admin"});
+        }
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.get(PATHS.GET_RESULTS, function(req, res, next) {
-	//getResultsRequestBoundary = GetResultsRequestBoundary.deserialize(req.query);
-	logicService.getResults(req.query.scanName, results => {
-		let resultsArray = [];
-		results.forEach(element => {
-			elem = JSON.parse(element);
-			resultsArray.push({
-				description: elem._VulnerabilityBoundary__description,
-				name: elem._VulnerabilityBoundary__name,
-				payload: elem._VulnerabilityBoundary__payload,
-				recommendation: elem._VulnerabilityBoundary__recommendations,
-				requestB64: elem._VulnerabilityBoundary__requestB64,
-				severity: elem._VulnerabilityBoundary__severity,
-				url: elem._VulnerabilityBoundary__url,
-				vulnID: elem._VulnerabilityBoundary__vulnID,
-			});
-		});
-		res.status(200).send(resultsArray);
-	});
+router.get(PATHS.GET_RESULTS, function (req, res, next) {
+    try {
+        logicService.getResults(req.query.scanName, (results) => {
+            let resultsArray = [];
+            results.forEach(element => {
+                elem = JSON.parse(element);
+                resultsArray.push({
+                    description: elem._VulnerabilityBoundary__description,
+                    name: elem._VulnerabilityBoundary__name,
+                    payload: elem._VulnerabilityBoundary__payload,
+                    recommendation: elem._VulnerabilityBoundary__recommendations,
+                    requestB64: elem._VulnerabilityBoundary__requestB64,
+                    severity: elem._VulnerabilityBoundary__severity,
+                    url: elem._VulnerabilityBoundary__url,
+                    vulnID: elem._VulnerabilityBoundary__vulnID
+                })
+            });
+            res.status(200).send(resultsArray);
+        });
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.get(PATHS.SAVED_CONFIG, async function(req, res, next) {
-	logicService.getSavedConfigs(req.query.page, req.query.size, configs => {
-		let configsBoundary = new GetConfigsBoundary(configs);
-		res.status(200).send(configsBoundary.serialize());
-	});
+router.get(PATHS.SAVED_CONFIG, async function (req, res, next) {
+    try {
+        logicService.getSavedConfigs(req.query.page, req.query.size, (configs) => {
+            let configsBoundary = new GetConfigsBoundary(configs);
+            res.status(200).send(configsBoundary.serialize());
+        });
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.post(PATHS.SAVED_CONFIG, async function(req, res, next) {
-	let scanConfigBoundary = NewSavedConfigurationBoundary.deserialize(req.body);
-	let result = await logicService.newSavedConfig(
-		scanConfigBoundary.name,
-		scanConfigBoundary.interval,
-		scanConfigBoundary.maxConcurrency,
-		scanConfigBoundary.maxDepth,
-		scanConfigBoundary.timeout,
-	);
-	res.status(200).send(result);
+router.post(PATHS.SAVED_CONFIG, async function (req, res, next) {
+    try {
+        let scanConfigBoundary = NewSavedConfigurationBoundary.deserialize(req.body);
+        let result = await logicService.newSavedConfig(scanConfigBoundary.name, scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout);
+        res.status(200).send(result);
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.put(PATHS.SAVED_CONFIG, async function(req, res, next) {
-	let scanConfigBoundary = UpdateSavedConfigBoundary.deserialize(req.body);
-	let result = await logicService.updateSavedConfig(
-		scanConfigBoundary.id,
-		scanConfigBoundary.name,
-		scanConfigBoundary.interval,
-		scanConfigBoundary.maxConcurrency,
-		scanConfigBoundary.maxDepth,
-		scanConfigBoundary.timeout,
-	);
-	res.status(200).send(result);
+router.put(PATHS.SAVED_CONFIG, async function (req, res, next) {
+    try {
+        let scanConfigBoundary = UpdateSavedConfigBoundary.deserialize(req.body);
+        let result = await logicService.updateSavedConfig(scanConfigBoundary.id, scanConfigBoundary.name, scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout);
+        res.status(200).send(result);
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
-router.delete(PATHS.SAVED_CONFIG, async function(req, res, next) {
-	let deleteBoundary = DeleteScanBoundary.deserialize(req.body);
-	let result = await logicService.deleteSavedConfig(deleteBoundary.ID);
-	res.status(200).send(result);
+router.delete(PATHS.SAVED_CONFIG, async function (req, res, next) {
+    try {
+        let deleteBoundary = DeleteScanBoundary.deserialize(req.body);
+        let result = await logicService.deleteSavedConfig(deleteBoundary.ID);
+        res.status(200).send(result);
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
 function setServer(httpServer) {

@@ -2,30 +2,26 @@ const mysql = require('mysql2');
 const globals = require('../common/globals');
 
 class UsersCRUD {
-	constructor(db_type) {
-		//should be read from globals
-		let index;
-		if (db_type == 'test') {
-			index = 0;
-		} else if (db_type == 'prod') {
-			index = 1;
-		} else throw new Error('Wrong DB type specified - ' + db_type);
-		this.conn = mysql.createConnection({
-			host: 'localhost',
-			port: 3306,
-			user: 'root',
-			database: globals.API_GW_DB_NAME.split(':')[index],
-		});
-		this.conn.connect(function(err) {
-			if (err) {
-				console.error('error: ' + err);
-			} else {
-				console.log('mysql connected');
-			}
-		});
-		this.table_name = globals.USERS_CRUD_TABLE;
-		this.createTable();
-	}
+    constructor(db_type) {//should be read from globals
+        let index;
+        if (db_type == 'test') {
+            index = 0;
+        } else if (db_type == 'prod') {
+            index = 1;
+        } else throw new Error('Wrong DB type specified - ' + db_type);
+        let dbInfo = globals.DB_INFO;
+        dbInfo.database = globals.API_GW_DB_NAME.split(':')[index];
+        this.conn = mysql.createConnection(dbInfo);
+        this.conn.connect(function (err) {
+            if (err) {
+                console.error('error: ' + err);
+            } else {
+                console.log("mysql connected")
+            }
+        })
+        this.table_name = globals.USERS_CRUD_TABLE;
+        this.createTable()
+    }
 
 	createTable() {
 		const sql = `CREATE TABLE IF NOT EXISTS ?? (username VARCHAR(30) PRIMARY KEY, salt VARCHAR(100) NOT NULL, passwordHash VARCHAR(256) NOT NULL, admin BOOLEAN)`;
