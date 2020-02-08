@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { Link, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
-import { FixedSizeList, ListChildComponentProps } from 'react-window';
-import { ListItem, ListItemIcon, ListItemText, Typography, Link, ListItemSecondaryAction } from '@material-ui/core';
 import ErrorIcon from '@material-ui/icons/Error';
+import React from 'react';
+import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 interface Props {
     results: Result[];

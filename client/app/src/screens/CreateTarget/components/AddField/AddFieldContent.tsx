@@ -16,7 +16,7 @@ const AddFieldContent: React.FC<Props> = props => {
     const [nextFieldIsEmpty, setNextFieldIsEmpty] = useState<boolean>(true);
 
     const deleteField = (deleteIndex: number) => {
-        const newList = loginFormFields.filter((_: Field, index: number) => index != deleteIndex);
+        const newList = loginFormFields.filter((_: Field, index: number) => index !== deleteIndex);
         setLoginFormFields(newList);
     };
 
