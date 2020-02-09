@@ -3,6 +3,8 @@ import { makeStyles, createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 import AppToolBar from './screens/Main/components/AppToolBar';
 import MainScreen from './screens/Main';
+import { store } from './state';
+import { Provider } from 'react-redux';
 
 const theme = createMuiTheme({
     palette: {
@@ -30,10 +32,12 @@ const App: React.FC = () => {
     const classes = useStyles();
     return (
         <div className={classes.root}>
-            <ThemeProvider theme={theme}>
-                <AppToolBar />
-                <MainScreen />
-            </ThemeProvider>
+            <Provider store={store}>
+                <ThemeProvider theme={theme}>
+                    <AppToolBar />
+                    <MainScreen />
+                </ThemeProvider>
+            </Provider>
         </div>
     );
 };

@@ -126,7 +126,7 @@ class SavedConfigurationCRUD {
             }
         })
     }
-    
+
     deleteValue(id){
         this.getValue(id, function (err, res) {
             if (err) {

@@ -7,12 +7,17 @@ import LoginContent from './LoginContent';
 
 interface Props {
     isOpen: boolean;
+    loginError?: string;
+    loginLoading: boolean;
+    onLoginClicked: (username: string, password: string) => void;
 }
 
 const LoginModal: React.FC<Props> = props => {
     const classes = useStyles();
 
-    const onLoginSubmit = ({ username, password }: { username: string; password: string }) => {};
+    const onLoginSubmit = ({ username, password }: { username: string; password: string }) => {
+        props.onLoginClicked(username, password);
+    };
 
     return (
         <div>
@@ -29,7 +34,11 @@ const LoginModal: React.FC<Props> = props => {
             >
                 <Fade in={props.isOpen}>
                     <div className={classes.paper}>
-                        <LoginContent onLoginSubmit={onLoginSubmit} />
+                        <LoginContent
+                            onLoginSubmit={onLoginSubmit}
+                            loginError={props.loginError}
+                            loginLoading={props.loginLoading}
+                        />
                     </div>
                 </Fade>
             </Modal>

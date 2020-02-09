@@ -1,6 +1,5 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
+import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -8,6 +7,26 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+import { fetchAllConfigs, selectConfigs, selectFetchConfigsInfo } from '../../../state/configs/configs.slice';
+import { RootState } from '../../../state/rootReducer';
+
+interface OwnProps {
+    onItemSelected: (target: ScanConfig) => void;
+}
+
+interface ConnectedProps {
+    configs: ScanConfig[];
+    fetch: { isLoading: boolean; error?: string };
+}
+
+interface DispatchProps {
+    fetchAllConfigs: ({ page, pageCount }: FetchAllConfigsParams) => void;
+}
+
+type Props = OwnProps & ConnectedProps & DispatchProps;
 
 interface Column {
     id: 'id' | 'name';
@@ -22,12 +41,6 @@ const columns: Column[] = [
     { id: 'name', label: 'Config Name', minWidth: 50, align: 'left' },
 ];
 
-function createData(id: string, name: string, interval: number, timeout: number, max_depth: number): ScanConfig {
-    return { id, name, interval, timeout, max_depth };
-}
-
-const rows = [createData('1', 'Best Config Ever', 500, 30, 3)];
-
 const useStyles = makeStyles({
     root: {
         width: '100%',
@@ -38,14 +51,10 @@ const useStyles = makeStyles({
     },
 });
 
-interface Props {
-    onItemSelected: (target: ScanConfig) => void;
-}
-
 const ScanConfigList: React.FC<Props> = props => {
     const classes = useStyles();
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
@@ -55,6 +64,10 @@ const ScanConfigList: React.FC<Props> = props => {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
+
+    useEffect(() => {
+        props.fetchAllConfigs({ page, pageCount: 10 });
+    }, []);
 
     return (
         <Paper className={classes.root}>
@@ -70,37 +83,41 @@ const ScanConfigList: React.FC<Props> = props => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: ScanConfig) => {
-                            return (
-                                <TableRow
-                                    hover
-                                    role="checkbox"
-                                    tabIndex={-1}
-                                    key={row.id}
-                                    onClick={() => {
-                                        props.onItemSelected({ ...row });
-                                    }}
-                                >
-                                    {columns.map(column => {
-                                        const value = row[column.id];
-                                        return (
-                                            <TableCell key={column.id} align={column.align}>
-                                                {column.format && typeof value === 'number'
-                                                    ? column.format(value)
-                                                    : value}
-                                            </TableCell>
-                                        );
-                                    })}
-                                </TableRow>
-                            );
-                        })}
+                        {props.configs &&
+                            props.configs
+                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                .map((config: ScanConfig, index: number) => {
+                                    const key = page * (index + 1) + index + 1;
+                                    return (
+                                        <TableRow
+                                            hover
+                                            role="checkbox"
+                                            tabIndex={-1}
+                                            key={key}
+                                            onClick={() => {
+                                                props.onItemSelected({ ...config });
+                                            }}
+                                        >
+                                            {columns.map(column => {
+                                                const value = column.id === 'id' ? key : config[column.id];
+                                                return (
+                                                    <TableCell key={column.id} align={column.align}>
+                                                        {column.format && typeof value === 'number'
+                                                            ? column.format(value)
+                                                            : value}
+                                                    </TableCell>
+                                                );
+                                            })}
+                                        </TableRow>
+                                    );
+                                })}
                     </TableBody>
                 </Table>
             </TableContainer>
             <TablePagination
                 rowsPerPageOptions={[10, 25, 100]}
                 component="div"
-                count={rows.length}
+                count={(props.configs || []).length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onChangePage={handleChangePage}
@@ -110,4 +127,20 @@ const ScanConfigList: React.FC<Props> = props => {
     );
 };
 
-export default ScanConfigList;
+function mapStateToProps(state: RootState, ownProps: OwnProps): ConnectedProps {
+    return {
+        configs: selectConfigs(state),
+        fetch: selectFetchConfigsInfo(state),
+    };
+}
+
+function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
+    return bindActionCreators(
+        {
+            fetchAllConfigs,
+        },
+        dispatch,
+    );
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ScanConfigList);

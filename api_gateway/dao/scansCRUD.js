@@ -150,7 +150,7 @@ class ScansDataCRUD {
             }
         })
     }
-    
+
     deleteValue(value_timestamp){
         this.getValue(value_timestamp, function (err, res) {
             if (err) {
