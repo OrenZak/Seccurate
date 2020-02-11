@@ -77,7 +77,7 @@ router.get(PATHS.GET_COMPLETED_SCANS, function (req, res, next) {
     try {
         logicService.getCompletedScans(req.query.page, req.query.size, (scans) => {
             let scansResponseBoundary = new GetCompletedScansBoundary(scans);
-            res.status(200).send(scansResponseBoundary.serialize());
+            res.status(200).send({"results": scansResponseBoundary.serialize()});
         });
     } catch (error) {
         res.status(500).send({"error": error});
@@ -88,7 +88,7 @@ router.post(PATHS.START_SCAN, async function (req, res, next) {
     try {
         crawlBoundary = StartCrawlBoundary.deserialize(req.body);
         logicService.startCrawl(crawlBoundary.id);
-        res.status(200).send("started crawling");
+        res.status(200).send({"results": "started crawling"});
     } catch (error) {
         res.status(500).send({"error": error});
     }
@@ -98,7 +98,7 @@ router.post(PATHS.CONFIG_TARGET, async function (req, res, next) {
     try {
         let scanConfigBoundary = NewTargetBoundary.deserialize(req.body);
         let result = await logicService.scanTarget(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.description);
-        res.status(200).send({result});
+        res.status(200).send({"results": {result}});
     } catch (error) {
         res.status(500).send({"error": error});
     }
@@ -108,7 +108,7 @@ router.put(PATHS.CONFIG_TARGET, async function (req, res, next) {
     try {
         scanConfigBoundary = UpdateScanTargetBoundary.deserialize(req.body);
         let result = await logicService.updateScanTarget(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.description, scanConfigBoundary.scanID);
-        res.status(200).send(result);
+        res.status(200).send({"results": result});
     } catch (error) {
         res.status(500).send({"error": error});
     }
@@ -118,7 +118,7 @@ router.delete(PATHS.CONFIG_TARGET, async function (req, res, next) {
     try {
         deleteBoundary = DeleteScanBoundary.deserialize(req.body);
         let result = await logicService.deleteTarget(deleteBoundary.ID);
-        res.status(200).send(result);
+        res.status(200).send({"results": result});
     } catch (error) {
         res.status(500).send({"error": error});
     }
@@ -128,7 +128,7 @@ router.get(PATHS.CONFIG_TARGET, async function (req, res, next) {
     try {
         logicService.getTargets(req.query.page, req.query.size, (scans) => {
             let targetsBoundary = new GetTargetsBoundary(scans);
-            res.status(200).send(targetsBoundary.serialize());
+            res.status(200).send({"results": targetsBoundary.serialize()});
         });
     } catch (error) {
         res.status(500).send({"error": error});
@@ -148,7 +148,7 @@ router.post(PATHS.LOGIN, function (req, res, next) {
                     res.status(500).send({"error": "Bad username/password"});
                 } else {
                     req.session.user = user;
-                    res.status(200).send("Connected");
+                    res.status(200).send({"results": "Connected"});
                 }
             });
         }
@@ -161,7 +161,7 @@ router.post(PATHS.LOGOUT, function (req, res, next) {
     try {
         if (req.session.user && req.cookies.user_sid) {
             res.clearCookie('user_sid');
-            res.status(200).send("logged out");
+            res.status(200).send({"results": "logged out"});
         } else {
             res.status(500).send({"error": "Login first"});
         }
@@ -179,7 +179,7 @@ router.post(PATHS.MANAGE_USERS, function (req, res, next) {
             } else if (user == false) {
                 res.status(500).send({"error": "choose another username or password"});
             } else {
-                res.status(200).send("registered");
+                res.status(200).send({"results": "registered"});
             }
         });
     } catch (error) {
@@ -197,7 +197,7 @@ router.delete(PATHS.MANAGE_USERS, function (req, res, next) {
                     } else if (result == false) {
                         res.status(500).send({"error": "username does not exists"});
                     } else {
-                        res.status(200).send("user deleted");
+                        res.status(200).send({"results": "user deleted"});
                     }
                 });
             }
@@ -222,10 +222,10 @@ router.put(PATHS.MANAGE_USERS, function (req, res, next) {
                     }
                 });
             } else {
-                res.status(200).send("This method can be performed only by admin");
+                res.status(200).send({"results": "This method can be performed only by admin"});
             }
         } else {
-            res.status(200).send("This method can be performed only by admin");
+            res.status(200).send({"results": "This method can be performed only by admin"});
         }
     } catch (error) {
         res.status(500).send({"error": error});
@@ -238,7 +238,7 @@ router.get(PATHS.USERS, function (req, res, next) {
             if (req.session.user[0].admin == 1) {
                 logicService.getAllUsers((usersEntity) => {
                     if (usersEntity == null) {
-                        res.status(200).send("something bad happened");
+                        res.status(200).send({"results": "something bad happened"});
                     } else {
                         let usersArray = [];
                         usersEntity.forEach(user => {
@@ -251,7 +251,7 @@ router.get(PATHS.USERS, function (req, res, next) {
                                 role: roleName
                             });
                         });
-                        res.status(200).send(usersArray);
+                        res.status(200).send({"results": usersArray});
                     }
                 });
             } else {
@@ -282,7 +282,7 @@ router.get(PATHS.GET_RESULTS, function (req, res, next) {
                     vulnID: elem._VulnerabilityBoundary__vulnID
                 })
             });
-            res.status(200).send(resultsArray);
+            res.status(200).send({"results": resultsArray});
         });
     } catch (error) {
         res.status(500).send({"error": error});
@@ -293,7 +293,7 @@ router.get(PATHS.SAVED_CONFIG, async function (req, res, next) {
     try {
         logicService.getSavedConfigs(req.query.page, req.query.size, (configs) => {
             let configsBoundary = new GetConfigsBoundary(configs);
-            res.status(200).send(configsBoundary.serialize());
+            res.status(200).send({"results": configsBoundary.serialize()});
         });
     } catch (error) {
         res.status(500).send({"error": error});
@@ -304,7 +304,7 @@ router.post(PATHS.SAVED_CONFIG, async function (req, res, next) {
     try {
         let scanConfigBoundary = NewSavedConfigurationBoundary.deserialize(req.body);
         let result = await logicService.newSavedConfig(scanConfigBoundary.name, scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout);
-        res.status(200).send(result);
+        res.status(200).send({"results": result});
     } catch (error) {
         res.status(500).send({"error": error});
     }
@@ -314,7 +314,7 @@ router.put(PATHS.SAVED_CONFIG, async function (req, res, next) {
     try {
         let scanConfigBoundary = UpdateSavedConfigBoundary.deserialize(req.body);
         let result = await logicService.updateSavedConfig(scanConfigBoundary.id, scanConfigBoundary.name, scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout);
-        res.status(200).send(result);
+        res.status(200).send({"results": result});
     } catch (error) {
         res.status(500).send({"error": error});
     }
@@ -324,7 +324,7 @@ router.delete(PATHS.SAVED_CONFIG, async function (req, res, next) {
     try {
         let deleteBoundary = DeleteScanBoundary.deserialize(req.body);
         let result = await logicService.deleteSavedConfig(deleteBoundary.ID);
-        res.status(200).send(result);
+        res.status(200).send({"results": result});
     } catch (error) {
         res.status(500).send({"error": error});
     }
