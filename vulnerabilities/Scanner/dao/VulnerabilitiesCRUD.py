@@ -66,6 +66,12 @@ def getVulnByID(id, table_name, env):
             raise Exception("No such vulnerability with id %s" % id)
     return SimpleVulnerabilityEntity(item[0], item[1], item[2], item[3], item[4])
 
+def getNumberOfDetectedVulns(table_name, env):
+    with sqlite3.connect(config.get('VulnServiceDB', env)) as db:
+        cursor = db.cursor()
+        cursor.execute("""SELECT COUNT(*) FROM %s""" % table_name)
+    return cursor.fetchone()[0]
+
 def updateVuln(vuln, table_name, env):
     """
     :param payload: new payload with existing id
