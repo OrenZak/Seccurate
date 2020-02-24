@@ -20,8 +20,9 @@ export default class ApiGateway {
                 body: JSON.stringify({ username, password }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
-                .then(result => ({ response: { result } }))
+                .then(result => {
+                    return ({ response: { result } })
+                })
                 .catch(error => ({ error }));
         },
         async logout(): Promise<ApiResult<{ result: string }>> {
@@ -31,7 +32,6 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(result => ({ response: { result } }))
                 .catch(error => ({ error }));
         },
@@ -45,9 +45,8 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(parseJSON)
-                .then(response => {
-                    return { response: { targets: [...response._configEntityArray] } };
+                .then(results => {
+                    return { response: { targets: [...results._configEntityArray] } };
                 })
                 .catch(error => ({ error: error.msg }));
         },
@@ -59,7 +58,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ ...target }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => ({ response: { succeed: true } }))
                 .catch(error => ({ error: error.msg }));
         },
@@ -71,7 +69,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ ...target }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => ({ response: { succeed: true } }))
                 .catch(error => ({ error: error.msg }));
         },
@@ -83,7 +80,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ id }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => ({ response: { succeed: true } }))
                 .catch(error => ({ error: error.msg }));
         },
@@ -97,7 +93,6 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(response => {
                     return { response: { usersArray: [...response] } };
                 })
@@ -114,7 +109,7 @@ export default class ApiGateway {
                 body: JSON.stringify({ ...payload.user }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
+
                 .then(() => {
                     return { response: { msg: 'registered' } };
                 })
@@ -129,7 +124,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ ...payload.user, password: '123456' }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => {
                     console.log('Updated');
                     return { response: { msg: 'updated' } };
@@ -148,7 +142,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ ...payload }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => {
                     return { response: { msg: 'deleted' } };
                 })
@@ -164,7 +157,6 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(response => {
                     return { response: { configs: [...response._configEntityArray] } };
                 })
@@ -178,7 +170,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ ...scanConfig }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(configID => ({ response: { scanConfigID: configID } }))
                 .catch(error => ({ error: error.msg }));
         },
@@ -190,7 +181,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ ...scanConfig }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => ({ response: { msg: 'updated' } }))
                 .catch(error => ({ error: error.msg }));
         },
@@ -202,7 +192,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ id }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => ({ response: { msg: 'deleted' } }))
                 .catch(error => ({ error: error.msg }));
         },
@@ -219,7 +208,6 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(response => {
                     return { response: { scans: [...response.scanEntityArray] } };
                 })
@@ -236,7 +224,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ id: scanId }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => {
                     return { response: { msg: 'started' } };
                 })
@@ -250,7 +237,6 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(results => {
                     return { response: { results } };
                 })
@@ -263,15 +249,12 @@ export default class ApiGateway {
 
 async function checkStatus(response: Response) {
     if (response.status >= 200 && response.status < 300) {
-        return response;
+        const result = await response.json();
+        return result;
     } else {
-        const { error } = (await parseJSON(response)) as ServerError;
+        const { error } = (await response.json()) as ServerError;
         throw error;
     }
-}
-
-function parseJSON(response: Response) {
-    return response.json();
 }
 
 export interface ServerError {

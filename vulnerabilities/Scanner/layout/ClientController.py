@@ -29,7 +29,8 @@ class RestServer():
         app.run(host='0.0.0.0')
 
     @app.route('/get_results', methods=['POST'])
-    def hello():#serializedGetResultBoundary):
+    def hello():
+        #serializedGetResultBoundary):
         # TODO add threading support by create a new Message to return to the client, and wait for the message by while over the queue
         vulnBoundaryList = []
         vulnerabilityEntities, rxssDescriptorEntity, sqliErroBasedDescriporEntity = clientLogicService.retriveScanResults(

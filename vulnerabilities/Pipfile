@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+mechanize = "*"
+flask = "*"
+bs4 = "*"
+python-engineio = "*"
+python-socketio = "*"
+requests = "*"
+dateutils = "*"
+configparser = "*"
+
+[requires]
+python_version = "2.7"
