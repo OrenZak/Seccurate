@@ -1,0 +1,37 @@
+{
+  "Vulnerability Descriptions":
+          [
+            {
+              "name": "error-based",
+              "severity": 1,
+              "description": "description of error-based sql injection",
+              "recommendations": "do not be stupid"
+            },
+            {
+              "name": "rxss",
+              "severity": 2,
+              "description": "description of rxss",
+              "recommendations": "do not click on unknown links"
+            }
+          ],
+  "SQLI Payloads":
+          [
+            {
+              "payload": "5;;5';;5'';;",
+              "type": "error-based"
+            }
+          ],
+  "RXSS Payloads":
+          [
+            {
+              "payload": "<script>console.log(123)</script>",
+              "expectedResult": "<script>console.log(123)</script>"
+            }
+          ],
+  "Responses":
+          [
+            {
+              "response": "error"
+            }
+          ]
+}

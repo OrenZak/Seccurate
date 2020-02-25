@@ -9,8 +9,8 @@ const DB_INFO = {
     host: 'localhost',
     port: 3306,
     user: 'root',
-    password: '',
-    database: "db"
+    password: '18031997',
+    database: "test"
 };
 
 module.exports = {

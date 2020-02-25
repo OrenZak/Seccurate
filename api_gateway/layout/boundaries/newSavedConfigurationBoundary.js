@@ -1,10 +1,9 @@
 class NewSavedConfigurationBoundary {
-    constructor(name, maxDepth, timeout, interval, maxConcurrency) {
+    constructor(name, maxDepth, timeout, interval) {
         this._name = name;
         this._maxDepth = maxDepth;
         this._timeout = timeout;
         this._interval = interval;
-        this._maxConcurrency = maxConcurrency;
     }
 
 
@@ -40,20 +39,12 @@ class NewSavedConfigurationBoundary {
         this._interval = value;
     }
 
-    get maxConcurrency() {
-        return this._maxConcurrency;
-    }
-
-    set maxConcurrency(value) {
-        this._maxConcurrency = value;
-    }
-
     serialize() {
         return this;
     }
 
     static deserialize(scanConfigBoundary) {
-        return new NewSavedConfigurationBoundary(scanConfigBoundary.name, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout, scanConfigBoundary.interval, scanConfigBoundary.maxConcurrency);
+        return new NewSavedConfigurationBoundary(scanConfigBoundary.name, scanConfigBoundary.maxDepth, scanConfigBoundary.timeout, scanConfigBoundary.interval);
     }
 }
 

@@ -1,14 +1,14 @@
 class GetTargetsBoundary {
     constructor(scansEntityArray) {
-        this._scansEntityArray = scansEntityArray;
+        this.scansEntityArray = scansEntityArray;
     }
 
-    get _scansEntityArray() {
-        return this._configEntityArray;
+    getScansEntityArray() {
+        return this._scansEntityArray;
     }
 
-    set _scansEntityArray(value) {
-        this._configEntityArray = value;
+    setScansEntityArray(scansEntityArray) {
+        this.scansEntityArray = scansEntityArray;
     }
 
     serialize() {
