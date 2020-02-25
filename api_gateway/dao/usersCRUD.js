@@ -53,13 +53,11 @@ class UsersCRUD {
 				throw new Error('No such value ' + new_value.getUsername() + '\n' + err);
 			}
 		});
-		const sql = `UPDATE ?? SET salt=?, passwordHash=?, admin=? WHERE username=?`;
+		const sql = `UPDATE ?? SET admin=? WHERE username=?`;
 		this.conn.query(
 			sql,
 			[
 				this.table_name,
-				new_value.getSalt(),
-				new_value.getPasswordHash(),
 				new_value.getAdmin(),
 				new_value.getUsername(),
 			],
@@ -89,7 +87,7 @@ class UsersCRUD {
 	getAll(callback, page = 0, size = 20) {
 		let intPage = parseInt(page, 10);
 		let intSize = parseInt(size, 10);
-		const sql = `SELECT * from ?? ORDER BY username ASC LIMIT ? OFFSET ?`;
+		const sql = `SELECT username, admin from ?? ORDER BY username ASC LIMIT ? OFFSET ?`;
 		this.conn.query(sql, [this.table_name, intSize, intPage * intSize], function(err, results) {
 			if (!err) {
 				callback(null, results);

@@ -26,7 +26,7 @@ class ScansDataCRUD {
     }
 
     createTable() {
-        const sql = `CREATE TABLE IF NOT EXISTS ?? (name VARCHAR(100), scan_timestamp VARCHAR(30) PRIMARY KEY, description VARCHAR(200), pageTableName VARCHAR(100), maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, maxConcurrency INTEGER, vulnsScanned VARCHAR(100) NOT NULL, done BOOLEAN, credentials VARCHAR(300), loginPage VARCHAR(200))`
+        const sql = `CREATE TABLE IF NOT EXISTS ?? (name VARCHAR(100), scanID VARCHAR(30) PRIMARY KEY, description VARCHAR(200), pageTableID VARCHAR(100), maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, scanType VARCHAR(100) NOT NULL, scanCompleted BOOLEAN, loginInfo VARCHAR(300), url VARCHAR(200))`
         this.conn.query(sql, [this.table_name], function(err) {
             if (err) {
                 console.log(err)
@@ -35,21 +35,21 @@ class ScansDataCRUD {
     }
 
     insertValue(value) {
-        if (!value.getCredentials() || !value.getLoginPage()) {
-            const sql2 = `INSERT INTO ?? VALUES (name, scan_timestamp, description, pageTableName, maxDepth, timeout, interval_crawler, maxConcurrency, vulnsScanned, done)`
-            this.conn.query(sql2, [this.table_name, value.getName(), value.getTimestamp(), value.getDescription(),
-                value.getPageTableName(), value.getMaxDepth(),value.getTimeout(), value.getInterval(), value.getMaxConcurrency(),
-                value.getVulnsScanned(), value.getDone()], (err) => {
+        if (!value.getLoginInfo()) {
+            const sql2 = `INSERT INTO ?? VALUES (name, scanID, description, pageTableID, maxDepth, timeout, interval_crawler, scanType, scanCompleted, url)`
+            this.conn.query(sql2, [this.table_name, value.getName(), value.getScanID(), value.getDescription(),
+                value.getPageTableID(), value.getMaxDepth(),value.getTimeout(), value.getInterval(),
+                value.getScanType(), value.isScanCompleted(), value.getURL()], (err) => {
                 if (err) {
                     console.log(err)
                 }
             })
         }
         else {
-            const sql = `INSERT INTO ?? VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`
-            this.conn.query(sql, [this.table_name, value.getName(), value.getTimestamp(), value.getDescription(),
-                value.getPageTableName(), value.getMaxDepth(), value.getTimeout(), value.getInterval(), value.getMaxConcurrency(),
-                value.getVulnsScanned(), value.getDone(), value.getCredentials(), value.getLoginPage()], (err) => {
+            const sql = `INSERT INTO ?? VALUES (?,?,?,?,?,?,?,?,?,?,?)`
+            this.conn.query(sql, [this.table_name, value.getName(), value.getScanID(), value.getDescription(),
+                value.getPageTableID(), value.getMaxDepth(), value.getTimeout(), value.getInterval(),
+                value.getScanType(), value.isScanCompleted(), value.getLoginInfo(), value.getURL()], (err) => {
                 if (err) {
                     console.log(err)
                 }
@@ -58,27 +58,27 @@ class ScansDataCRUD {
     }
 
     updateValue(new_value) {
-        this.getValue(new_value.getTimestamp(), function (err, res) {
+        this.getValue(new_value.getScanID(), function (err, res) {
             if (err) {
                 throw new Error('No such value ' + new_value.getName() + '\n' + err)
             }
         })
-        if (!new_value.getCredentials() || !new_value.getLoginPage()) {
-            const sql = `UPDATE ?? SET name=?, description=?, maxDepth=?, timeout=?, interval_crawler=?, maxConcurrency=?, vulnsScanned=?, done=? WHERE scan_timestamp=?`
+        if (!new_value.getLoginInfo()) {
+            const sql = `UPDATE ?? SET name=?, description=?, maxDepth=?, timeout=?, interval_crawler=?, scanType=?, scanCompleted=?, url=? WHERE scanID=?`
             this.conn.query(sql, [this.table_name, new_value.getName(), new_value.getDescription(),
                 new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(),
-                new_value.getMaxConcurrency(), new_value.getVulnsScanned(), new_value.getDone(), new_value.getTimestamp()], (err) => {
+                new_value.getScanType(), new_value.isScanCompleted(), new_value.getURL(), new_value.getScanID()], (err) => {
                 if (err) {
                     console.log(err)
                 }
             })
         }
         else {
-            const sql = `UPDATE ?? SET name=?, description=?, maxDepth=?, timeout=?, interval_crawler=?, maxConcurrency=?, vulnsScanned=?, done=?, credentials=?, loginPage=? WHERE scan_timestamp=?`
+            const sql = `UPDATE ?? SET name=?, description=?, maxDepth=?, timeout=?, interval_crawler=?, scanType=?, scanCompleted=?, loginInfo=?, url=? WHERE scanID=?`
             this.conn.query(sql,[this.table_name, new_value.getName(), new_value.getDescription(),
                 new_value.getMaxDepth(),new_value.getTimeout(), new_value.getInterval(),
-                new_value.getMaxConcurrency(), new_value.getVulnsScanned(), new_value.getDone(), new_value.getCredentials(),
-                new_value.getLoginPage(), new_value.getTimestamp()], (err) => {
+                new_value.getScanType(), new_value.isScanCompleted(), new_value.getLoginInfo(),
+                new_value.getURL(), new_value.getScanID()], (err) => {
                 if (err) {
                     console.log(err)
                 }
@@ -87,9 +87,9 @@ class ScansDataCRUD {
         return new_value
     }
 
-    updateScanFinished(scan_timestamp, callback){
-        const sql = `UPDATE ?? SET done=TRUE WHERE scan_timestamp=?`
-        this.conn.query(sql, [this.table_name, scan_timestamp], function (err, result) {
+    updateScanFinished(scanID, callback){
+        const sql = `UPDATE ?? SET scanCompleted=TRUE WHERE scanID=?`
+        this.conn.query(sql, [this.table_name, scanID], function (err, result) {
             if (!err){
                 callback(null, result)
             }
@@ -99,9 +99,9 @@ class ScansDataCRUD {
         })
     }
 
-    getValue(value_timestamp, callback) {
-        const sql = `SELECT * FROM ?? WHERE scan_timestamp=?`
-        this.conn.query(sql,[this.table_name, value_timestamp], function (err, result) {
+    getValue(scanID, callback) {
+        const sql = `SELECT * FROM ?? WHERE scanID=?`
+        this.conn.query(sql,[this.table_name, scanID], function (err, result) {
             if (!err) {
                 callback(null, result)
             }
@@ -111,9 +111,9 @@ class ScansDataCRUD {
         })
     }
 
-    /*getByForeignKey(fk, callback){
-        const sql = `SELECT * FROM ?? WHERE configuration=?`
-        this.conn.query(sql,[this.table_name, fk], (err, result)=> {
+    getCompletedCount(callback) {
+        const sql = `SELECT COUNT(*) FROM ?? WHERE scanCompleted=TRUE`
+        this.conn.query(sql,[this.table_name], function (err, result) {
             if (!err) {
                 callback(null, result)
             }
@@ -121,12 +121,24 @@ class ScansDataCRUD {
                 console.log(err)
             }
         })
-    }*/
+    }
+
+    getNotCompletedCount(callback) {
+        const sql = `SELECT COUNT(*) FROM ?? WHERE scanCompleted=FALSE`
+        this.conn.query(sql,[this.table_name], function (err, result) {
+            if (!err) {
+                callback(null, result)
+            }
+            else {
+                console.log(err)
+            }
+        })
+    }
 
     getAllCompleted(callback, page=0, size=20) {
         let intPage = parseInt(page, 10);
         let intSize = parseInt(size, 10);
-        const sql = `SELECT * from ?? WHERE done=TRUE ORDER BY scan_timestamp ASC LIMIT ? OFFSET ?`;
+        const sql = `SELECT * from ?? WHERE scanCompleted=TRUE ORDER BY scanID ASC LIMIT ? OFFSET ?`;
         this.conn.query(sql, [this.table_name,intSize,intPage*intSize], function(err, results) {
             if (!err) {
                 callback(null, results)
@@ -140,7 +152,7 @@ class ScansDataCRUD {
     getAllNotCompleted(callback, page=0, size=20) {
         let intPage = parseInt(page, 10);
         let intSize = parseInt(size, 10);
-        const sql = `SELECT * from ?? WHERE done=FALSE ORDER BY scan_timestamp ASC LIMIT ? OFFSET ?`;
+        const sql = `SELECT * from ?? WHERE scanCompleted=FALSE ORDER BY scanID ASC LIMIT ? OFFSET ?`;
         this.conn.query(sql, [this.table_name,intSize,intPage*intSize], function(err, results) {
             if (!err) {
                 callback(null, results)
@@ -151,14 +163,14 @@ class ScansDataCRUD {
         })
     }
 
-    deleteValue(value_timestamp){
-        this.getValue(value_timestamp, function (err, res) {
+    deleteValue(scanID){
+        this.getValue(scanID, function (err, res) {
             if (err) {
                 throw new Error('No such value\n' + err)
             }
         })
-        const sql = `DELETE FROM ?? WHERE scan_timestamp=?`
-        this.conn.query(sql, [this.table_name, value_timestamp, (err) => {
+        const sql = `DELETE FROM ?? WHERE scanID=?`
+        this.conn.query(sql, [this.table_name, scanID, (err) => {
             if (err) {
                 console.log(err)
             }

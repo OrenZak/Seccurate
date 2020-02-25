@@ -1,14 +1,12 @@
-class ScanEntity {
-    constructor(name, scanID, description, pageTableID=null, maxDepth, timeout, interval, scanType, scanCompleted, loginInfo=null, url) {
+class TargetEntity {
+    constructor(name, scanID, description, maxDepth, timeout, interval, scanType, loginInfo=null, url) {
         this.name = name;
         this.scanID = scanID;
         this.description = description;
-        this.pageTableID = pageTableID;
         this.maxDepth = maxDepth;
         this.timeout = timeout;
         this.interval = interval;
         this.scanType = scanType;
-        this.scanCompleted = scanCompleted;
         this.loginInfo = loginInfo;
         this.url = url;
     }
@@ -22,7 +20,7 @@ class ScanEntity {
     }
 
     getScanID() {
-        return this.scanID;
+        return this.timestamp;
     }
 
     setScanID(scanID) {
@@ -35,14 +33,6 @@ class ScanEntity {
 
     setDescription(description) {
         this.description = description;
-    }
-
-    getPageTableID(){
-        return this.pageTableID;
-    }
-
-    setPageTableID(pageTableID){
-        this.pageTableID = pageTableID;
     }
 
     getMaxDepth() {
@@ -77,14 +67,6 @@ class ScanEntity {
         this.scanType = scanType
     }
 
-    isScanCompleted(){
-        return this.scanCompleted;
-    }
-
-    setScanCompleted(scanCompleted){
-        this.scanCompleted = scanCompleted;
-    }
-
     getLoginInfo() {
         return this.loginInfo
     }
@@ -102,4 +84,4 @@ class ScanEntity {
     }
 }
 
-module.exports = ScanEntity;
+module.exports = TargetEntity;
