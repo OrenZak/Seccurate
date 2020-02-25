@@ -97,7 +97,7 @@ router.post(PATHS.START_SCAN, async function (req, res, next) {
 router.post(PATHS.CONFIG_TARGET, async function (req, res, next) {
     try {
         let scanConfigBoundary = NewTargetBoundary.deserialize(req.body);
-        let result = await logicService.scanwqTarget(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.description);
+        let result = await logicService.scanTarget(scanConfigBoundary.config.interval, scanConfigBoundary.config.maxConcurrency, scanConfigBoundary.config.maxDepth, scanConfigBoundary.config.timeout, scanConfigBoundary.scanType, scanConfigBoundary.url, scanConfigBoundary.loginInfo, scanConfigBoundary.name, scanConfigBoundary.description);
         res.status(200).send({"results": result});
     } catch (error) {
         res.status(500).send({"error": error});
@@ -128,7 +128,7 @@ router.get(PATHS.CONFIG_TARGET, async function (req, res, next) {
     try {
         logicService.getTargets(req.query.page, req.query.size, (scans) => {
             let targetsBoundary = new GetTargetsBoundary(scans);
-            res.status(200).send({"results": targetsBoundary.serialize()});
+            res.status(200).send({"results": targetsBoundary});
         });
     } catch (error) {
         res.status(500).send({"error": error});

@@ -30,19 +30,19 @@ class LogicService(threading.Thread):
         self.__vulnDescriptor = VulnerabilityDescriptionCRUD
         self.rxssalgo = None
         ################################################
-        VulnerabilityDescriptionCRUD.createTable(self.env_type)
-        VulnerabilityDescriptionCRUD.createVulnerabilityDescription(VulnerabilityDescriptionEntity(name='error-based', severity=1, description='abcTest',
-                                                           recommendations='aaa'), self.env_type)
-        VulnerabilityDescriptionCRUD.createVulnerabilityDescription(VulnerabilityDescriptionEntity(name='rxss', severity=2, description='defTest',
-                                                                recommendations='bbb'), self.env_type)
-        rxss1 = RXSSPayloadEntity(payload="<script>console.log(123)</script>",
-                                      expectedResult="<script>console.log(123)</script>")
-        RXSSCrud.createTable(self.env_type)
-        RXSSCrud.createPayload(rxss1, self.env_type)
-        self.sqli1 = SQLIPayloadEntity(payload="5;;5';;5''", type='error-based')
-        SQLICrud.createSQLITable(self.env_type)
-        SQLICrud.createPayload(self.sqli1, self.env_type)
-        self.response1 = SQLICrud.createResponse(ResponseEntity("error"), "test")
+        # VulnerabilityDescriptionCRUD.createTable(self.env_type)
+        # VulnerabilityDescriptionCRUD.createVulnerabilityDescription(VulnerabilityDescriptionEntity(name='error-based', severity=1, description='abcTest',
+        #                                                    recommendations='aaa'), self.env_type)
+        # VulnerabilityDescriptionCRUD.createVulnerabilityDescription(VulnerabilityDescriptionEntity(name='rxss', severity=2, description='defTest',
+        #                                                         recommendations='bbb'), self.env_type)
+        # rxss1 = RXSSPayloadEntity(payload="<script>console.log(123)</script>",
+        #                               expectedResult="<script>console.log(123)</script>")
+        # RXSSCrud.createTable(self.env_type)
+        # RXSSCrud.createPayload(rxss1, self.env_type)
+        # self.sqli1 = SQLIPayloadEntity(payload="5;;5';;5''", type='error-based')
+        # SQLICrud.createSQLITable(self.env_type)
+        # SQLICrud.createPayload(self.sqli1, self.env_type)
+        # self.response1 = SQLICrud.createResponse(ResponseEntity("error"), "test")
         ################################################
         # TODO: Zur I think the way we read configurations is not good. I t doesn't seem right
         self.sqliErroBasedDescripor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'error_based'),

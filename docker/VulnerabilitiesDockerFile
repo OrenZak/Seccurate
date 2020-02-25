@@ -1,6 +1,12 @@
 FROM python:2.7-alpine3.11
 ADD Seccurate/vulnerabilities/ /opt/Seccurate/vulnerabilities/
 WORKDIR /opt/Seccurate/vulnerabilities/
+RUN apk add musl musl-dev \
+    && apk add linux-headers \
+    && apk add gcc g++ \
+    && apk add make \
+    && apk add curl curl-dev \
+    && apk add openssh
 RUN pip install -r requirements.txt
 RUN apk add sqlite
 RUN touch /usr/bin/VulnServiceDB.db
