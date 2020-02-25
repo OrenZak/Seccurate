@@ -27,9 +27,8 @@ declare interface ScanConfig {
 }
 
 declare interface User {
-    id: string;
     username: string;
-    password: string;
+    password?: string;
     role: Role;
 }
 

@@ -8,22 +8,28 @@ import { Grid, Button, TextField, MenuItem, FormControl, Select } from '@materia
 interface Props {
     isOpen: boolean;
     close: () => void;
-    onUserAdded: (user: User) => void;
+    onCreateUser: (user: User) => void;
 }
 
 const AddUserModal: React.FC<Props> = props => {
     const classes = useStyles();
 
-    const [roleType, setRoleType] = useState<string>('User');
+    const [roleType, setRoleType] = useState<Role>('USER');
     const [username, setUsername] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
 
     const handleRoleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-        setRoleType(event.target.value as string);
+        setRoleType(event.target.value as Role);
     };
 
     const handleUsernameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
         const username = event.target.value as string;
         setUsername(username);
+    };
+
+    const handlePasswordChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const password = event.target.value as string;
+        setPassword(password);
     };
 
     const renderContent = () => {
@@ -37,6 +43,9 @@ const AddUserModal: React.FC<Props> = props => {
                         <TextField placeholder={'Username'} value={username} onChange={handleUsernameChanged} />
                     </Grid>
                     <Grid item>
+                        <TextField placeholder={'Password'} value={password} onChange={handlePasswordChanged} />
+                    </Grid>
+                    <Grid item>
                         <FormControl className={classes.formControl}>
                             <Select value={roleType} onChange={handleRoleChange}>
                                 <MenuItem value={'ADMIN'}>Admin</MenuItem>
@@ -46,7 +55,9 @@ const AddUserModal: React.FC<Props> = props => {
                     </Grid>
                 </Grid>
                 <Grid item>
-                    <Button color={'primary'} variant={'contained'} disabled={username.trim().length === 0}>
+                    <Button color={'primary'} variant={'contained'} disabled={username.trim().length === 0} onClick={() => {
+                        props.onCreateUser({username, role: roleType, password})
+                    }}>
                         Done
                     </Button>
                 </Grid>

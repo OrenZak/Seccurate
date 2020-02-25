@@ -30,9 +30,7 @@ const EditUserModal: React.FC<Props> = props => {
                                 onClick={() => {
                                     if (props.user) {
                                         props.onRoleChange({
-                                            id: props.user.id,
                                             username: props.user.username,
-                                            password: props.user.password,
                                             role: 'ADMIN',
                                         });
                                     }
@@ -48,9 +46,7 @@ const EditUserModal: React.FC<Props> = props => {
                                 onClick={() => {
                                     if (props.user) {
                                         props.onRoleChange({
-                                            id: props.user.id,
                                             username: props.user.username,
-                                            password: props.user.password,
                                             role: 'USER',
                                         });
                                     }

@@ -46,7 +46,7 @@ export default class ApiGateway {
             })
                 .then(checkStatus)
                 .then(results => {
-                    return { response: { targets: [...results._configEntityArray] } };
+                    return { response: { targets: [...results.scansEntityArray] } };
                 })
                 .catch(error => ({ error: error.msg }));
         },
@@ -93,8 +93,8 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(response => {
-                    return { response: { usersArray: [...response] } };
+                .then(results => {
+                    return { response: { usersArray: [...results] } };
                 })
                 .catch(error => {
                     return { error: error.msg };
@@ -109,11 +109,13 @@ export default class ApiGateway {
                 body: JSON.stringify({ ...payload.user }),
             })
                 .then(checkStatus)
-
-                .then(() => {
+                .then(()  => {
                     return { response: { msg: 'registered' } };
                 })
-                .catch(error => ({ error: error.msg }));
+                .catch(error => {
+                    console.log("Create user Error: ", error);
+                    return ({ error: error.msg })
+                });
         },
 
         async updateUser(payload: UpdateUserParams): Promise<ApiResult<{ msg: string }>> {
@@ -135,11 +137,10 @@ export default class ApiGateway {
         },
 
         async deleteUser(payload: DeleteUserParams): Promise<ApiResult<{ msg: string }>> {
-            return fetch(`${END_POINTS.gatewayURL}/manage_users`, {
+            return fetch(`${END_POINTS.gatewayURL}/manage_users?userName=${payload.userName}`, {
                 method: 'DELETE',
                 headers: { ...BASE_HEADERS },
                 credentials: 'same-origin',
-                body: JSON.stringify({ ...payload }),
             })
                 .then(checkStatus)
                 .then(() => {
@@ -157,8 +158,8 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(response => {
-                    return { response: { configs: [...response._configEntityArray] } };
+                .then(results => {
+                    return { response: { configs: [...results._configEntityArray] } };
                 })
                 .catch(error => ({ error: error.msg }));
         },
@@ -208,8 +209,8 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(response => {
-                    return { response: { scans: [...response.scanEntityArray] } };
+                .then(results => {
+                    return { response: { scans: [...results.scanEntityArray] } };
                 })
                 .catch(error => {
                     return { error: error.msg };
@@ -249,8 +250,9 @@ export default class ApiGateway {
 
 async function checkStatus(response: Response) {
     if (response.status >= 200 && response.status < 300) {
-        const result = await response.json();
-        return result;
+        const jsonResponse = await response.json();
+        const { results } = jsonResponse;
+        return results;
     } else {
         const { error } = (await response.json()) as ServerError;
         throw error;

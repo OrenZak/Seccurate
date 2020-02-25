@@ -120,8 +120,9 @@ const ManageUsersContent: React.FC<Props> = props => {
             <AddUserModal
                 isOpen={showAddUserModal}
                 close={() => setShowAddUserModal(false)}
-                onUserAdded={(user: User) => {
+                onCreateUser={(user: User) => {
                     props.createUser({ user });
+                    setShowAddUserModal(false);
                 }}
             />
             <EditUserModal

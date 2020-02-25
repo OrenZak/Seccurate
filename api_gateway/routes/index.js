@@ -189,8 +189,8 @@ router.post(PATHS.MANAGE_USERS, function (req, res, next) {
 
 router.delete(PATHS.MANAGE_USERS, function (req, res, next) {
     try {
-        if (req.session.user && req.cookies.user_sid) {
-            if (req.session.user[0].admin == 1) {
+        // if (req.session.user && req.cookies.user_sid) {
+        //     if (req.session.user[0].admin == 1) {
                 logicService.deleteUser(req.query.userName, (result) => {
                     if (result == null) {
                         res.status(500).send({"error": "something bad happened"});
@@ -200,8 +200,8 @@ router.delete(PATHS.MANAGE_USERS, function (req, res, next) {
                         res.status(200).send({"results": "user deleted"});
                     }
                 });
-            }
-        }
+            // }
+        // }
     } catch (error) {
         res.status(500).send({"error": error});
     }
@@ -209,8 +209,8 @@ router.delete(PATHS.MANAGE_USERS, function (req, res, next) {
 
 router.put(PATHS.MANAGE_USERS, function (req, res, next) {
     try {
-        if (req.session.user && req.cookies.user_sid) {
-            if (req.session.user[0].admin == 1) {
+        // if (req.session.user && req.cookies.user_sid) {
+        //     if (req.session.user[0].admin == 1) {
                 let usersBoundary = UsersBoundary.deserialize(req.body);
                 let user = logicService.updateUser(usersBoundary.username, usersBoundary.password, usersBoundary.role, (user) => {
                     if (user == null) {
@@ -221,12 +221,12 @@ router.put(PATHS.MANAGE_USERS, function (req, res, next) {
                         res.status(200).send({results: "updated"});
                     }
                 });
-            } else {
-                res.status(200).send({"results": "This method can be performed only by admin"});
-            }
-        } else {
-            res.status(200).send({"results": "This method can be performed only by admin"});
-        }
+        //     } else {
+        //         res.status(200).send({"results": "This method can be performed only by admin"});
+        //     }
+        // } else {
+        //     res.status(200).send({"results": "This method can be performed only by admin"});
+        // }
     } catch (error) {
         res.status(500).send({"error": error});
     }
@@ -234,8 +234,8 @@ router.put(PATHS.MANAGE_USERS, function (req, res, next) {
 
 router.get(PATHS.USERS, function (req, res, next) {
     try {
-        if (req.session.user && req.cookies.user_sid) {
-            if (req.session.user[0].admin == 1) {
+        // if (req.session.user && req.cookies.user_sid) {
+        //     if (req.session.user[0].admin == 1) {
                 logicService.getAllUsers((usersEntity) => {
                     if (usersEntity == null) {
                         res.status(200).send({"results": "something bad happened"});
@@ -254,12 +254,12 @@ router.get(PATHS.USERS, function (req, res, next) {
                         res.status(200).send({"results": usersArray});
                     }
                 });
-            } else {
-                res.status(401).send({"error": "This method can be performed only by admin"});
-            }
-        } else {
-            res.status(401).send({"error": "This method can be performed only by admin"});
-        }
+        //     } else {
+        //         res.status(401).send({"error": "This method can be performed only by admin"});
+        //     }
+        // } else {
+        //     res.status(401).send({"error": "This method can be performed only by admin"});
+        // }
     } catch (error) {
         res.status(500).send({"error": error});
     }

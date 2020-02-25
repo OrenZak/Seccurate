@@ -35,6 +35,7 @@ function handleCreateUser({ apiGateway }: { apiGateway: ApiGateway }) {
         if (result.error) {
             yield put(addUserFailed({ error: result.error }));
         } else if (result.response) {
+            yield put(fetchAllUsers());
             yield put(addUserSucceed());
         }
     };
@@ -46,6 +47,7 @@ function handleUpdateUser({ apiGateway }: { apiGateway: ApiGateway }) {
         if (result.error) {
             yield put(updateUserFailed({ error: result.error }));
         } else if (result.response) {
+            yield put(fetchAllUsers());
             yield put(updateUserSucceed());
         }
     };
@@ -57,6 +59,7 @@ function handleDeleteUser({ apiGateway }: { apiGateway: ApiGateway }) {
         if (result.error) {
             yield put(deleteUserFailed({ error: result.error }));
         } else if (result.response) {
+            yield put(fetchAllUsers());
             yield put(deleteUserSucceed());
         }
     };
