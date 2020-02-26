@@ -21,56 +21,89 @@ let cookieParser = require('cookie-parser');
 router.use(express.json());
 //router.use(express.urlencoded({extended: false}));
 // initialize body-parser to parse incoming parameters requests to req.body
-router.use(bodyParser.urlencoded({ extended: true }));
+router.use(bodyParser.urlencoded({extended: true}));
 
 // initialize cookie-parser to allow us access the cookies stored in the browser.
 router.use(cookieParser());
 router.use(
-	session({
-		key: 'user_sid',
-		secret: 'NkoeH#&XN&7+M4$',
-		resave: false,
-		saveUninitialized: false,
-		cookie: {
-			expires: 600000,
-		},
-	}),
+    session({
+        key: 'user_sid',
+        secret: 'NkoeH#&XN&7+M4$',
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            expires: 600000,
+        },
+    }),
 );
 
 // This middleware will check if user's cookie is still saved in browser and user is not set, then automatically log the user out.
 // This usually happens when you stop your express server after login, your cookie still remains saved in the browser.
 router.use((req, res, next) => {
-	if (req.cookies.user_sid && !req.session.user) {
-		res.clearCookie('user_sid');
-	}
-	next();
+    if (req.cookies.user_sid && !req.session.user) {
+        res.clearCookie('user_sid');
+    }
+    next();
 });
 
 const PATHS = {
-	HOME: '/',
-	START_SCAN: '/start_scan',
-	CONFIG_TARGET: '/config_target',
-	GET_COMPLETED_SCANS: '/completed_scans',
-	LOGIN: '/login',
-	LOGOUT: '/logout',
-	USERS: '/users',
-	MANAGE_USERS: '/manage_users',
-	GET_RESULTS: '/results',
-	SAVED_CONFIG: '/saved_config',
+    HOME: '/',
+    START_SCAN: '/start_scan',
+    CONFIG_TARGET: '/config_target',
+    GET_COMPLETED_SCANS: '/completed_scans',
+    LOGIN: '/login',
+    LOGOUT: '/logout',
+    USERS: '/users',
+    MANAGE_USERS: '/manage_users',
+    GET_RESULTS: '/results',
+    SAVED_CONFIG: '/saved_config',
+    CONFIGS_COUNT: '/config_count',
+    TARGETS_COUNT: '/targets_count',
+    COMPLETED_SCANS_COUNT: '/completed_scans_count'
 };
 
 // middleware function to check for logged-in users
 let sessionChecker = (req, res, next) => {
-	if (req.session.user && req.cookies.user_sid) {
-		res.redirect('/dashboard');
-	} else {
-		next();
-	}
+    if (req.session.user && req.cookies.user_sid) {
+        res.redirect('/dashboard');
+    } else {
+        next();
+    }
 };
 
 // route for Home-Page
 router.get(PATHS.HOME, sessionChecker, (req, res) => {
-	res.redirect('/login');
+    res.redirect('/login');
+});
+
+router.get(PATHS.CONFIGS_COUNT, async function (req, res, next) {
+    try {
+        await logicService.getConfigsCount((count) => {
+            res.status(200).send({"results": count});
+        });
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
+});
+
+router.get(PATHS.TARGETS_COUNT, async function (req, res, next) {
+    try {
+        await logicService.getTargetsCount((count) => {
+            res.status(200).send({"results": count});
+        });
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
+});
+
+router.get(PATHS.COMPLETED_SCANS_COUNT,async function (req, res, next) {
+    try {
+        await logicService.getCompletedScansCount((count) => {
+            res.status(200).send({"results": count});
+        });
+    } catch (error) {
+        res.status(500).send({"error": error});
+    }
 });
 
 router.get(PATHS.GET_COMPLETED_SCANS, function (req, res, next) {
@@ -211,8 +244,8 @@ router.put(PATHS.MANAGE_USERS, function (req, res, next) {
     try {
         if (req.session.user && req.cookies.user_sid) {
             if (req.session.user[0].admin == 1) {
-                let usersBoundary = UsersBoundary.deserialize(req.body);
-                let user = logicService.updateUser(usersBoundary.username, usersBoundary.password, usersBoundary.role, (user) => {
+                let usersBoundary = UsersBoundary.deserializeWithNoPassword(req.body);
+                let user = logicService.updateUser(usersBoundary.username, usersBoundary.role, (user) => {
                     if (user == null) {
                         res.status(500).send({"error": "something bad happened"});
                     } else if (user == false) {
@@ -331,12 +364,12 @@ router.delete(PATHS.SAVED_CONFIG, async function (req, res, next) {
 });
 
 function setServer(httpServer) {
-	logicService.startSocketListen(httpServer);
+    logicService.startSocketListen(httpServer);
 }
 
 // route for handling 404 requests(unavailable routes)
-router.use(function(req, res, next) {
-	res.status(404).send("Sorry can't find that!");
+router.use(function (req, res, next) {
+    res.status(404).send("Sorry can't find that!");
 });
 
-module.exports = { router, setServer };
+module.exports = {router, setServer};

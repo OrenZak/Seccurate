@@ -112,10 +112,10 @@ class ScansDataCRUD {
     }
 
     getCompletedCount(callback) {
-        const sql = `SELECT COUNT(*) FROM ?? WHERE scanCompleted=TRUE`
+        const sql = `SELECT COUNT(*) as value FROM ?? WHERE scanCompleted=TRUE`
         this.conn.query(sql,[this.table_name], function (err, result) {
             if (!err) {
-                callback(null, result)
+                callback(null, result[0].value)
             }
             else {
                 console.log(err)
@@ -124,10 +124,10 @@ class ScansDataCRUD {
     }
 
     getNotCompletedCount(callback) {
-        const sql = `SELECT COUNT(*) FROM ?? WHERE scanCompleted=FALSE`
+        const sql = `SELECT COUNT(*) as value FROM ?? WHERE scanCompleted=FALSE`
         this.conn.query(sql,[this.table_name], function (err, result) {
             if (!err) {
-                callback(null, result)
+                callback(null, result[0].value)
             }
             else {
                 console.log(err)
