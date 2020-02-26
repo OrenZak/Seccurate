@@ -45,6 +45,7 @@ const ReportsScreen: React.FC<Props> = props => {
     }, [scanResults]);
 
     const onTargetClicked = (scan: Scan, index: number) => {
+        console.log('onTargetClicked ', scan);
         startLoader(index);
         fetchResults(scan);
     };
@@ -62,7 +63,7 @@ const ReportsScreen: React.FC<Props> = props => {
     };
 
     const fetchResults = (scan: Scan) => {
-        props.fetchScanResults({ scanId: scan.timestamp });
+        props.fetchScanResults({ scanId: scan.scanID });
     };
 
     const startLoader = (index: number) => {

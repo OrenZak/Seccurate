@@ -5,15 +5,43 @@ import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
+import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 
 interface Props {
+    showStartScan: boolean;
     onAddTargetClicked: () => void;
     onEditTargetClicked: () => void;
     onDeleteTargetClicked: () => void;
+    onStartScanClicked: () => void;
 }
 
 const MainButtons: React.FC<Props> = props => {
     const classes = useStyles();
+
+    const renderStartScanButton = () => {
+        return (
+            props.showStartScan && (
+                <Grid item>
+                    <Grid container item direction="row" xs={12} alignItems="baseline">
+                        <Grid item xs={4}>
+                            <Fab
+                                className={classes.fabGreen}
+                                size={'small'}
+                                onClick={() => {
+                                    props.onStartScanClicked();
+                                }}
+                            >
+                                <PlayArrowIcon />
+                            </Fab>
+                        </Grid>
+                        <Grid item xs={7}>
+                            Start Scan
+                        </Grid>
+                    </Grid>
+                </Grid>
+            )
+        );
+    };
     return (
         <Grid container item direction="column" xs={2} spacing={3}>
             <Grid item>
@@ -72,6 +100,8 @@ const MainButtons: React.FC<Props> = props => {
                     </Grid>
                 </Grid>
             </Grid>
+
+            {renderStartScanButton()}
         </Grid>
     );
 };
@@ -84,6 +114,16 @@ const useStyles = makeStyles(_ => ({
             // Reset on touch devices, it doesn't add specificity
             '@media (hover: none)': {
                 backgroundColor: '#F6C74C',
+            },
+        },
+    },
+    fabGreen: {
+        backgroundColor: '#7fcd91',
+        '&:hover': {
+            backgroundColor: '#7fcd91',
+            // Reset on touch devices, it doesn't add specificity
+            '@media (hover: none)': {
+                backgroundColor: '#7fcd91',
             },
         },
     },

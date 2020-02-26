@@ -12,6 +12,7 @@ import {
     selectAddTargetsInfo,
     selectUpdateTargetsInfo,
 } from '../../state/targets/targets.slice';
+import { addConfig } from '../../state/configs/configs.slice';
 import { connect } from 'react-redux';
 
 interface OwnProps {
@@ -28,6 +29,7 @@ interface ConnectedProps {
 interface DispatchProps {
     addTarget: ({ target }: AddTargetParams) => void;
     updateTarget: ({ target }: UpdateTargetParams) => void;
+    addConfig: ({ name, config }: AddConfigParams) => void;
 }
 
 type Props = OwnProps & ConnectedProps & DispatchProps;
@@ -45,7 +47,12 @@ const CreateTargetModal: React.FC<Props> = props => {
             props.updateTarget({ target });
         } else {
             props.addTarget({ target });
+            props.onClose();
         }
+    };
+
+    const handleOnSaveConfig = ({ name, config }: AddConfigParams) => {
+        props.addConfig({ name, config });
     };
 
     return (
@@ -64,7 +71,12 @@ const CreateTargetModal: React.FC<Props> = props => {
             >
                 <Fade in={props.isOpen}>
                     <div className={classes.paper}>
-                        <CreateTargetContent target={props.target} onTargetAdded={handOnTargetAdded} />
+                        <CreateTargetContent
+                            target={props.target}
+                            isEdit={props.target !== undefined}
+                            onTargetAdded={handOnTargetAdded}
+                            onSaveConfig={handleOnSaveConfig}
+                        />
                     </div>
                 </Fade>
             </Modal>
@@ -103,6 +115,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
         {
             addTarget,
             updateTarget,
+            addConfig,
         },
         dispatch,
     );

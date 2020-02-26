@@ -6,7 +6,6 @@ class NewSavedConfigurationBoundary {
         this._interval = interval;
     }
 
-
     get name() {
         return this._name;
     }

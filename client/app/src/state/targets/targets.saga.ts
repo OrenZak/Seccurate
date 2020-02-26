@@ -39,6 +39,8 @@ function handleAddTarget({ apiGateway }: { apiGateway: ApiGateway }) {
         if (result.error) {
             yield put(addTargetsFailed({ error: result.error }));
         } else if (result.response) {
+            console.log("handleAddTarget", result);
+            yield put(fetchAllTargets({page: 0, pageCount: 100}));
             yield put(addTargetsSucceed());
         }
     };
@@ -47,9 +49,11 @@ function handleAddTarget({ apiGateway }: { apiGateway: ApiGateway }) {
 function handleUpdateTarget({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: UpdateTargetParams }) {
         const result: ApiResult<UpdateTargetParams> = yield call(apiGateway.targets.update, payload.target);
+        console.log("handleUpdateTarget ", result);
         if (result.error) {
             yield put(updateTargetsFailed({ error: result.error }));
         } else if (result.response) {
+            yield put(fetchAllTargets({page: 0, pageCount: 100}));
             yield put(updateTargetsSucceed());
         }
     };
@@ -61,6 +65,7 @@ function handleDeleteTarget({ apiGateway }: { apiGateway: ApiGateway }) {
         if (result.error) {
             yield put(deleteTargetsFailed({ error: result.error }));
         } else if (result.response) {
+            yield put(fetchAllTargets({page: 0, pageCount: 100}));
             yield put(deleteTargetsSucceed());
         }
     };

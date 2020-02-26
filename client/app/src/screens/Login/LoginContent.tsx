@@ -96,12 +96,12 @@ const LoginContent: React.FC<Props> = props => {
             </Grid>
             <Grid item xs className={classes.formContainer}>
                 <Grid item xs>
-                    <TextField id="standard-basic" label="Username" fullWidth onChange={handleUsernameChanged} />
+                    <TextField   label="Username" fullWidth onChange={handleUsernameChanged} />
                 </Grid>
                 <Grid item xs>
                     <FormControl fullWidth>
                         <TextField
-                            id="standard-basic"
+
                             label="Password"
                             type={'password'}
                             onChange={handlePasswordChanged}

@@ -1,52 +1,51 @@
-
 class SavedConfigurationEntity {
-    constructor(id=null, name=null, max_depth, timeout, interval) {
-        this.id=id;
-        this.name = name;
-        this.max_depth = max_depth;
-        this.timeout = timeout;
-        this.interval = interval;
-    }
+  constructor(id = null, name = null, max_depth, timeout, interval) {
+    this.id = id;
+    this.name = name;
+    this.maxDepth = max_depth;
+    this.timeout = timeout;
+    this.interval = interval;
+  }
 
-    getID() {
-        return this.id
-    }
+  getID() {
+    return this.id;
+  }
 
-    setID(id) {
-        this.id=id
-    }
+  setID(id) {
+    this.id = id;
+  }
 
-    getName(){
-        return this.name;
-    }
+  getName() {
+    return this.name;
+  }
 
-    setName(name){
-        this.name = name
-    }
+  setName(name) {
+    this.name = name;
+  }
 
-    getMaxDepth() {
-        return this.max_depth
-    }
+  getMaxDepth() {
+    return this.maxDepth;
+  }
 
-    setMaxDepth(max_depth) {
-        this.max_depth = max_depth
-    }
+  setMaxDepth(max_depth) {
+    this.maxDepth = max_depth;
+  }
 
-    getTimeout() {
-        return this.timeout
-    }
+  getTimeout() {
+    return this.timeout;
+  }
 
-    setTimeout(timeout) {
-        this.timeout = timeout
-    }
+  setTimeout(timeout) {
+    this.timeout = timeout;
+  }
 
-    getInterval() {
-        return this.interval
-    }
+  getInterval() {
+    return this.interval;
+  }
 
-    setInterval(interval) {
-        this.interval = interval
-    }
+  setInterval(interval) {
+    this.interval = interval;
+  }
 }
 
-module.exports = SavedConfigurationEntity
+module.exports = SavedConfigurationEntity;
