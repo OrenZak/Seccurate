@@ -1,10 +1,11 @@
 class SavedConfigurationEntity {
-  constructor(id = null, name = null, max_depth, timeout, interval) {
+  constructor(id = null, name = null, maxDepth, timeout, interval) {
     this.id = id;
     this.name = name;
-    this.maxDepth = max_depth;
-    this.timeout = timeout;
-    this.interval = interval;
+    this.config = {};
+    this.config["maxDepth"] = maxDepth;
+    this.config["timeout"] = timeout;
+    this.config["interval"] = interval;
   }
 
   getID() {
@@ -24,27 +25,27 @@ class SavedConfigurationEntity {
   }
 
   getMaxDepth() {
-    return this.maxDepth;
+    return this.config["maxDepth"];
   }
 
-  setMaxDepth(max_depth) {
-    this.maxDepth = max_depth;
+  setMaxDepth(maxDepth) {
+      this.config["maxDepth"] = maxDepth;
   }
 
   getTimeout() {
-    return this.timeout;
+      return this.config["timeout"];
   }
 
   setTimeout(timeout) {
-    this.timeout = timeout;
+      this.config["timeout"] = timeout;
   }
 
   getInterval() {
-    return this.interval;
+      return this.config["interval"];
   }
 
   setInterval(interval) {
-    this.interval = interval;
+      this.config["interval"] = interval;
   }
 }
 

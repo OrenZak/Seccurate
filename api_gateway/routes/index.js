@@ -273,6 +273,7 @@ router.delete(PATHS.MANAGE_USERS, function(req, res, next) {
   } catch (error) {
     res.status(500).send({ error: error });
   }
+});
 
 router.put(PATHS.MANAGE_USERS, function (req, res, next) {
     try {

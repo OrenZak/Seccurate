@@ -1,5 +1,5 @@
 class ConfigEntity {
-    constructor(name, timestamp, description, pageTableName, maxDepth, timeout, interval, maxConcurrency, vulnsScanned, credentials=null, loginPage=null) {
+    constructor(name, timestamp, description, pageTableName, maxDepth, timeout, interval, vulnsScanned, credentials=null, loginPage=null) {
         this.name = name;
         this.timestamp = timestamp;
         this.description = description;
@@ -7,7 +7,6 @@ class ConfigEntity {
         this.maxDepth = maxDepth;
         this.timeout = timeout;
         this.interval = interval;
-        this.maxConcurrency = maxConcurrency;
         this.vulnsScanned = vulnsScanned;
         this.credentials = credentials;
         this.loginPage = loginPage;
@@ -67,14 +66,6 @@ class ConfigEntity {
 
     setInterval(interval) {
         this.interval = interval
-    }
-
-    getMaxConcurrency() {
-        return this.maxConcurrency
-    }
-
-    setMaxConcurrency(maxConcurrency) {
-        this.maxConcurrency = maxConcurrency
     }
 
     getVulnsScanned() {

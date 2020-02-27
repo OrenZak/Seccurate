@@ -3,11 +3,12 @@ class TargetEntity {
         this.name = name;
         this.scanID = scanID;
         this.description = description;
-        this.maxDepth = maxDepth;
-        this.timeout = timeout;
-        this.interval = interval;
+        this.config = {};
+        this.config["maxDepth"] = maxDepth;
+        this.config["timeout"] = timeout;
+        this.config["interval"] = interval;
         this.scanType = scanType;
-        this.loginInfo = loginInfo;
+        this.loginInfo = JSON.parse(loginInfo);
         this.url = url;
     }
 
@@ -36,27 +37,27 @@ class TargetEntity {
     }
 
     getMaxDepth() {
-        return this.maxDepth
+        return this.config["maxDepth"];
     }
 
     setMaxDepth(maxDepth) {
-        this.maxDepth = maxDepth
+        this.config["maxDepth"] = maxDepth;
     }
 
     getTimeout() {
-        return this.timeout
+        return this.config["timeout"];
     }
 
     setTimeout(timeout) {
-        this.timeout = timeout
+        this.config["timeout"] = timeout;
     }
 
     getInterval() {
-        return this.interval
+        return this.config["interval"];
     }
 
     setInterval(interval) {
-        this.interval = interval
+        this.config["interval"] = interval;
     }
 
     getScanType() {
