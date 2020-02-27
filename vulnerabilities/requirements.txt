@@ -1,3 +1,4 @@
+socketio
 Mechanize
 Flask
 Bs4

@@ -13,6 +13,7 @@ import {
     selectDeleteTargetsInfo,
     selectTargets,
 } from '../../state/targets/targets.slice';
+import { startScan } from '../../state/scans/scans.slice';
 import { connect } from 'react-redux';
 import { selectIsLoggedIn } from '../../state/app/app.slice';
 
@@ -28,6 +29,7 @@ interface ConnectedProps {
 interface DispatchProps {
     fetchAllTargets: ({ page, pageCount }: FetchAllParams) => void;
     deleteTarget: ({ id }: DeleteTargetParams) => void;
+    startScan: ({ scanId }: { scanId: string }) => void;
 }
 
 type Props = OwnProps & ConnectedProps & DispatchProps;
@@ -53,12 +55,23 @@ const TargetsScreen: React.FC<Props> = props => {
     const onDeleteTargetClicked = () => {
         if (selectedTarget && selectedTarget.scanID) {
             props.deleteTarget({ id: selectedTarget.scanID });
+            setSelectedTarget(undefined);
+        }
+    };
+
+    const onStartScanClicked = () => {
+        if (selectedTarget) {
+            props.startScan({ scanId: selectedTarget.scanID! });
         }
     };
 
     const onItemSelected = (target: Target) => {
-        console.log('target: ', target);
-        setSelectedTarget(target);
+        if (selectedTarget?.scanID === target.scanID) {
+            setSelectedTarget(undefined);
+        } else {
+            setSelectedTarget(target);
+            console.log('Selected Target: ', target);
+        }
     };
 
     const handleCreateTargetModalClose = () => {
@@ -76,9 +89,11 @@ const TargetsScreen: React.FC<Props> = props => {
                     <TargetList targets={props.targets} onItemSelected={onItemSelected} />
                 </Grid>
                 <MainButtons
+                    showStartScan={selectedTarget !== undefined}
                     onAddTargetClicked={onAddTargetClicked}
                     onEditTargetClicked={onEditTargetClicked}
                     onDeleteTargetClicked={onDeleteTargetClicked}
+                    onStartScanClicked={onStartScanClicked}
                 />
             </Grid>
             <div>
@@ -117,6 +132,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
         {
             fetchAllTargets,
             deleteTarget,
+            startScan,
         },
         dispatch,
     );

@@ -24,7 +24,7 @@ const AddFieldContent: React.FC<Props> = props => {
         return loginFormFields.map((field: Field, index: number) => (
             <Grid container item direction={'row'} justify={'center'} alignItems={'center'}>
                 <Grid item xs>
-                    <TextField id="standard-basic" label={`${field.name}`} value={field.value} fullWidth />
+                    <TextField   label={`${field.name}`} value={field.value} fullWidth />
                 </Grid>
                 <Grid item>
                     <Button onClick={() => deleteField(index)}>

@@ -1,15 +1,14 @@
-class ScanEntity {
-    constructor(name, scanID, description, pageTableID=null, maxDepth, timeout, interval, scanType, scanCompleted, loginInfo=null, url) {
+class TargetEntity {
+    constructor(name, scanID, description, maxDepth, timeout, interval, scanType, loginInfo=null, url) {
         this.name = name;
         this.scanID = scanID;
         this.description = description;
-        this.pageTableID = pageTableID;
-        this.maxDepth = maxDepth;
-        this.timeout = timeout;
-        this.interval = interval;
+        this.config = {};
+        this.config["maxDepth"] = maxDepth;
+        this.config["timeout"] = timeout;
+        this.config["interval"] = interval;
         this.scanType = scanType;
-        this.scanCompleted = scanCompleted;
-        this.loginInfo = loginInfo;
+        this.loginInfo = JSON.parse(loginInfo);
         this.url = url;
     }
 
@@ -22,7 +21,7 @@ class ScanEntity {
     }
 
     getScanID() {
-        return this.scanID;
+        return this.timestamp;
     }
 
     setScanID(scanID) {
@@ -37,36 +36,28 @@ class ScanEntity {
         this.description = description;
     }
 
-    getPageTableID(){
-        return this.pageTableID;
-    }
-
-    setPageTableID(pageTableID){
-        this.pageTableID = pageTableID;
-    }
-
     getMaxDepth() {
-        return this.maxDepth
+        return this.config["maxDepth"];
     }
 
     setMaxDepth(maxDepth) {
-        this.maxDepth = maxDepth
+        this.config["maxDepth"] = maxDepth;
     }
 
     getTimeout() {
-        return this.timeout
+        return this.config["timeout"];
     }
 
     setTimeout(timeout) {
-        this.timeout = timeout
+        this.config["timeout"] = timeout;
     }
 
     getInterval() {
-        return this.interval
+        return this.config["interval"];
     }
 
     setInterval(interval) {
-        this.interval = interval
+        this.config["interval"] = interval;
     }
 
     getScanType() {
@@ -75,14 +66,6 @@ class ScanEntity {
 
     setScanType(scanType) {
         this.scanType = scanType
-    }
-
-    isScanCompleted(){
-        return this.scanCompleted;
-    }
-
-    setScanCompleted(scanCompleted){
-        this.scanCompleted = scanCompleted;
     }
 
     getLoginInfo() {
@@ -102,4 +85,4 @@ class ScanEntity {
     }
 }
 
-module.exports = ScanEntity;
+module.exports = TargetEntity;

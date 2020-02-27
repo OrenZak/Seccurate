@@ -23,8 +23,8 @@ const ReportModal: React.FC<Props> = props => {
     };
 
     const renderResultModal = () => {
-        if (resultToShow) {
-            return (
+        return (
+            resultToShow && (
                 <ResultsModal
                     isOpen={showResultModal}
                     onClose={() => {
@@ -33,8 +33,8 @@ const ReportModal: React.FC<Props> = props => {
                     }}
                     result={resultToShow}
                 />
-            );
-        }
+            )
+        );
     };
 
     return (

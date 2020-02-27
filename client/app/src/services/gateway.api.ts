@@ -20,8 +20,9 @@ export default class ApiGateway {
                 body: JSON.stringify({ username, password }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
-                .then(result => ({ response: { result } }))
+                .then(result => {
+                    return { response: { result } };
+                })
                 .catch(error => ({ error }));
         },
         async logout(): Promise<ApiResult<{ result: string }>> {
@@ -31,7 +32,6 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(result => ({ response: { result } }))
                 .catch(error => ({ error }));
         },
@@ -45,9 +45,8 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(parseJSON)
-                .then(response => {
-                    return { response: { targets: [...response._configEntityArray] } };
+                .then(results => {
+                    return { response: { targets: [...results.scansEntityArray] } };
                 })
                 .catch(error => ({ error: error.msg }));
         },
@@ -59,7 +58,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ ...target }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => ({ response: { succeed: true } }))
                 .catch(error => ({ error: error.msg }));
         },
@@ -71,7 +69,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ ...target }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => ({ response: { succeed: true } }))
                 .catch(error => ({ error: error.msg }));
         },
@@ -83,7 +80,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ id }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => ({ response: { succeed: true } }))
                 .catch(error => ({ error: error.msg }));
         },
@@ -97,9 +93,8 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(parseJSON)
-                .then(response => {
-                    return { response: { usersArray: [...response] } };
+                .then(results => {
+                    return { response: { usersArray: [...results] } };
                 })
                 .catch(error => {
                     return { error: error.msg };
@@ -114,11 +109,13 @@ export default class ApiGateway {
                 body: JSON.stringify({ ...payload.user }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => {
                     return { response: { msg: 'registered' } };
                 })
-                .catch(error => ({ error: error.msg }));
+                .catch(error => {
+                    console.log('Create user Error: ', error);
+                    return { error: error.msg };
+                });
         },
 
         async updateUser(payload: UpdateUserParams): Promise<ApiResult<{ msg: string }>> {
@@ -126,10 +123,9 @@ export default class ApiGateway {
                 method: 'PUT',
                 headers: { ...BASE_HEADERS },
                 credentials: 'same-origin',
-                body: JSON.stringify({ ...payload.user, password: '123456' }),
+                body: JSON.stringify({ ...payload.user }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => {
                     console.log('Updated');
                     return { response: { msg: 'updated' } };
@@ -141,14 +137,12 @@ export default class ApiGateway {
         },
 
         async deleteUser(payload: DeleteUserParams): Promise<ApiResult<{ msg: string }>> {
-            return fetch(`${END_POINTS.gatewayURL}/manage_users`, {
+            return fetch(`${END_POINTS.gatewayURL}/manage_users?userName=${payload.userName}`, {
                 method: 'DELETE',
                 headers: { ...BASE_HEADERS },
                 credentials: 'same-origin',
-                body: JSON.stringify({ ...payload }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => {
                     return { response: { msg: 'deleted' } };
                 })
@@ -164,9 +158,8 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(parseJSON)
-                .then(response => {
-                    return { response: { configs: [...response._configEntityArray] } };
+                .then(results => {
+                    return { response: { configs: [...results._configEntityArray] } };
                 })
                 .catch(error => ({ error: error.msg }));
         },
@@ -178,7 +171,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ ...scanConfig }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(configID => ({ response: { scanConfigID: configID } }))
                 .catch(error => ({ error: error.msg }));
         },
@@ -190,7 +182,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ ...scanConfig }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => ({ response: { msg: 'updated' } }))
                 .catch(error => ({ error: error.msg }));
         },
@@ -202,7 +193,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ id }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => ({ response: { msg: 'deleted' } }))
                 .catch(error => ({ error: error.msg }));
         },
@@ -219,9 +209,8 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(parseJSON)
-                .then(response => {
-                    return { response: { scans: [...response.scanEntityArray] } };
+                .then(results => {
+                    return { response: { scans: [...results.scanEntityArray] } };
                 })
                 .catch(error => {
                     return { error: error.msg };
@@ -236,7 +225,6 @@ export default class ApiGateway {
                 body: JSON.stringify({ id: scanId }),
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(() => {
                     return { response: { msg: 'started' } };
                 })
@@ -250,7 +238,6 @@ export default class ApiGateway {
                 credentials: 'same-origin',
             })
                 .then(checkStatus)
-                .then(parseJSON)
                 .then(results => {
                     return { response: { results } };
                 })
@@ -263,15 +250,13 @@ export default class ApiGateway {
 
 async function checkStatus(response: Response) {
     if (response.status >= 200 && response.status < 300) {
-        return response;
+        const jsonResponse = await response.json();
+        const { results } = jsonResponse;
+        return results;
     } else {
-        const { error } = (await parseJSON(response)) as ServerError;
+        const { error } = (await response.json()) as ServerError;
         throw error;
     }
-}
-
-function parseJSON(response: Response) {
-    return response.json();
 }
 
 export interface ServerError {

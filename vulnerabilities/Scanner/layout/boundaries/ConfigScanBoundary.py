@@ -40,7 +40,7 @@ class ConfigScanBoundary:
     def deserialize(serializedConfigScan):
         deserializedDbName = serializedConfigScan["dbName"]
         deserializedScanType = serializedConfigScan["scanType"]
-        deserializedLoginUrl = serializedConfigScan["loginUrl"]
+        deserializedLoginUrl = serializedConfigScan["url"]
         deserializedLoginInfo = serializedConfigScan["loginInfo"]
         return ConfigScanBoundary(dbName=deserializedDbName, scanType=deserializedScanType,
                                   loginUrl=deserializedLoginUrl, loginInfo=deserializedLoginInfo)

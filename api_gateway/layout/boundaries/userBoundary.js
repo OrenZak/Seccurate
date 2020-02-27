@@ -37,6 +37,10 @@ class UserBoundary {
     static deserialize(boundary) {
         return new UserBoundary(boundary.username, boundary.password, boundary.role);
     }
+
+    static deserializeWithNoPassword(boundary) {
+        return new UserBoundary(boundary.username, "", boundary.role);
+    }
 }
 
 module.exports = UserBoundary;

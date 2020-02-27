@@ -24,8 +24,8 @@ interface Errors {
 const LoginContent: React.FC<Props> = props => {
     const classes = useStyles();
 
-    const [username, setUserName] = useState();
-    const [password, setPassword] = useState();
+    const [username, setUserName] = useState('');
+    const [password, setPassword] = useState('');
     const [errors, setErrors] = useState<Errors>({
         usernameError: FIELD_ERRORS.empty,
         passwordError: FIELD_ERRORS.empty,
@@ -96,16 +96,11 @@ const LoginContent: React.FC<Props> = props => {
             </Grid>
             <Grid item xs className={classes.formContainer}>
                 <Grid item xs>
-                    <TextField id="standard-basic" label="Username" fullWidth onChange={handleUsernameChanged} />
+                    <TextField label="Username" fullWidth onChange={handleUsernameChanged} />
                 </Grid>
                 <Grid item xs>
                     <FormControl fullWidth>
-                        <TextField
-                            id="standard-basic"
-                            label="Password"
-                            type={'password'}
-                            onChange={handlePasswordChanged}
-                        />
+                        <TextField label="Password" type={'password'} onChange={handlePasswordChanged} />
                         <FormHelperText error>
                             {props.loginError && !props.loginLoading ? props.loginError : ''}
                         </FormHelperText>

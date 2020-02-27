@@ -1,9 +1,7 @@
-type ScanType = 'all' | 'rxss' | 'sqli';
+type ScanType = 'ALL' | 'RXSS' | 'SQLI';
 type Role = 'ADMIN' | 'USER';
 declare interface Target {
-    id?: string;
     scanID?: string;
-    timestamp?: string;
     name: string;
     description: string;
     url: string;
@@ -27,15 +25,14 @@ declare interface ScanConfig {
 }
 
 declare interface User {
-    id: string;
     username: string;
-    password: string;
+    password?: string;
     role: Role;
 }
 
 declare interface Scan {
     name: string;
-    timestamp: string;
+    scanID: string;
     description: string;
     maxDepth: string;
     timeout: string;
@@ -52,7 +49,7 @@ declare interface Result {
     payload: string;
     recommendation: string;
     requestB64: string;
-    severity: string;
+    severity: number;
     url: string;
     vulnID: string;
 }

@@ -14,7 +14,9 @@ import ScanConfigList from './components/ScanConfigList';
 
 interface Props {
     target?: Target;
+    isEdit: boolean;
     onTargetAdded: ({ target }: AddTargetParams) => void;
+    onSaveConfig: ({ name, config }: AddConfigParams) => void;
 }
 
 const CreateTargetContent: React.FC<Props> = props => {
@@ -25,19 +27,19 @@ const CreateTargetContent: React.FC<Props> = props => {
             description: '',
             url: '',
             name: '',
-            scanType: 'all',
+            scanType: 'ALL',
         },
     );
 
     const [isSaveChecked, setIsSaveChecked] = useState<boolean>(false);
-    const [configName, setConfigName] = useState<string>();
+    const [configName, setConfigName] = useState<string>('');
     const [hasSiteLogin, setHasSiteLogin] = useState<boolean>(false);
     const [formAction, setFormAction] = useState<string>('');
-    const [loginFormFields, setLoginFormFields] = useState<{ [key: string]: string }>({ formAction: '' });
+    const [loginFormFields, setLoginFormFields] = useState<{ [key: string]: string }>({});
     const [addFieldShow, setAddFieldShow] = useState<boolean>(false);
 
     const handleScanTypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-        const scanType: 'all' | 'rxss' | 'sqli' = event.target.value as ScanType;
+        const scanType: ScanType = event.target.value as ScanType;
         setTarget({ ...target, scanType });
     };
 
@@ -93,6 +95,19 @@ const CreateTargetContent: React.FC<Props> = props => {
         }
     };
 
+    const extractFormFields = (loginInfo: LoginInfo) => {
+        console.log(loginInfo);
+        setFormAction(loginInfo.formAction);
+        setLoginFormFields(loginInfo.form);
+    };
+
+    useEffect(() => {
+        if (target?.loginInfo) {
+            setHasSiteLogin(true);
+            extractFormFields(target.loginInfo);
+        }
+    }, []);
+
     useEffect(() => {
         if (isSaveChecked) {
             const scanConfig: ScanConfig = Object.assign({}, target.config, { name: configName });
@@ -116,7 +131,6 @@ const CreateTargetContent: React.FC<Props> = props => {
         return (
             <form noValidate autoComplete="off">
                 <TextField
-                    id="standard-basic"
                     label="Application MainURL"
                     placeholder={'Enter Application MainURL'}
                     fullWidth
@@ -124,7 +138,6 @@ const CreateTargetContent: React.FC<Props> = props => {
                     onChange={handleMainURLChange}
                 />
                 <TextField
-                    id="standard-basic"
                     label="Scan Name"
                     placeholder={'Enter Scan Name'}
                     fullWidth
@@ -132,7 +145,6 @@ const CreateTargetContent: React.FC<Props> = props => {
                     onChange={handleNameChange}
                 />
                 <TextField
-                    id="standard-basic"
                     label="Scan Description"
                     placeholder={'Enter Scan Description'}
                     fullWidth
@@ -150,7 +162,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                                 <TextField
                                     placeholder={'1-10'}
                                     size={'small'}
-                                    value={target.config?.maxDepth}
+                                    value={target.config?.maxDepth ?? ''}
                                     onChange={handleDepthChange}
                                 />
                             </Grid>
@@ -165,7 +177,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                                 <TextField
                                     placeholder={'250-1000(milis)'}
                                     size={'small'}
-                                    value={target.config?.interval}
+                                    value={target.config?.interval ?? ''}
                                     onChange={handleIntervalChange}
                                 />
                             </Grid>
@@ -180,7 +192,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                                 <TextField
                                     placeholder={'10-30(sec)'}
                                     size={'small'}
-                                    value={target.config?.timeout}
+                                    value={target.config?.timeout ?? ''}
                                     onChange={handleTimeoutChange}
                                 />
                             </Grid>
@@ -215,7 +227,6 @@ const CreateTargetContent: React.FC<Props> = props => {
                     </Grid>
                     <Grid item xs>
                         <TextField
-                            id="standard-basic"
                             label="Config Name"
                             placeholder={'Enter Config Name'}
                             disabled={!isSaveChecked}
@@ -229,10 +240,10 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const renderLoginFormFieldList = () => {
-        return Object.entries(loginFormFields).forEach(([key, value]) => {
+        return Object.entries(loginFormFields).map(([key, value]) => {
             return (
                 <Grid item xs>
-                    <TextField id="standard-basic" label={`${key}`} value={value} disabled={!hasSiteLogin} fullWidth />
+                    <TextField label={`${key}`} value={value} disabled={!hasSiteLogin} fullWidth />
                 </Grid>
             );
         });
@@ -273,8 +284,8 @@ const CreateTargetContent: React.FC<Props> = props => {
                 </Grid>
                 <Grid item xs>
                     <TextField
-                        id="standard-basic"
                         label={'Form Action'}
+                        value={formAction}
                         disabled={!hasSiteLogin}
                         fullWidth
                         onChange={handleFormActionChange}
@@ -287,7 +298,8 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const onScanConfigSelected = (scanConfig: ScanConfig) => {
-        console.log(scanConfig);
+        console.log('ScanConfig: ', scanConfig);
+        setTarget({ ...target, config: scanConfig });
     };
 
     const renderScanConfigList = () => {
@@ -305,22 +317,29 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const verifyValues = () => {
-        if (hasSiteLogin && formAction.trim().length == 0) {
+        if (hasSiteLogin && formAction.trim().length === 0) {
             return false;
         }
 
-        if (isSaveChecked && configName?.trim().length == 0) {
+        if (isSaveChecked && configName?.trim().length === 0) {
             return false;
         }
 
         if (
             target.name.trim().length === 0 ||
             target.description.trim().length === 0 ||
-            target.url.trim().length === 0
+            target.url.trim().length === 0 ||
+            target.config === undefined
         ) {
             return false;
         }
+
+        return true;
     };
+
+    const getActionButtonText = () => (props.isEdit ? 'Update' : 'Add Target');
+
+    const getTitleText = () => (props.isEdit ? 'Edit Target' : 'Add New Target');
 
     return (
         <div>
@@ -333,7 +352,7 @@ const CreateTargetContent: React.FC<Props> = props => {
             />
             <Grid container direction={'column'} spacing={1} justify={'center'} alignItems={'center'}>
                 <Grid item>
-                    <h2>Add New Target</h2>
+                    <h2>{getTitleText()}</h2>
                 </Grid>
                 <Grid container item direction={'row'} spacing={3}>
                     <Grid item xs>
@@ -353,10 +372,14 @@ const CreateTargetContent: React.FC<Props> = props => {
                                 onClick={() => {
                                     if (verifyValues()) {
                                         props.onTargetAdded({ target });
+
+                                        if (configName) {
+                                            props.onSaveConfig({ name: configName, config: target.config! });
+                                        }
                                     }
                                 }}
                             >
-                                Add Target
+                                {getActionButtonText()}
                             </Button>
                         </Grid>
                     </Grid>

@@ -20,12 +20,13 @@ import ApiGateway, { ApiResult } from '../../services/gateway.api';
 function handleFetchAllConfigs({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: FetchAllParams }) {
         yield put(fetchConfigsStart());
-        console.log('handleFetchAllConfigs ', payload);
         const result: ApiResult<FetchAllConfigsResponse> = yield call(
             apiGateway.savedConfig.fetchAll,
             payload.page,
             payload.pageCount,
         );
+
+        console.log('handleFetchAllConfigs ', result);
         if (result.error) {
             yield put(fetchConfigsFailed({ error: result.error }));
         } else if (result.response) {

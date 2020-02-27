@@ -7,6 +7,7 @@ function handleLogin({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: LoginParams }) {
         yield put(loginStart());
         const result = yield call(apiGateway.user.login, payload.username, payload.password);
+        console.log('Login ', result);
         if (result.error) {
             yield put(loginFailed({ error: result.error }));
         } else if (result.response) {

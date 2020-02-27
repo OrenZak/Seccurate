@@ -102,9 +102,9 @@ export function selectScanResults(state: { scans: ScansState }) {
 }
 
 // -- SAGA ACTIONS -- //
-export const fetchCompletedScans = createAction<FetchAllParams>(scansSlice.name + '/fetchAllTargets');
-export const startScan = createAction<AddTargetParams>(scansSlice.name + '/addTarget');
-export const fetchScanResults = createAction<UpdateTargetParams>(scansSlice.name + '/updateTarget');
+export const fetchCompletedScans = createAction<FetchAllParams>(scansSlice.name + '/fetchCompletedScans');
+export const startScan = createAction<{ scanId: string }>(scansSlice.name + '/startScan');
+export const fetchScanResults = createAction<{ scanId: string }>(scansSlice.name + '/fetchScanResults');
 
 // -- SAGA ACTIONS -- //
 export const {

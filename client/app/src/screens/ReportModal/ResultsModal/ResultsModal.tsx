@@ -3,7 +3,7 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
-import { Grid } from '@material-ui/core';
+import { Grid, Tooltip } from '@material-ui/core';
 
 interface Props {
     isOpen: boolean;
@@ -63,7 +63,9 @@ const ResultsModal: React.FC<Props> = props => {
                             <h4>Request(Base64):</h4>
                         </Grid>
                         <Grid item>
-                            <div className={classes.request}> {result.requestB64}</div>
+                            <Tooltip title={result.requestB64} aria-label="add">
+                                <div className={classes.request}> {result.requestB64}</div>
+                            </Tooltip>
                         </Grid>
                     </Grid>
                     <Grid container item direction={'row'} justify={'flex-start'} alignItems={'center'} spacing={2}>

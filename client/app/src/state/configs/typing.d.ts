@@ -4,6 +4,7 @@ interface FetchAllConfigsParams {
 }
 
 interface AddConfigParams {
+    name: string;
     config: ScanConfig;
 }
 

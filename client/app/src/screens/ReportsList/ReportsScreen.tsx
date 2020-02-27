@@ -45,6 +45,7 @@ const ReportsScreen: React.FC<Props> = props => {
     }, [scanResults]);
 
     const onTargetClicked = (scan: Scan, index: number) => {
+        console.log('onTargetClicked ', scan);
         startLoader(index);
         fetchResults(scan);
     };
@@ -53,7 +54,7 @@ const ReportsScreen: React.FC<Props> = props => {
         setShowReportModal(false);
     };
 
-    const renderReporModal = () => {
+    const renderReportModal = () => {
         return (
             <div>
                 <ReportModal isOpen={showReportModal} onClose={handleReportModalClose} results={scanResults.data} />
@@ -62,7 +63,7 @@ const ReportsScreen: React.FC<Props> = props => {
     };
 
     const fetchResults = (scan: Scan) => {
-        props.fetchScanResults({ scanId: scan.timestamp });
+        props.fetchScanResults({ scanId: scan.scanID });
     };
 
     const startLoader = (index: number) => {
@@ -84,7 +85,7 @@ const ReportsScreen: React.FC<Props> = props => {
                     />
                 </Grid>
             </Grid>
-            {renderReporModal()}
+            {renderReportModal()}
         </div>
     );
 };
