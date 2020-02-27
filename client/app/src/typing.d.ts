@@ -1,4 +1,4 @@
-type ScanType = 'all' | 'rxss' | 'sqli';
+type ScanType = 'ALL' | 'RXSS' | 'SQLI';
 type Role = 'ADMIN' | 'USER';
 declare interface Target {
     scanID?: string;
@@ -49,7 +49,7 @@ declare interface Result {
     payload: string;
     recommendation: string;
     requestB64: string;
-    severity: string;
+    severity: number;
     url: string;
     vulnID: string;
 }

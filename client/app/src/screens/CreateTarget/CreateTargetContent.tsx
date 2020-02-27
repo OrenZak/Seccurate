@@ -27,7 +27,7 @@ const CreateTargetContent: React.FC<Props> = props => {
             description: '',
             url: '',
             name: '',
-            scanType: 'all',
+            scanType: 'ALL',
         },
     );
 
@@ -35,11 +35,11 @@ const CreateTargetContent: React.FC<Props> = props => {
     const [configName, setConfigName] = useState<string>('');
     const [hasSiteLogin, setHasSiteLogin] = useState<boolean>(false);
     const [formAction, setFormAction] = useState<string>('');
-    const [loginFormFields, setLoginFormFields] = useState<{ [key: string]: string }>({ formAction: '' });
+    const [loginFormFields, setLoginFormFields] = useState<{ [key: string]: string }>({});
     const [addFieldShow, setAddFieldShow] = useState<boolean>(false);
 
     const handleScanTypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-        const scanType: 'all' | 'rxss' | 'sqli' = event.target.value as ScanType;
+        const scanType: ScanType = event.target.value as ScanType;
         setTarget({ ...target, scanType });
     };
 
@@ -94,6 +94,19 @@ const CreateTargetContent: React.FC<Props> = props => {
             setLoginInfo();
         }
     };
+
+    const extractFormFields = (loginInfo: LoginInfo) => {
+        console.log(loginInfo);
+        setFormAction(loginInfo.formAction);
+        setLoginFormFields(loginInfo.form);
+    };
+
+    useEffect(() => {
+        if (target?.loginInfo) {
+            setHasSiteLogin(true);
+            extractFormFields(target.loginInfo);
+        }
+    }, []);
 
     useEffect(() => {
         if (isSaveChecked) {
@@ -227,7 +240,7 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const renderLoginFormFieldList = () => {
-        return Object.entries(loginFormFields).forEach(([key, value]) => {
+        return Object.entries(loginFormFields).map(([key, value]) => {
             return (
                 <Grid item xs>
                     <TextField label={`${key}`} value={value} disabled={!hasSiteLogin} fullWidth />
@@ -272,6 +285,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                 <Grid item xs>
                     <TextField
                         label={'Form Action'}
+                        value={formAction}
                         disabled={!hasSiteLogin}
                         fullWidth
                         onChange={handleFormActionChange}
@@ -284,7 +298,7 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const onScanConfigSelected = (scanConfig: ScanConfig) => {
-        console.log(scanConfig);
+        console.log('ScanConfig: ', scanConfig);
         setTarget({ ...target, config: scanConfig });
     };
 
@@ -303,11 +317,11 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const verifyValues = () => {
-        if (hasSiteLogin && formAction.trim().length == 0) {
+        if (hasSiteLogin && formAction.trim().length === 0) {
             return false;
         }
 
-        if (isSaveChecked && configName?.trim().length == 0) {
+        if (isSaveChecked && configName?.trim().length === 0) {
             return false;
         }
 

@@ -10,6 +10,18 @@ interface Props {
 }
 
 const ReportContent: React.FC<Props> = props => {
+    const getDisplayableSeverity = (severity: number): string => {
+        switch (severity) {
+            case 1:
+                return 'Low';
+            case 2:
+                return 'Medium';
+            case 3:
+                return 'Heigh';
+            default:
+                return '';
+        }
+    };
     const renderItem = ({ index }: ListChildComponentProps) => {
         const result = props.results[index];
         return (
@@ -17,7 +29,10 @@ const ReportContent: React.FC<Props> = props => {
                 <ListItemIcon>
                     <ErrorIcon />
                 </ListItemIcon>
-                <ListItemText primary={result.name + ' - ' + result.severity} secondary={result.url} />
+                <ListItemText
+                    primary={result.name + ' - ' + getDisplayableSeverity(result.severity)}
+                    secondary={result.url}
+                />
                 <ListItemText
                     primary={<Link>See more...</Link>}
                     onClick={() => {
