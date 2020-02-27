@@ -54,7 +54,7 @@ const ReportsScreen: React.FC<Props> = props => {
         setShowReportModal(false);
     };
 
-    const renderReporModal = () => {
+    const renderReportModal = () => {
         return (
             <div>
                 <ReportModal isOpen={showReportModal} onClose={handleReportModalClose} results={scanResults.data} />
@@ -85,7 +85,7 @@ const ReportsScreen: React.FC<Props> = props => {
                     />
                 </Grid>
             </Grid>
-            {renderReporModal()}
+            {renderReportModal()}
         </div>
     );
 };

@@ -73,10 +73,10 @@ class SavedConfigurationCRUD {
     }
 
     getValueCount(callback) {
-        const sql = `SELECT COUNT(*) FROM ??`
+        const sql = `SELECT COUNT(*) as value FROM ??`
         this.conn.query(sql,[this.table_name], function (err, result) {
             if (!err) {
-                callback(null, result)
+                callback(null, result[0].value)
             }
             else {
                 console.log(err)

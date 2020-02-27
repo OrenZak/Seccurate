@@ -42,7 +42,6 @@ class LogicService {
                 console.log('dont completing scan at db');
             }
         });
-
     }
 
     async updateScanTarget(interval, maxDepth, timeout, scanType, url, loginInfo, name, description, scanID) {
@@ -206,8 +205,8 @@ class LogicService {
         }, 0, 200)
     }
 
-    async updateUser(username, password, role, callback) {
-        if (!username.trim() || !password.trim()) {
+    async updateUser(username, role, callback) {
+        if (!username.trim()) {
             callback(null);
             return;
         }
@@ -226,9 +225,7 @@ class LogicService {
                     if (role === "ADMIN") {
                         isAdmin = true;
                     }
-                    let salt = bcrypt.genSaltSync(saltRounds);
-                    let hash = bcrypt.hashSync(password, salt);
-                    let userEntity = new UsersEntity(username, salt, hash, isAdmin);
+                    let userEntity = new UsersEntity(username, "","", isAdmin);
                     // store user in the db
                     let newUser = usersDao.updateValue(userEntity, (err2, results2) => {
                         if (err) {
@@ -275,7 +272,7 @@ class LogicService {
         });
     }
 
-    async newSavedConfig(name=null, interval, maxDepth, timeout) {
+    async newSavedConfig(name = null, interval, maxDepth, timeout) {
         let dbName = 'test';
         let savedConfigDao = new SavedConfigurarionDao(dbName);
         let savedConfigEntity = new SavedConfigEntity(null, name, maxDepth, timeout, interval);
@@ -329,6 +326,44 @@ class LogicService {
                 callback(scans);
             }
         }, page, size);
+    }
+
+    async getCompletedScansCount(callback) {
+        let dbName = 'test';
+        let scansDao = new ScansDao(dbName);
+        scansDao.getCompletedCount((err, count) => {
+            if (err) {
+                throw err;
+            } else {
+                callback(count);
+            }
+        });
+
+    }
+
+    async getTargetsCount(callback) {
+        let dbName = 'test';
+        let scansDao = new ScansDao(dbName);
+        scansDao.getNotCompletedCount((err, count) => {
+            if (err) {
+                throw err;
+            } else {
+                callback(count);
+            }
+        });
+    }
+
+    async getConfigsCount(callback) {
+        let dbName = 'test';
+        let savedConfigDao = new SavedConfigurarionDao(dbName);
+        savedConfigDao.getValueCount((err, count) => {
+            if (err) {
+                throw err;
+            } else {
+                callback(count);
+            }
+        })
+
     }
 
 }

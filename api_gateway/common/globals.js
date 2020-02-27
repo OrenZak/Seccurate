@@ -6,20 +6,20 @@ const SCAN_CRUD_TABLE = 'scans';
 const USERS_CRUD_TABLE = 'users';
 const VULN_TABLE_PREFIX = 'vuln_';
 const DB_INFO = {
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: '',
-    database: "test"
+  host: 'localhost',
+  port: 3306,
+  user: 'root',
+  password: '',
+  database: 'test'
 };
 
 module.exports = {
-    VULNERABILITY_MICROSERVICE_REST,
-    VULNERABILITY_MICROSERVICE_SOCKETIO,
-    CRAWLER_MICROSERVICE,
-    API_GW_DB_NAME,
-    SCAN_CRUD_TABLE,
-    VULN_TABLE_PREFIX,
-    USERS_CRUD_TABLE,
-    DB_INFO
+  VULNERABILITY_MICROSERVICE_REST,
+  VULNERABILITY_MICROSERVICE_SOCKETIO,
+  CRAWLER_MICROSERVICE,
+  API_GW_DB_NAME,
+  SCAN_CRUD_TABLE,
+  VULN_TABLE_PREFIX,
+  USERS_CRUD_TABLE,
+  DB_INFO
 };
