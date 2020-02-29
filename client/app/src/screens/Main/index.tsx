@@ -7,6 +7,7 @@ import { RootState } from '../../state/rootReducer';
 import LoginModal from '../Login';
 import Screens from '../screen';
 import AppNavDrawer from './components/AppNavDrawer';
+import { withCookies, ReactCookieProps } from 'react-cookie';
 
 interface OwnProps {}
 
@@ -20,7 +21,7 @@ interface DispatchProps {
     login: typeof login;
 }
 
-type Props = OwnProps & ConnectedProps & DispatchProps;
+type Props = OwnProps & ConnectedProps & DispatchProps & ReactCookieProps;
 
 const MainScreen: React.FC<Props> = props => {
     const classes = useStyles();
@@ -33,6 +34,7 @@ const MainScreen: React.FC<Props> = props => {
         props.login({ username, password });
     };
 
+    console.log(props.cookies?.getAll());
     return (
         <div className={classes.container}>
             <div>
@@ -43,9 +45,9 @@ const MainScreen: React.FC<Props> = props => {
                     }}
                 />
             </div>
-            {props.loggedIn && <CurrentScreen />}
+            {props.cookies?.get('user_sid') && <CurrentScreen />}
             <LoginModal
-                isOpen={!props.loggedIn}
+                isOpen={!props.cookies?.get('user_sid')}
                 onLoginClicked={handleLogin}
                 loginError={props.loginError}
                 loginLoading={props.loginLoading}
@@ -82,4 +84,4 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
     );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MainScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(withCookies(MainScreen));

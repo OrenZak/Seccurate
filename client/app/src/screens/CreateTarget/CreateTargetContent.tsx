@@ -103,8 +103,11 @@ const CreateTargetContent: React.FC<Props> = props => {
 
     useEffect(() => {
         if (target?.loginInfo) {
-            setHasSiteLogin(true);
-            extractFormFields(target.loginInfo);
+            const ent = Object.entries(target?.loginInfo!);
+            if (ent.length > 0) {
+                setHasSiteLogin(true);
+                extractFormFields(target.loginInfo);
+            }
         }
     }, []);
 

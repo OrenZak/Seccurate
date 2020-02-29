@@ -45,6 +45,7 @@ const CreateTargetModal: React.FC<Props> = props => {
         if (props.target) {
             // is edit mode
             props.updateTarget({ target });
+            props.onClose();
         } else {
             props.addTarget({ target });
             props.onClose();
