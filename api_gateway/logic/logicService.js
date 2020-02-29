@@ -22,6 +22,10 @@ let bcrypt = require('bcrypt-nodejs');
 
 let currentID;
 let saltRounds = 10;
+let dbName = 'test';
+let scansDao = new ScansDao(dbName);
+let usersDao = new UsersDao(dbName);
+let savedConfigDao = new SavedConfigurarionDao(dbName);
 
 class LogicService {
     constructor(server) {
@@ -38,8 +42,8 @@ class LogicService {
 
     scanDoneCallback() {
         console.log('entered scan Done Callback with ' + currentID);
-        let dbName = 'test';
-        let scansDao = new ScansDao(dbName);
+        //let dbName = 'test';
+        //let scansDao = new ScansDao(dbName);
         scansDao.updateScanFinished(currentID, (err, result) => {
             if (!err) {
                 console.log('scan finished');
@@ -60,8 +64,8 @@ class LogicService {
         scanID
     ) {
         try {
-            let dbName = 'test';
-            let scansDao = new ScansDao(dbName);
+           // let dbName = 'test';
+            //let scansDao = new ScansDao(dbName);
             let scanEntity = new ScanEntity(
                 name,
                 scanID,
@@ -92,8 +96,8 @@ class LogicService {
         description
     ) {
         try {
-            let dbName = 'test';
-            let scansDao = new ScansDao(dbName);
+            //let dbName = 'test';
+            //let scansDao = new ScansDao(dbName);
             let pageTableID =
                 new Date()
                     .toString()
@@ -130,8 +134,8 @@ class LogicService {
 
     async deleteTarget(scanID) {
         try {
-            let dbName = 'test';
-            let scansDao = new ScansDao(dbName);
+            //let dbName = 'test';
+            //let scansDao = new ScansDao(dbName);
             scansDao.deleteValue(scanID);
         } catch (error) {
             throw error;
@@ -140,8 +144,8 @@ class LogicService {
 
     async getTargets(page, size, callback) {
         try {
-            let dbName = 'test';
-            let scansDao = new ScansDao(dbName);
+            //let dbName = 'test';
+            //let scansDao = new ScansDao(dbName);
             scansDao.getAllNotCompleted(
                 (err, results) => {
                     if (err) {
@@ -177,8 +181,8 @@ class LogicService {
         try {
             if(currentID) {
                 currentID = id;
-                let dbName = 'test';
-                let scansDao = new ScansDao(dbName);
+                //let dbName = 'test';
+                //let scansDao = new ScansDao(dbName);
                 scansDao.getValue(id, (err, value) => {
                   if (err) {
                     throw err;
@@ -242,8 +246,8 @@ class LogicService {
     }
 
     async login(username, password, callback) {
-        let dbName = 'test';
-        let usersDao = new UsersDao(dbName);
+        //let dbName = 'test';
+        //let usersDao = new UsersDao(dbName);
         usersDao.getValue(username, (err, results) => {
             if (err) {
                 console.log(err);
@@ -277,8 +281,8 @@ class LogicService {
         if (!username.trim() || !password.trim()) {
             callback(false);
         }
-        let dbName = 'test';
-        let usersDao = new UsersDao(dbName);
+        //let dbName = 'test';
+        //let usersDao = new UsersDao(dbName);
         usersDao.getValue(username, (err, results) => {
             if (err) {
                 console.log(err);
@@ -310,8 +314,8 @@ class LogicService {
     }
 
     async getAllUsers(callback) {
-        let dbName = 'test';
-        let usersDao = new UsersDao(dbName);
+        //let dbName = 'test';
+        //let usersDao = new UsersDao(dbName);
         usersDao.getAll(
             (err, results) => {
                 if (err) {
@@ -330,8 +334,8 @@ class LogicService {
             callback(null);
             return;
         }
-        let dbName = 'test';
-        let usersDao = new UsersDao(dbName);
+        //let dbName = 'test';
+        //let usersDao = new UsersDao(dbName);
         // check if user exist
         usersDao.getValue(username, (err, results) => {
             if (err) {
@@ -363,8 +367,8 @@ class LogicService {
     }
 
     async deleteUser(username, callback) {
-        let dbName = 'test';
-        let usersDao = new UsersDao(dbName);
+        //let dbName = 'test';
+        //let usersDao = new UsersDao(dbName);
         // check if user exist
         console.log('');
         usersDao.getValue(username, (err, results) => {
@@ -392,8 +396,8 @@ class LogicService {
 
     async newSavedConfig(name = null, interval, maxDepth, timeout) {
         try {
-            let dbName = 'test';
-            let savedConfigDao = new SavedConfigurarionDao(dbName);
+            //let dbName = 'test';
+            //let savedConfigDao = new SavedConfigurarionDao(dbName);
             let savedConfigEntity = new SavedConfigEntity(
                 null,
                 name,
@@ -410,8 +414,8 @@ class LogicService {
 
     async updateSavedConfig(id, name, interval, maxDepth, timeout) {
         try {
-            let dbName = 'test';
-            let savedConfigDao = new SavedConfigurarionDao(dbName);
+            //let dbName = 'test';
+            //let savedConfigDao = new SavedConfigurarionDao(dbName);
             let configEntity = new SavedConfigEntity(
                 id,
                 name,
@@ -428,8 +432,8 @@ class LogicService {
 
     async deleteSavedConfig(id) {
         try {
-            let dbName = 'test';
-            let savedConfigDao = new SavedConfigurarionDao(dbName);
+            //let dbName = 'test';
+            //let savedConfigDao = new SavedConfigurarionDao(dbName);
             savedConfigDao.deleteValue(id);   
         } catch (error) {
             throw error;
@@ -438,8 +442,8 @@ class LogicService {
 
     async getSavedConfigs(page, size, callback) {
         try {
-            let dbName = 'test';
-            let savedConfigDao = new SavedConfigurarionDao(dbName);
+            //let dbName = 'test';
+            //let savedConfigDao = new SavedConfigurarionDao(dbName);
             savedConfigDao.getAll(
                 (err, results) => {
                     if (err) {
@@ -469,8 +473,8 @@ class LogicService {
 
     async getCompletedScans(page, size, callback) {
         try {
-            let dbName = 'test';
-            let scansDao = new ScansDao(dbName);
+            //let dbName = 'test';
+            //let scansDao = new ScansDao(dbName);
             scansDao.getAllCompleted(
                 (err, results) => {
                     if (err) {
@@ -503,8 +507,8 @@ class LogicService {
 
     async getCompletedScansCount(callback) {
         try {
-            let dbName = 'test';
-            let scansDao = new ScansDao(dbName);
+            //let dbName = 'test';
+            //let scansDao = new ScansDao(dbName);
             scansDao.getCompletedCount((err, count) => {
                 if (err) {
                     throw err;
@@ -519,8 +523,8 @@ class LogicService {
 
     async getTargetsCount(callback) {
         try {
-            let dbName = 'test';
-            let scansDao = new ScansDao(dbName);
+            //let dbName = 'test';
+            //let scansDao = new ScansDao(dbName);
             scansDao.getNotCompletedCount((err, count) => {
                 if (err) {
                     throw err;
@@ -535,8 +539,8 @@ class LogicService {
 
     async getConfigsCount(callback) {
         try {
-            let dbName = 'test';
-            let savedConfigDao = new SavedConfigurarionDao(dbName);
+            //let dbName = 'test';
+            //let savedConfigDao = new SavedConfigurarionDao(dbName);
             savedConfigDao.getValueCount((err, count) => {
                 if (err) {
                     throw err;
