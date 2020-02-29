@@ -1,7 +1,7 @@
 const mysql = require('mysql2');
 const configurationEntity = require('../data/SavedConfigurationEntity');
 const globals = require('../common/globals');
-import * as vaildators from '../dao/dataValidation';
+const vaildators = require('../dao/dataValidation');
 
 class SavedConfigurationCRUD {
     constructor(db) {//should become db_type and read from globals

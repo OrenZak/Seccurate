@@ -1,7 +1,7 @@
 const mysql = require('mysql2');
 const pageEntity = require('../data/PageEntity');
 const globals = require('../common/globals');
-import * as vaildators from '../dao/dataValidation';
+const vaildators = require('../dao/dataValidation');
 
 
 class PageCRUD {

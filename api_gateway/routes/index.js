@@ -83,7 +83,7 @@ router.get(PATHS.CONFIGS_COUNT, async function(req, res, next) {
       res.status(200).send({ results: count });
     });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -93,7 +93,7 @@ router.get(PATHS.TARGETS_COUNT, async function(req, res, next) {
       res.status(200).send({ results: count });
     });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -103,7 +103,7 @@ router.get(PATHS.COMPLETED_SCANS_COUNT, async function(req, res, next) {
       res.status(200).send({ results: count });
     });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -114,7 +114,7 @@ router.get(PATHS.GET_COMPLETED_SCANS, function(req, res, next) {
       res.status(200).send({ results: scansResponseBoundary });
     });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -124,7 +124,7 @@ router.post(PATHS.START_SCAN, async function(req, res, next) {
     logicService.startCrawl(crawlBoundary.id);
     res.status(200).send({ results: 'started crawling' });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -143,7 +143,7 @@ router.post(PATHS.CONFIG_TARGET, async function(req, res, next) {
     );
     res.status(200).send({ results: result });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -168,7 +168,7 @@ router.put(PATHS.CONFIG_TARGET, async function(req, res, next) {
     console.log('router.put(PATHS.CONFIG_TARGET', result);
     res.status(200).send({ results: result });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -178,7 +178,7 @@ router.delete(PATHS.CONFIG_TARGET, async function(req, res, next) {
     let result = await logicService.deleteTarget(deleteBoundary.ID);
     res.status(200).send({ results: result });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -189,7 +189,7 @@ router.get(PATHS.CONFIG_TARGET, async function(req, res, next) {
       res.status(200).send({ results: targetsBoundary });
     });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -216,7 +216,7 @@ router.post(PATHS.LOGIN, function(req, res, next) {
       );
     }
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -229,7 +229,7 @@ router.post(PATHS.LOGOUT, function(req, res, next) {
       res.status(500).send({ error: 'Login first' });
     }
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -253,7 +253,7 @@ router.post(PATHS.MANAGE_USERS, function(req, res, next) {
       }
     );
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -273,7 +273,7 @@ router.delete(PATHS.MANAGE_USERS, function(req, res, next) {
       }
     }
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -306,7 +306,7 @@ router.put(PATHS.MANAGE_USERS, function(req, res, next) {
         .send({ results: 'This method can be performed only by admin' });
     }
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -343,7 +343,7 @@ router.get(PATHS.USERS, function(req, res, next) {
         .send({ error: 'This method can be performed only by admin' });
     }
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -368,7 +368,7 @@ router.get(PATHS.GET_RESULTS, function(req, res, next) {
       res.status(200).send({ results: resultsArray });
     });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -379,7 +379,7 @@ router.get(PATHS.SAVED_CONFIG, async function(req, res, next) {
       res.status(200).send({ results: configsBoundary });
     });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -396,7 +396,7 @@ router.post(PATHS.SAVED_CONFIG, async function(req, res, next) {
     );
     res.status(200).send({ results: result });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -412,7 +412,7 @@ router.put(PATHS.SAVED_CONFIG, async function(req, res, next) {
     );
     res.status(200).send({ results: result });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 
@@ -422,7 +422,7 @@ router.delete(PATHS.SAVED_CONFIG, async function(req, res, next) {
     let result = await logicService.deleteSavedConfig(deleteBoundary.ID);
     res.status(200).send({ results: result });
   } catch (error) {
-    res.status(500).send({ error: error });
+    res.status(500).send({ error: error.message });
   }
 });
 

@@ -1,6 +1,6 @@
 const mysql = require('mysql2');
 const globals = require('../common/globals');
-import * as vaildators from '../dao/dataValidation';
+const vaildators = require('../dao/dataValidation');
 
 class UsersCRUD {
     constructor(db_type) {//should be read from globals
@@ -78,8 +78,10 @@ class UsersCRUD {
 	validateValue (value) {
         if (!vaildators.checkString(value.getUsername()))
             throw new Error('Wrong userName value supplied');
-        if (!vaildators.checkString(value.getSalt()))
-            throw new Error('Wrong salt value supplied');
+        if (value.getSalt() && !vaildators.checkString(value.getSalt()))
+			throw new Error('Wrong salt value supplied');
+		if (value.getPasswordHash() && !vaildators.checkString(value.getPasswordHash()))
+			throw new Error('Wrong password value supplied');
         if (value.getAdmin() != 0 && value.getAdmin() != 1)
             throw new Error('Wrong url value supplied');
     }

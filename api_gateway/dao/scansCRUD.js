@@ -1,6 +1,6 @@
 const mysql = require('mysql2');
 const globals = require('../common/globals');
-import * as vaildators from '../dao/dataValidation';
+const vaildators = require('../dao/dataValidation');
 
 class ScansDataCRUD {
     constructor(db_type) {//should become db_type and read from globals

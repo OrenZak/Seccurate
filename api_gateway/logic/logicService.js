@@ -128,6 +128,7 @@ class LogicService {
             scansDao.insertValue(scanEntity);
             return scanID;
         } catch (error) {
+            console.log('In logic servic: ' + error);
             throw error;
         }
     }
@@ -281,36 +282,38 @@ class LogicService {
         if (!username.trim() || !password.trim()) {
             callback(false);
         }
+        else {
         //let dbName = 'test';
         //let usersDao = new UsersDao(dbName);
-        usersDao.getValue(username, (err, results) => {
-            if (err) {
-                console.log(err);
-                callback(null);
-            } else {
-                // check if user exist
-                if (results.length == 1) {
-                    // user exists
-                    callback(false);
+            usersDao.getValue(username, (err, results) => {
+                if (err) {
+                    console.log(err);
+                    callback(null);
                 } else {
-                    let isAdmin = false;
-                    if (role == 'ADMIN') {
-                        isAdmin = true;
-                    }
-                    let salt = bcrypt.genSaltSync(saltRounds);
-                    let hash = bcrypt.hashSync(password, salt);
-                    let userEntity = new UsersEntity(username, salt, hash, isAdmin);
-                    // store user in the db
-                    usersDao.insertValue(userEntity, (err, newUser) => {
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            callback(newUser);
+                    // check if user exist
+                    if (results.length == 1) {
+                        // user exists
+                        callback(false);
+                    } else {
+                        let isAdmin = false;
+                        if (role == 'ADMIN') {
+                            isAdmin = true;
                         }
-                    });
+                        let salt = bcrypt.genSaltSync(saltRounds);
+                        let hash = bcrypt.hashSync(password, salt);
+                        let userEntity = new UsersEntity(username, salt, hash, isAdmin);
+                        // store user in the db
+                        usersDao.insertValue(userEntity, (err, newUser) => {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                callback(newUser);
+                            }
+                        });
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     async getAllUsers(callback) {
@@ -334,36 +337,38 @@ class LogicService {
             callback(null);
             return;
         }
-        //let dbName = 'test';
-        //let usersDao = new UsersDao(dbName);
-        // check if user exist
-        usersDao.getValue(username, (err, results) => {
-            if (err) {
-                console.log(err);
-                callback(null);
-            } else {
-                // check if user exist
-                if (results.length == 1) {
-                    // user exists
-                    let isAdmin = false;
-                    if (role === 'ADMIN') {
-                        isAdmin = true;
-                    }
-                    let userEntity = new UsersEntity(username, '', '', isAdmin);
-                    // store user in the db
-                    let newUser = usersDao.updateValue(userEntity, (err2, results2) => {
-                        if (err) {
-                            console.log(err);
-                            callback(null);
-                        } else {
-                            callback(newUser);
-                        }
-                    });
+        else {
+            //let dbName = 'test';
+            //let usersDao = new UsersDao(dbName);
+            // check if user exist
+            usersDao.getValue(username, (err, results) => {
+                if (err) {
+                    console.log(err);
+                    callback(null);
                 } else {
-                    callback(false);
+                    // check if user exist
+                    if (results.length == 1) {
+                        // user exists
+                        let isAdmin = false;
+                        if (role === 'ADMIN') {
+                            isAdmin = true;
+                        }
+                        let userEntity = new UsersEntity(username, '', '', isAdmin);
+                        // store user in the db
+                        let newUser = usersDao.updateValue(userEntity, (err2, results2) => {
+                            if (err) {
+                                console.log(err);
+                                callback(null);
+                            } else {
+                                callback(newUser);
+                            }
+                        });
+                    } else {
+                        callback(false);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     async deleteUser(username, callback) {
