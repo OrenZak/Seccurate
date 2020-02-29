@@ -1,5 +1,6 @@
 const mysql = require('mysql2');
 const globals = require('../common/globals');
+import * as vaildators from '../dao/dataValidation';
 
 class UsersCRUD {
     constructor(db_type) {//should be read from globals
@@ -33,6 +34,7 @@ class UsersCRUD {
 	}
 
 	insertValue(value, callback) {
+		this.validateValue(value);
 		const sql = `INSERT INTO ?? VALUES (?,?,?,?)`;
 		this.conn.query(
 			sql,
@@ -48,6 +50,7 @@ class UsersCRUD {
 	}
 
 	updateValue(new_value, callback) {
+		this.validateValue(new_value);
 		this.getValue(new_value.getUsername(), function(err, res) {
 			if (err) {
 				throw err;
@@ -71,6 +74,15 @@ class UsersCRUD {
 		);
 		return new_value;
 	}
+
+	validateValue (value) {
+        if (!vaildators.checkString(value.getUsername()))
+            throw new Error('Wrong userName value supplied');
+        if (!vaildators.checkString(value.getSalt()))
+            throw new Error('Wrong salt value supplied');
+        if (value.getAdmin() != 0 && value.getAdmin() != 1)
+            throw new Error('Wrong url value supplied');
+    }
 
 	getValue(username, callback) {
 		const sql = `SELECT * FROM ?? WHERE username=?`;

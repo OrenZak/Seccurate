@@ -12,6 +12,20 @@ const DB_INFO = {
   password: '',
   database: 'test'
 };
+const THRESHOLD_VALUES = {
+  maxDepth: {
+    max: 10,
+    min: 1
+  },
+  interval: {
+    min: 250,
+    max: 1000
+  },
+  timeout: {
+    max: 30,
+    min: 10
+  }
+}
 
 module.exports = {
   VULNERABILITY_MICROSERVICE_REST,
@@ -21,5 +35,6 @@ module.exports = {
   SCAN_CRUD_TABLE,
   VULN_TABLE_PREFIX,
   USERS_CRUD_TABLE,
-  DB_INFO
+  DB_INFO,
+  THRESHOLD_VALUES
 };

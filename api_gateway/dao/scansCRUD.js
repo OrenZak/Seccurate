@@ -1,5 +1,6 @@
 const mysql = require('mysql2');
 const globals = require('../common/globals');
+import * as vaildators from '../dao/dataValidation';
 
 class ScansDataCRUD {
     constructor(db_type) {//should become db_type and read from globals
@@ -35,6 +36,7 @@ class ScansDataCRUD {
     }
 
     insertValue(value) {
+        this.validateValue(value);
         if (!value.getLoginInfo()) {
             const sql2 = `INSERT INTO ?? VALUES (name, scanID, description, pageTableID, maxDepth, timeout, interval_crawler, scanType, scanCompleted, url)`
             this.conn.query(sql2, [this.table_name, value.getName(), value.getScanID(), value.getDescription(),
@@ -58,6 +60,7 @@ class ScansDataCRUD {
     }
 
     updateValue(new_value) {
+        this.validateValue(new_value);
         this.getValue(new_value.getScanID(), function (err, res) {
             if (err) {
                 throw new Error('No such value ' + new_value.getName() + '\n' + err)
@@ -85,6 +88,23 @@ class ScansDataCRUD {
             })
         }
         return new_value
+    }
+
+    validateValue (value) {
+        if (!vaildators.checkNumericValues('interval', value.getInterval()))
+            throw new Error('Wrong interval value supplied');
+        if (!vaildators.checkNumericValues('maxDepth', value.getMaxDepth()))
+            throw new Error('Wrong maxDepth value supplied');
+        if (!vaildators.checkNumericValues('timeout', value.getTimeout()))
+            throw new Error('Wrong timeout value supplied');
+        if (!vaildators.checkString(value.getName()))
+            throw new Error('Wrong name value supplied');
+        if (!vaildators.checkString(value.getDescription()))
+            throw new Error('Wrong description value supplied');
+        if (!vaildators.checkString(value.getURL()))
+            throw new Error('Wrong url value supplied');
+        if (value.getLoginInfo() && !vaildators.checkString(value.getLoginInfo()))
+            throw new Error('Wrong login info value supplied');
     }
 
     updateScanFinished(scanID, callback){
