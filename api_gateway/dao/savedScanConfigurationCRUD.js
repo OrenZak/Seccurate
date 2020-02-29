@@ -9,7 +9,7 @@ class SavedConfigurationCRUD {
         this.conn = mysql.createConnection(dbInfo);
         this.conn.connect(function(err) {
             if (err) {
-                console.error('error: ' + err);
+                throw err;
             } else {
                 console.log("mysql connected")
             }
@@ -22,10 +22,9 @@ class SavedConfigurationCRUD {
         const sql = `CREATE TABLE IF NOT EXISTS ?? (id VARCHAR(100) PRIMARY KEY, name VARCHAR(100) UNIQUE, maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, UNIQUE KEY unique_scan (maxDepth,timeout,interval_crawler))`
         this.conn.query(sql, [this.table_name], function(err) {
             if (err) {
-                console.log(err)
+                throw err;
             }
         })
-        //this.conn.commit()
     }
 
     insertValue(value) {
@@ -35,10 +34,9 @@ class SavedConfigurationCRUD {
             name = value.getName()
         }
         const sql = `INSERT INTO ?? VALUES (?,?,?,?,?)`
-        //TODO: I assume that all three extra values are here. This should be checked in a different layer
         this.conn.query(sql, [this.table_name, id, name, value.getMaxDepth(), value.getTimeout(), value.getInterval()], (err) => {
             if (err) {
-                console.log(err)
+                throw err;
             }
         })
         value.setID(id)
@@ -54,7 +52,7 @@ class SavedConfigurationCRUD {
         const sql = `UPDATE ?? SET name=?, maxDepth=?, timeout=?, interval_crawler=? WHERE id=?`
         this.conn.query(sql,[this.table_name, new_value.getName(), new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(), new_value.getID()], (err) => {
             if (err) {
-                console.log(err)
+                throw err;
             }
         })
         return new_value
@@ -67,7 +65,7 @@ class SavedConfigurationCRUD {
                 callback(null, result)
             }
             else {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -79,24 +77,10 @@ class SavedConfigurationCRUD {
                 callback(null, result[0].value)
             }
             else {
-                console.log(err)
+                throw err;
             }
         })
     }
-
-    //I don't think we use it (didn't find references), so for now it's commented out
-    // getIDByValue(value, callback)
-    // {
-    //     const sql = `SELECT id FROM ?? WHERE maxDepth=? AND timeout=? AND interval_crawler=? AND maxConcurrency=?`
-    //     this.conn.query(sql,[this.table_name, value.getMaxDepth(), value.getTimeout(), value.getInterval(), value.getMaxConcurrency()], function (err, result) {
-    //         if (!err) {
-    //             callback(null, result)
-    //         }
-    //         else {
-    //             console.log(err)
-    //         }
-    //     })
-    // }
 
     getAll(callback, page=0, size=10) {
         let intPage = parseInt(page,10);
@@ -107,7 +91,7 @@ class SavedConfigurationCRUD {
                 callback(null, results)
             }
             else {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -121,7 +105,7 @@ class SavedConfigurationCRUD {
         const sql = `DELETE FROM ?? WHERE id=?`
         this.conn.query(sql, [this.table_name, id, (err) => {
             if (err) {
-                console.log(err)
+                throw err;
             }
         }])
     }
@@ -130,7 +114,7 @@ class SavedConfigurationCRUD {
         const sql = `DELETE FROM ??`
         this.conn.query(sql, [this.table_name], (err) => {
             if (err) {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -139,7 +123,7 @@ class SavedConfigurationCRUD {
         const sql = `DROP TABLE ??`
         return this.conn.query(sql, [this.table_name], (err) => {
             if (err) {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -147,7 +131,7 @@ class SavedConfigurationCRUD {
     closeConnection() {
         this.conn.end(function(err) {
             if (err) {
-                console.log(err)
+                throw err;
             }
         })
         console.log('disconnected from db')
