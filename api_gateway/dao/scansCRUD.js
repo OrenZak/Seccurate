@@ -16,7 +16,7 @@ class ScansDataCRUD {
         this.conn = mysql.createConnection(dbInfo);
         this.conn.connect(function(err) {
             if (err) {
-                console.error('error: ' + err);
+                throw err;
             } else {
                 console.log("mysql connected")
             }
@@ -29,7 +29,7 @@ class ScansDataCRUD {
         const sql = `CREATE TABLE IF NOT EXISTS ?? (name VARCHAR(100), scanID VARCHAR(30) PRIMARY KEY, description VARCHAR(200), pageTableID VARCHAR(100), maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, scanType VARCHAR(100) NOT NULL, scanCompleted BOOLEAN, loginInfo VARCHAR(300), url VARCHAR(200))`
         this.conn.query(sql, [this.table_name], function(err) {
             if (err) {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -41,7 +41,7 @@ class ScansDataCRUD {
                 value.getPageTableID(), value.getMaxDepth(),value.getTimeout(), value.getInterval(),
                 value.getScanType(), value.isScanCompleted(), value.getURL()], (err) => {
                 if (err) {
-                    console.log(err)
+                    throw err;
                 }
             })
         }
@@ -51,7 +51,7 @@ class ScansDataCRUD {
                 value.getPageTableID(), value.getMaxDepth(), value.getTimeout(), value.getInterval(),
                 value.getScanType(), value.isScanCompleted(), value.getLoginInfo(), value.getURL()], (err) => {
                 if (err) {
-                    console.log(err)
+                    throw err;
                 }
             })
         }
@@ -69,7 +69,7 @@ class ScansDataCRUD {
                 new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(),
                 new_value.getScanType(), new_value.isScanCompleted(), new_value.getURL(), new_value.getScanID()], (err) => {
                 if (err) {
-                    console.log(err)
+                    throw err;
                 }
             })
         }
@@ -80,7 +80,7 @@ class ScansDataCRUD {
                 new_value.getScanType(), new_value.isScanCompleted(), new_value.getLoginInfo(),
                 new_value.getURL(), new_value.getScanID()], (err) => {
                 if (err) {
-                    console.log(err)
+                    throw err;
                 }
             })
         }
@@ -94,7 +94,7 @@ class ScansDataCRUD {
                 callback(null, result)
             }
             else{
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -106,7 +106,7 @@ class ScansDataCRUD {
                 callback(null, result)
             }
             else {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -118,7 +118,7 @@ class ScansDataCRUD {
                 callback(null, result[0].value)
             }
             else {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -130,7 +130,7 @@ class ScansDataCRUD {
                 callback(null, result[0].value)
             }
             else {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -144,7 +144,7 @@ class ScansDataCRUD {
                 callback(null, results)
             }
             else {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -158,7 +158,7 @@ class ScansDataCRUD {
                 callback(null, results)
             }
             else {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -172,7 +172,7 @@ class ScansDataCRUD {
         const sql = `DELETE FROM ?? WHERE scanID=?`
         this.conn.query(sql, [this.table_name, scanID, (err) => {
             if (err) {
-                console.log(err)
+                throw err;
             }
         }])
     }
@@ -181,7 +181,7 @@ class ScansDataCRUD {
         const sql = `DELETE FROM ??`
         this.conn.query(sql, [this.table_name], (err) => {
             if (err) {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -190,7 +190,7 @@ class ScansDataCRUD {
         const sql = `DROP TABLE ??`
         return this.conn.query(sql, [this.table_name], (err) => {
             if (err) {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -198,7 +198,7 @@ class ScansDataCRUD {
     closeConnection() {
         this.conn.end(function(err) {
             if (err) {
-                console.log(err)
+                throw err;
             }
         })
         console.log('disconnected from db')

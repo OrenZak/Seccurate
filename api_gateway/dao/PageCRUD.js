@@ -10,7 +10,7 @@ class PageCRUD {
         this.conn = mysql.createConnection(dbInfo);
         this.conn.connect(function (err) {
             if (err) {
-                console.error('error: ' + err);
+                throw err;
             } else {
                 console.log("mysql connected")
             }
@@ -23,7 +23,7 @@ class PageCRUD {
         const sql = `CREATE TABLE IF NOT EXISTS ?? (url VARCHAR(100) PRIMARY KEY)`
         this.conn.query(sql, [table_name], function (err) {
             if (err) {
-                console.log("in create: " + err)
+                throw err;
             }
         })
     }
@@ -32,7 +32,7 @@ class PageCRUD {
         const sql = `INSERT INTO ?? VALUES (?)`
         this.conn.query(sql, [this.table_name, value.getURL()], (err) => {
             if (err) {
-                console.log("in insert: " + err)
+                throw err;
             }
         })
         return value;
@@ -44,7 +44,7 @@ class PageCRUD {
             if (!err) {
                 callback(null, result)
             } else {
-                console.log("in get value: " + err)
+                throw err;
             }
         })
     }
@@ -57,7 +57,7 @@ class PageCRUD {
             if (!err) {
                 callback(null, results)
             } else {
-                console.log("in getAll: " + err)
+                throw err;
             }
         })
     }
@@ -71,7 +71,7 @@ class PageCRUD {
         const sql = `DELETE FROM ?? WHERE url=?`
         this.conn.query(sql, [this.table_name, value.getURL(), (err) => {
             if (err) {
-                console.log(err)
+                throw err;
             }
         }])
     }
@@ -80,7 +80,7 @@ class PageCRUD {
         const sql = `DELETE FROM ??`
         this.conn.query(sql, [this.table_name], (err) => {
             if (err) {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -89,7 +89,7 @@ class PageCRUD {
         const sql = `DROP TABLE ??`
         return this.conn.query(sql, [this.table_name], (err) => {
             if (err) {
-                console.log(err)
+                throw err;
             }
         })
     }
@@ -97,7 +97,7 @@ class PageCRUD {
     closeConnection() {
         this.conn.end(function (err) {
             if (err) {
-                console.log(err)
+                throw err;
             }
         })
         console.log('disconnected from db')

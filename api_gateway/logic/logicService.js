@@ -29,7 +29,11 @@ class LogicService {
     }
 
     startSocketListen(server) {
-        socketManager.start(server, this.scanDoneCallback);
+        try {
+            socketManager.start(server, this.scanDoneCallback);
+        } catch (error) {
+            throw error;
+        }
     }
 
     scanDoneCallback() {
@@ -38,7 +42,7 @@ class LogicService {
         let scansDao = new ScansDao(dbName);
         scansDao.updateScanFinished(currentID, (err, result) => {
             if (!err) {
-                console.log('dont completing scan at db');
+                console.log('scan finished');
                 currentID = null;
             }
         });
@@ -55,22 +59,26 @@ class LogicService {
         description,
         scanID
     ) {
-        let dbName = 'test';
-        let scansDao = new ScansDao(dbName);
-        let scanEntity = new ScanEntity(
-            name,
-            scanID,
-            description,
-            null,
-            maxDepth,
-            timeout,
-            interval,
-            scanType,
-            false,
-            JSON.stringify(loginInfo),
-            url
-        );
-        scansDao.updateValue(scanEntity);
+        try {
+            let dbName = 'test';
+            let scansDao = new ScansDao(dbName);
+            let scanEntity = new ScanEntity(
+                name,
+                scanID,
+                description,
+                null,
+                maxDepth,
+                timeout,
+                interval,
+                scanType,
+                false,
+                JSON.stringify(loginInfo),
+                url
+            );
+            scansDao.updateValue(scanEntity);
+        } catch (error) {
+            throw error;
+        }
     }
 
     async scanTarget(
@@ -83,113 +91,129 @@ class LogicService {
         name,
         description
     ) {
-        let dbName = 'test';
-        let scansDao = new ScansDao(dbName);
-        let pageTableID =
-            new Date()
-                .toString()
-                .split(' ')
-                .join('')
-                .split('(')
-                .join('')
-                .split(')')
-                .join('')
-                .split(':')
-                .join('')
-                .split('+')
-                .join('') + Math.floor(Math.random() * 100000);
-        let scanID = Date.now();
-        let scanEntity = new ScanEntity(
-            name,
-            scanID,
-            description,
-            pageTableID,
-            maxDepth,
-            timeout,
-            interval,
-            scanType,
-            false,
-            JSON.stringify(loginInfo),
-            url
-        );
-        scansDao.insertValue(scanEntity);
-        return scanID;
+        try {
+            let dbName = 'test';
+            let scansDao = new ScansDao(dbName);
+            let pageTableID =
+                new Date()
+                    .toString()
+                    .split(' ')
+                    .join('')
+                    .split('(')
+                    .join('')
+                    .split(')')
+                    .join('')
+                    .split(':')
+                    .join('')
+                    .split('+')
+                    .join('') + Math.floor(Math.random() * 100000);
+            let scanID = Date.now();
+            let scanEntity = new ScanEntity(
+                name,
+                scanID,
+                description,
+                pageTableID,
+                maxDepth,
+                timeout,
+                interval,
+                scanType,
+                false,
+                JSON.stringify(loginInfo),
+                url
+            );
+            scansDao.insertValue(scanEntity);
+            return scanID;
+        } catch (error) {
+            throw error;
+        }
     }
 
     async deleteTarget(scanID) {
-        let dbName = 'test';
-        let scansDao = new ScansDao(dbName);
-        scansDao.deleteValue(scanID);
+        try {
+            let dbName = 'test';
+            let scansDao = new ScansDao(dbName);
+            scansDao.deleteValue(scanID);
+        } catch (error) {
+            throw error;
+        }
     }
 
     async getTargets(page, size, callback) {
-        let dbName = 'test';
-        let scansDao = new ScansDao(dbName);
-        scansDao.getAllNotCompleted(
-            (err, results) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    let scans = [];
-                    results.forEach(element => {
-                        let curEntity = new TargetEntity(
-                            element['name'],
-                            element['scanID'],
-                            element['description'],
-                            element['maxDepth'],
-                            element['timeout'],
-                            element['interval_crawler'],
-                            element['scanType'],
-                            element['loginInfo'],
-                            element['url']
-                        );
-                        scans.push(curEntity);
-                    });
-                    callback(scans);
-                }
-            },
-            page,
-            size
-        );
+        try {
+            let dbName = 'test';
+            let scansDao = new ScansDao(dbName);
+            scansDao.getAllNotCompleted(
+                (err, results) => {
+                    if (err) {
+                        throw err;
+                    } else {
+                        let scans = [];
+                        results.forEach(element => {
+                            let curEntity = new TargetEntity(
+                                element['name'],
+                                element['scanID'],
+                                element['description'],
+                                element['maxDepth'],
+                                element['timeout'],
+                                element['interval_crawler'],
+                                element['scanType'],
+                                element['loginInfo'],
+                                element['url']
+                            );
+                            scans.push(curEntity);
+                        });
+                        callback(scans);
+                    }
+                },
+                page,
+                size
+            );
+        } catch (error) {
+            throw error;
+        }
     }
 
     async startCrawl(id) {
-      if(currentID) {
-        currentID = id;
-        let dbName = 'test';
-        let scansDao = new ScansDao(dbName);
-        scansDao.getValue(id, (err, value) => {
-          if (err) {
-            console.log(err);
-          } else {
-            let config = {
-              interval: value[0]['interval_crawler'],
-              maxDepth: value[0]['maxDepth'],
-              timeout: value[0]['timeout']
-            };
-            let crawlerConfigBoundary = new CrawlerConfigScanBoundary(
-                config,
-                value[0]['scanType'],
-                value[0]['url'],
-                JSON.parse(value[0]['loginInfo'])
-            );
-            let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(
-                globals.VULN_TABLE_PREFIX + value[0]['scanID'],
-                value[0]['scanType'],
-                value[0]['url'],
-                JSON.parse(value[0]['loginInfo'])
-            );
-            // INIT vulnerability micro service scan configuration
-            socketManager.configDatabase(vulnerabilityConfigBoundary);
-            console.log('config vulnerability database before scan');
-            socketManager.startCrawl(crawlerConfigBoundary, id);
-            console.log('crawler starts');
-          }
-        });
-      }
-      else{
-        throw "Scan already in progress";
-      }
+        try {
+            if(currentID) {
+                currentID = id;
+                let dbName = 'test';
+                let scansDao = new ScansDao(dbName);
+                scansDao.getValue(id, (err, value) => {
+                  if (err) {
+                    throw err;
+                  } else {
+                    let config = {
+                      interval: value[0]['interval_crawler'],
+                      maxDepth: value[0]['maxDepth'],
+                      timeout: value[0]['timeout']
+                    };
+                    let crawlerConfigBoundary = new CrawlerConfigScanBoundary(
+                        config,
+                        value[0]['scanType'],
+                        value[0]['url'],
+                        JSON.parse(value[0]['loginInfo'])
+                    );
+                    let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(
+                        globals.VULN_TABLE_PREFIX + value[0]['scanID'],
+                        value[0]['scanType'],
+                        value[0]['url'],
+                        JSON.parse(value[0]['loginInfo'])
+                    );
+                    // INIT vulnerability micro service scan configuration
+                    socketManager.configDatabase(vulnerabilityConfigBoundary);
+                    console.log('config vulnerability database before scan');
+                    socketManager.startCrawl(crawlerConfigBoundary, id);
+                    console.log('crawler starts');
+                  }
+                });
+              }
+              else{
+                throw "Scan already in progress";
+              }   
+        } catch (error) {
+            throw error;
+        }
     }
 
     async getResults(scanID, callback) {
@@ -208,7 +232,8 @@ class LogicService {
         request(options, (error, res, body) => {
             if (error) {
                 console.error(error);
-                return error;
+                throw error;
+                //return error;
             }
             console.log(`statusCode: ${res.statusCode}`);
             console.log(body);
@@ -366,130 +391,162 @@ class LogicService {
     }
 
     async newSavedConfig(name = null, interval, maxDepth, timeout) {
-        let dbName = 'test';
-        let savedConfigDao = new SavedConfigurarionDao(dbName);
-        let savedConfigEntity = new SavedConfigEntity(
-            null,
-            name,
-            maxDepth,
-            timeout,
-            interval
-        );
-        let newEntity = savedConfigDao.insertValue(savedConfigEntity);
-        return newEntity.getID();
+        try {
+            let dbName = 'test';
+            let savedConfigDao = new SavedConfigurarionDao(dbName);
+            let savedConfigEntity = new SavedConfigEntity(
+                null,
+                name,
+                maxDepth,
+                timeout,
+                interval
+            );
+            let newEntity = savedConfigDao.insertValue(savedConfigEntity);
+            return newEntity.getID();   
+        } catch (error) {
+            throw error;
+        }
     }
 
     async updateSavedConfig(id, name, interval, maxDepth, timeout) {
-        let dbName = 'test';
-        let savedConfigDao = new SavedConfigurarionDao(dbName);
-        let configEntity = new SavedConfigEntity(
-            id,
-            name,
-            maxDepth,
-            timeout,
-            interval
-        );
-        savedConfigDao.updateValue(configEntity);
-        return;
+        try {
+            let dbName = 'test';
+            let savedConfigDao = new SavedConfigurarionDao(dbName);
+            let configEntity = new SavedConfigEntity(
+                id,
+                name,
+                maxDepth,
+                timeout,
+                interval
+            );
+            savedConfigDao.updateValue(configEntity);
+            return;   
+        } catch (error) {
+            throw error;
+        }
     }
 
     async deleteSavedConfig(id) {
-        let dbName = 'test';
-        let savedConfigDao = new SavedConfigurarionDao(dbName);
-        savedConfigDao.deleteValue(id);
+        try {
+            let dbName = 'test';
+            let savedConfigDao = new SavedConfigurarionDao(dbName);
+            savedConfigDao.deleteValue(id);   
+        } catch (error) {
+            throw error;
+        }
     }
 
     async getSavedConfigs(page, size, callback) {
-        let dbName = 'test';
-        let savedConfigDao = new SavedConfigurarionDao(dbName);
-        savedConfigDao.getAll(
-            (err, results) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    let savedConfigs = [];
-                    results.forEach(element => {
-                        let curEntity = new SavedConfigEntity(
-                            element['id'],
-                            element['name'],
-                            element['maxDepth'],
-                            element['timeout'],
-                            element['interval_crawler']
-                        );
-                        savedConfigs.push(curEntity);
-                    });
-                    callback(savedConfigs);
-                }
-            },
-            page,
-            size
-        );
+        try {
+            let dbName = 'test';
+            let savedConfigDao = new SavedConfigurarionDao(dbName);
+            savedConfigDao.getAll(
+                (err, results) => {
+                    if (err) {
+                        throw err;
+                    } else {
+                        let savedConfigs = [];
+                        results.forEach(element => {
+                            let curEntity = new SavedConfigEntity(
+                                element['id'],
+                                element['name'],
+                                element['maxDepth'],
+                                element['timeout'],
+                                element['interval_crawler']
+                            );
+                            savedConfigs.push(curEntity);
+                        });
+                        callback(savedConfigs);
+                    }
+                },
+                page,
+                size
+            );   
+        } catch (error) {
+            throw error;
+        }
     }
 
     async getCompletedScans(page, size, callback) {
-        let dbName = 'test';
-        let scansDao = new ScansDao(dbName);
-        scansDao.getAllCompleted(
-            (err, results) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    let scans = [];
-                    results.forEach(element => {
-                        let curEntity = new CompletedScanEntity(
-                            element['name'],
-                            element['scanID'],
-                            element['description'],
-                            element['maxDepth'],
-                            element['timeout'],
-                            element['interval_crawler'],
-                            element['scanType'],
-                            element['url']
-                        );
-                        scans.push(curEntity);
-                    });
-                    callback(scans);
-                }
-            },
-            page,
-            size
-        );
+        try {
+            let dbName = 'test';
+            let scansDao = new ScansDao(dbName);
+            scansDao.getAllCompleted(
+                (err, results) => {
+                    if (err) {
+                        throw err;
+                    } else {
+                        let scans = [];
+                        results.forEach(element => {
+                            let curEntity = new CompletedScanEntity(
+                                element['name'],
+                                element['scanID'],
+                                element['description'],
+                                element['maxDepth'],
+                                element['timeout'],
+                                element['interval_crawler'],
+                                element['scanType'],
+                                element['url']
+                            );
+                            scans.push(curEntity);
+                        });
+                        callback(scans);
+                    }
+                },
+                page,
+                size
+            );   
+        } catch (error) {
+            throw error;
+        }
     }
 
     async getCompletedScansCount(callback) {
-        let dbName = 'test';
-        let scansDao = new ScansDao(dbName);
-        scansDao.getCompletedCount((err, count) => {
-            if (err) {
-                throw err;
-            } else {
-                callback(count);
-            }
-        });
+        try {
+            let dbName = 'test';
+            let scansDao = new ScansDao(dbName);
+            scansDao.getCompletedCount((err, count) => {
+                if (err) {
+                    throw err;
+                } else {
+                    callback(count);
+                }
+            });   
+        } catch (error) {
+            throw error;
+        }
     }
 
     async getTargetsCount(callback) {
-        let dbName = 'test';
-        let scansDao = new ScansDao(dbName);
-        scansDao.getNotCompletedCount((err, count) => {
-            if (err) {
-                throw err;
-            } else {
-                callback(count);
-            }
-        });
+        try {
+            let dbName = 'test';
+            let scansDao = new ScansDao(dbName);
+            scansDao.getNotCompletedCount((err, count) => {
+                if (err) {
+                    throw err;
+                } else {
+                    callback(count);
+                }
+            });   
+        } catch (error) {
+            throw error;
+        }
     }
 
     async getConfigsCount(callback) {
-        let dbName = 'test';
-        let savedConfigDao = new SavedConfigurarionDao(dbName);
-        savedConfigDao.getValueCount((err, count) => {
-            if (err) {
-                throw err;
-            } else {
-                callback(count);
-            }
-        });
+        try {
+            let dbName = 'test';
+            let savedConfigDao = new SavedConfigurarionDao(dbName);
+            savedConfigDao.getValueCount((err, count) => {
+                if (err) {
+                    throw err;
+                } else {
+                    callback(count);
+                }
+            });   
+        } catch (error) {
+            throw error;
+        }
     }
 }
 

@@ -14,7 +14,7 @@ class UsersCRUD {
         this.conn = mysql.createConnection(dbInfo);
         this.conn.connect(function (err) {
             if (err) {
-                console.error('error: ' + err);
+                throw err;
             } else {
                 console.log("mysql connected")
             }
@@ -27,7 +27,7 @@ class UsersCRUD {
 		const sql = `CREATE TABLE IF NOT EXISTS ?? (username VARCHAR(30) PRIMARY KEY, salt VARCHAR(100) NOT NULL, passwordHash VARCHAR(256) NOT NULL, admin BOOLEAN)`;
 		this.conn.query(sql, [this.table_name], function(err) {
 			if (err) {
-				console.log(err);
+				throw err;
 			}
 		});
 	}
@@ -39,7 +39,7 @@ class UsersCRUD {
 			[this.table_name, value.getUsername(), value.getSalt(), value.getPasswordHash(), value.getAdmin()],
 			(err, result) => {
 				if (err) {
-					console.log(err);
+					throw err;
 				} else {
 					callback(null, result);
 				}
@@ -50,7 +50,7 @@ class UsersCRUD {
 	updateValue(new_value, callback) {
 		this.getValue(new_value.getUsername(), function(err, res) {
 			if (err) {
-				throw new Error('No such value ' + new_value.getUsername() + '\n' + err);
+				throw err;
 			}
 		});
 		const sql = `UPDATE ?? SET admin=? WHERE username=?`;
@@ -63,7 +63,7 @@ class UsersCRUD {
 			],
 			(err, result) => {
 				if (err) {
-					console.log(err);
+					throw err;
 				} else {
 					callback(null, result);
 				}
@@ -78,8 +78,8 @@ class UsersCRUD {
 			if (!err) {
 				callback(null, result);
 			} else {
-				console.log(err);
-				callback(err, result);
+				throw err;
+				//callback(err, result);
 			}
 		});
 	}
@@ -92,7 +92,7 @@ class UsersCRUD {
 			if (!err) {
 				callback(null, results);
 			} else {
-				console.log(err);
+				throw err;
 			}
 		});
 	}
@@ -101,8 +101,8 @@ class UsersCRUD {
 		const sql = `DELETE FROM ?? WHERE username=?`;
 		this.conn.query(sql, [this.table_name, username], (err, result) => {
 			if (err) {
-				console.log(err);
-				callback(err, false);
+				throw err;
+				//callback(err, false);
 			} else {
 				callback(null, true);
 			}
@@ -113,7 +113,7 @@ class UsersCRUD {
 		const sql = `DELETE FROM ??`;
 		this.conn.query(sql, [this.table_name], err => {
 			if (err) {
-				console.log(err);
+				throw err;
 			}
 		});
 	}
@@ -122,7 +122,7 @@ class UsersCRUD {
 		const sql = `DROP TABLE ??`;
 		return this.conn.query(sql, [this.table_name], err => {
 			if (err) {
-				console.log(err);
+				throw err;
 			}
 		});
 	}
@@ -130,7 +130,7 @@ class UsersCRUD {
 	closeConnection() {
 		this.conn.end(function(err) {
 			if (err) {
-				console.log(err);
+				throw err;
 			}
 		});
 		console.log('disconnected from db');
