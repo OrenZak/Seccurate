@@ -19,7 +19,8 @@ const EVENTS = {
     CONFIG_DATABASE: "config_database",
     GET_RESULTS: "get_results",
     UPDATE_PAYLOADS: "update_payloads",
-    SCAN_PAGE: "scan_page"
+    SCAN_PAGE: "scan_page",
+    SCAM_COMPLETE: "scan_completed"
 };
 
 
@@ -94,6 +95,7 @@ function start(server, scanDoneCallback) {
         socket.on(ACTIONS.CRAWLER_DONE, async function (results) {
             isCrawlerScanning = false;
             if(!isCrawlerScanning && !isVulnerabilityScanning && pageQueue.length == 0){
+                io.emit(EVENTS.SCAM_COMPLETE);
                 scanDoneCallback();
             }
         });
