@@ -1,4 +1,5 @@
 import { END_POINTS } from '../config';
+import { Cookies } from 'react-cookie';
 
 const BASE_HEADERS = {
     Accept: 'application/json',
@@ -16,7 +17,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/login`, {
                 method: 'POST',
                 headers: { ...BASE_HEADERS },
-                credentials: 'same-origin',
+                credentials: 'include',
                 body: JSON.stringify({ username, password }),
             })
                 .then(checkStatus)
@@ -42,7 +43,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/config_target?page=${page}&size=${pageCount}`, {
                 method: 'GET',
                 headers: { ...BASE_HEADERS },
-                credentials: 'same-origin',
+                credentials: 'include',
             })
                 .then(checkStatus)
                 .then(results => {
@@ -249,6 +250,7 @@ export default class ApiGateway {
 }
 
 async function checkStatus(response: Response) {
+    console.log('Resp: ', response);
     if (response.status >= 200 && response.status < 300) {
         const jsonResponse = await response.json();
         const { results } = jsonResponse;

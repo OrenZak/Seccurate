@@ -32,7 +32,8 @@ router.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      expires: 600000
+      expires: 600000,
+      httpOnly: false
     }
   })
 );
@@ -194,7 +195,6 @@ router.get(PATHS.CONFIG_TARGET, async function(req, res, next) {
 
 router.post(PATHS.LOGIN, function(req, res, next) {
   try {
-    console.log('router.postPATHS.LOGIN');
     let loginBoundary = LoginBoundary.deserialize(req.body);
     if (req.session.user && req.cookies.user_sid) {
       res.status(500).send({ error: 'Already logged in' });
@@ -259,19 +259,19 @@ router.post(PATHS.MANAGE_USERS, function(req, res, next) {
 
 router.delete(PATHS.MANAGE_USERS, function(req, res, next) {
   try {
-    // if (req.session.user && req.cookies.user_sid) {
-    //     if (req.session.user[0].admin == 1) {
-    logicService.deleteUser(req.query.userName, result => {
-      if (result == null) {
-        res.status(500).send({ error: 'something bad happened' });
-      } else if (result == false) {
-        res.status(500).send({ error: 'username does not exists' });
-      } else {
-        res.status(200).send({ results: 'user deleted' });
+    if (req.session.user && req.cookies.user_sid) {
+      if (req.session.user[0].admin == 1) {
+        logicService.deleteUser(req.query.userName, result => {
+          if (result == null) {
+            res.status(500).send({ error: 'something bad happened' });
+          } else if (result == false) {
+            res.status(500).send({ error: 'username does not exists' });
+          } else {
+            res.status(200).send({ results: 'user deleted' });
+          }
+        });
       }
-    });
-    // }
-    // }
+    }
   } catch (error) {
     res.status(500).send({ error: error });
   }
@@ -279,28 +279,32 @@ router.delete(PATHS.MANAGE_USERS, function(req, res, next) {
 
 router.put(PATHS.MANAGE_USERS, function(req, res, next) {
   try {
-    // if (req.session.user && req.cookies.user_sid) {
-    //     if (req.session.user[0].admin == 1) {
-    let usersBoundary = UsersBoundary.deserializeWithNoPassword(req.body);
-    let user = logicService.updateUser(
-      usersBoundary.username,
-      usersBoundary.role,
-      user => {
-        if (user == null) {
-          res.status(500).send({ error: 'something bad happened' });
-        } else if (user == false) {
-          res.status(500).send({ error: 'username does not exists' });
-        } else {
-          res.status(200).send({ results: 'updated' });
-        }
+    if (req.session.user && req.cookies.user_sid) {
+      if (req.session.user[0].admin == 1) {
+        let usersBoundary = UsersBoundary.deserializeWithNoPassword(req.body);
+        let user = logicService.updateUser(
+          usersBoundary.username,
+          usersBoundary.role,
+          user => {
+            if (user == null) {
+              res.status(500).send({ error: 'something bad happened' });
+            } else if (user == false) {
+              res.status(500).send({ error: 'username does not exists' });
+            } else {
+              res.status(200).send({ results: 'updated' });
+            }
+          }
+        );
+      } else {
+        res
+          .status(200)
+          .send({ results: 'This method can be performed only by admin' });
       }
-    );
-    //     } else {
-    //         res.status(200).send({"results": "This method can be performed only by admin"});
-    //     }
-    // } else {
-    //     res.status(200).send({"results": "This method can be performed only by admin"});
-    // }
+    } else {
+      res
+        .status(200)
+        .send({ results: 'This method can be performed only by admin' });
+    }
   } catch (error) {
     res.status(500).send({ error: error });
   }
@@ -308,32 +312,36 @@ router.put(PATHS.MANAGE_USERS, function(req, res, next) {
 
 router.get(PATHS.USERS, function(req, res, next) {
   try {
-    // if (req.session.user && req.cookies.user_sid) {
-    //     if (req.session.user[0].admin == 1) {
-    logicService.getAllUsers(usersEntity => {
-      if (usersEntity == null) {
-        res.status(200).send({ results: 'something bad happened' });
-      } else {
-        let usersArray = [];
-        usersEntity.forEach(user => {
-          let roleName = 'USER';
-          if (user['admin'] == 1) {
-            roleName = 'ADMIN';
+    if (req.session.user && req.cookies.user_sid) {
+      if (req.session.user[0].admin == 1) {
+        logicService.getAllUsers(usersEntity => {
+          if (usersEntity == null) {
+            res.status(200).send({ results: 'something bad happened' });
+          } else {
+            let usersArray = [];
+            usersEntity.forEach(user => {
+              let roleName = 'USER';
+              if (user['admin'] == 1) {
+                roleName = 'ADMIN';
+              }
+              usersArray.push({
+                username: user['username'],
+                role: roleName
+              });
+            });
+            res.status(200).send({ results: usersArray });
           }
-          usersArray.push({
-            username: user['username'],
-            role: roleName
-          });
         });
-        res.status(200).send({ results: usersArray });
+      } else {
+        res
+          .status(401)
+          .send({ error: 'This method can be performed only by admin' });
       }
-    });
-    //     } else {
-    //         res.status(401).send({"error": "This method can be performed only by admin"});
-    //     }
-    // } else {
-    //     res.status(401).send({"error": "This method can be performed only by admin"});
-    // }
+    } else {
+      res
+        .status(401)
+        .send({ error: 'This method can be performed only by admin' });
+    }
   } catch (error) {
     res.status(500).send({ error: error });
   }

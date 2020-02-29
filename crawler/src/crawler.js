@@ -10,6 +10,7 @@ let crawler_config = config.crawler;
 const EVENTS = {
 	PAGE_FETCHED: 'page_fetched',
 	CRAWLER_DONE: 'crawler_done',
+
 };
 
 function doEmit(action, mainUrl, data) {

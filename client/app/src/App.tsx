@@ -5,6 +5,7 @@ import AppToolBar from './screens/Main/components/AppToolBar';
 import MainScreen from './screens/Main';
 import { store } from './state';
 import { Provider } from 'react-redux';
+import { CookiesProvider } from 'react-cookie';
 
 const theme = createMuiTheme({
     palette: {
@@ -32,12 +33,14 @@ const App: React.FC = () => {
     const classes = useStyles();
     return (
         <div className={classes.root}>
-            <Provider store={store}>
-                <ThemeProvider theme={theme}>
-                    <AppToolBar />
-                    <MainScreen />
-                </ThemeProvider>
-            </Provider>
+            <CookiesProvider>
+                <Provider store={store}>
+                    <ThemeProvider theme={theme}>
+                        <AppToolBar />
+                        <MainScreen />
+                    </ThemeProvider>
+                </Provider>
+            </CookiesProvider>
         </div>
     );
 };

@@ -13,11 +13,11 @@ const ReportContent: React.FC<Props> = props => {
     const getDisplayableSeverity = (severity: number): string => {
         switch (severity) {
             case 1:
-                return 'Low';
+                return 'Heigh';
             case 2:
                 return 'Medium';
             case 3:
-                return 'Heigh';
+                return 'Low';
             default:
                 return '';
         }
