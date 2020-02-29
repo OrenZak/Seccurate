@@ -10,7 +10,7 @@ http.listen(3001, function () {
 });
 
 let corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: 'http://localhost',
     credentials: true,
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
