@@ -1,6 +1,7 @@
 const mysql = require('mysql2');
 const pageEntity = require('../data/PageEntity');
 const globals = require('../common/globals');
+import * as vaildators from '../dao/dataValidation';
 
 
 class PageCRUD {
@@ -29,6 +30,7 @@ class PageCRUD {
     }
 
     insertValue(value) {
+        this.validateValue(value);
         const sql = `INSERT INTO ?? VALUES (?)`
         this.conn.query(sql, [this.table_name, value.getURL()], (err) => {
             if (err) {
@@ -36,6 +38,11 @@ class PageCRUD {
             }
         })
         return value;
+    }
+
+    validateValue (value) {
+        if (!vaildators.checkString(value.getURL()))
+            throw new Error('Wrong url value supplied');
     }
 
     getValue(value_id, callback) {

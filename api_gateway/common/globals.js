@@ -12,7 +12,23 @@ const DB_INFO = {
     password: '',
     database: 'test'
 };
+
 const CLIENT_HOSTNAME = 'http://192.168.1.128:3000';
+
+const THRESHOLD_VALUES = {
+    maxDepth: {
+        max: 10,
+        min: 1
+    },
+    interval: {
+        min: 250,
+        max: 1000
+    },
+    timeout: {
+        max: 30,
+        min: 10
+    }
+}
 
 module.exports = {
     VULNERABILITY_MICROSERVICE_REST,
@@ -23,5 +39,6 @@ module.exports = {
     VULN_TABLE_PREFIX,
     USERS_CRUD_TABLE,
     DB_INFO,
+    THRESHOLD_VALUES,
     CLIENT_HOSTNAME
 };

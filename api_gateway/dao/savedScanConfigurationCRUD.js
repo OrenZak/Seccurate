@@ -1,6 +1,7 @@
 const mysql = require('mysql2');
 const configurationEntity = require('../data/SavedConfigurationEntity');
 const globals = require('../common/globals');
+import * as vaildators from '../dao/dataValidation';
 
 class SavedConfigurationCRUD {
     constructor(db) {//should become db_type and read from globals
@@ -28,6 +29,7 @@ class SavedConfigurationCRUD {
     }
 
     insertValue(value) {
+        this.validateValue(value);
         const id = new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('')+Math.floor(Math.random()*100000)
         let name = id;
         if (value.getName() != null) {
@@ -44,6 +46,7 @@ class SavedConfigurationCRUD {
     }
 
     updateValue(new_value) {
+        this.validateValue(new_value);
         this.getValue(new_value.getID(), function (err, res) {
             if (err) {
                 throw new Error('No such value ' + new_value.getID() + '\n' + err)
@@ -56,6 +59,17 @@ class SavedConfigurationCRUD {
             }
         })
         return new_value
+    }
+
+    validateValue (value) {
+        if (!vaildators.checkNumericValues('interval', value.getInterval()))
+            throw new Error('Wrong interval value supplied');
+        if (!vaildators.checkNumericValues('maxDepth', value.getMaxDepth()))
+            throw new Error('Wrong maxDepth value supplied');
+        if (!vaildators.checkNumericValues('timeout', value.getTimeout()))
+            throw new Error('Wrong timeout value supplied');
+        if (!vaildators.checkString(value.getName()))
+            throw new Error('Wrong name value supplied');
     }
 
     getValue(value_id, callback) {
