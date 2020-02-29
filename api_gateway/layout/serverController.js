@@ -1,5 +1,6 @@
 let app = require('express')();
 let http = require('http').createServer(app);
+const globals = require('../common/globals');
 const cors = require('cors');
 
 let indexRouter = require('../routes');
@@ -10,7 +11,7 @@ http.listen(3001, function() {
 });
 
 let corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: globals.CLIENT_HOSTNAME,
   credentials: true,
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
