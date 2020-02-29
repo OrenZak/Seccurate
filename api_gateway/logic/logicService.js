@@ -180,7 +180,7 @@ class LogicService {
 
     async startCrawl(id) {
         try {
-            if(currentID) {
+            if(currentID == null) {
                 currentID = id;
                 //let dbName = 'test';
                 //let scansDao = new ScansDao(dbName);
