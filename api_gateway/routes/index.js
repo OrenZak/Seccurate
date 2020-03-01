@@ -121,7 +121,7 @@ router.get(PATHS.GET_COMPLETED_SCANS, function(req, res, next) {
 router.post(PATHS.START_SCAN, async function(req, res, next) {
   try {
     crawlBoundary = StartCrawlBoundary.deserialize(req.body);
-    logicService.startCrawl(crawlBoundary.id);
+    await logicService.startCrawl(crawlBoundary.id);
     res.status(200).send({ results: 'started crawling' });
   } catch (error) {
     res.status(500).send({ error: error.message });

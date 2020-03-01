@@ -13,7 +13,7 @@ import {
     selectDeleteTargetsInfo,
     selectTargets,
 } from '../../state/targets/targets.slice';
-import { startScan } from '../../state/scans/scans.slice';
+import { startScan, selectIsScanRunning } from '../../state/scans/scans.slice';
 import { connect } from 'react-redux';
 import { selectIsLoggedIn } from '../../state/app/app.slice';
 
@@ -24,6 +24,7 @@ interface ConnectedProps {
     targets: Target[];
     fetch: { isLoading: boolean; error?: string };
     delete: { succeed?: boolean; error?: string };
+    isScanRunning: boolean;
 }
 
 interface DispatchProps {
@@ -89,7 +90,7 @@ const TargetsScreen: React.FC<Props> = props => {
                     <TargetList targets={props.targets} onItemSelected={onItemSelected} />
                 </Grid>
                 <MainButtons
-                    showStartScan={selectedTarget !== undefined}
+                    showStartScan={!props.isScanRunning && selectedTarget !== undefined}
                     onAddTargetClicked={onAddTargetClicked}
                     onEditTargetClicked={onEditTargetClicked}
                     onDeleteTargetClicked={onDeleteTargetClicked}
@@ -124,6 +125,7 @@ function mapStateToProps(state: RootState, ownProps: OwnProps): ConnectedProps {
         targets: selectTargets(state),
         fetch: selectFetchTargetsInfo(state),
         delete: selectDeleteTargetsInfo(state),
+        isScanRunning: selectIsScanRunning(state),
     };
 }
 

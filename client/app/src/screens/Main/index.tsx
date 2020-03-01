@@ -1,15 +1,17 @@
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { login, selectIsLoggedIn, selectLoginError, selectLoginLoading } from '../../state/app/app.slice';
+import { login, selectIsLoggedIn, selectLoginError, selectLoginLoading, logout } from '../../state/app/app.slice';
 import { RootState } from '../../state/rootReducer';
 import LoginModal from '../Login';
 import Screens from '../screen';
 import AppNavDrawer from './components/AppNavDrawer';
 import { withCookies, ReactCookieProps } from 'react-cookie';
 
-interface OwnProps {}
+interface OwnProps {
+    isLoginClicked: boolean;
+}
 
 interface ConnectedProps {
     loggedIn: boolean;
@@ -19,6 +21,7 @@ interface ConnectedProps {
 
 interface DispatchProps {
     login: typeof login;
+    logout: typeof logout;
 }
 
 type Props = OwnProps & ConnectedProps & DispatchProps & ReactCookieProps;
@@ -34,7 +37,12 @@ const MainScreen: React.FC<Props> = props => {
         props.login({ username, password });
     };
 
-    console.log(props.cookies?.getAll());
+    useEffect(() => {
+        if (props.isLoginClicked) {
+            props.logout();
+        }
+    }, [props.isLoginClicked]);
+
     return (
         <div className={classes.container}>
             <div>
@@ -45,7 +53,7 @@ const MainScreen: React.FC<Props> = props => {
                     }}
                 />
             </div>
-            {props.cookies?.get('user_sid') && <CurrentScreen />}
+            {props.cookies?.get('user_sid') && <CurrentScreen cookies={props.cookies} />}
             <LoginModal
                 isOpen={!props.cookies?.get('user_sid')}
                 onLoginClicked={handleLogin}
@@ -79,6 +87,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
     return bindActionCreators(
         {
             login,
+            logout,
         },
         dispatch,
     );

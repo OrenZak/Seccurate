@@ -30,7 +30,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/logout`, {
                 method: 'POST',
                 headers: { ...BASE_HEADERS },
-                credentials: 'same-origin',
+                credentials: 'include',
             })
                 .then(checkStatus)
                 .then(result => ({ response: { result } }))
@@ -91,7 +91,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/users`, {
                 method: 'GET',
                 headers: { ...BASE_HEADERS },
-                credentials: 'same-origin',
+                credentials: 'include',
             })
                 .then(checkStatus)
                 .then(results => {
@@ -106,7 +106,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/manage_users`, {
                 method: 'POST',
                 headers: { ...BASE_HEADERS },
-                credentials: 'same-origin',
+                credentials: 'include',
                 body: JSON.stringify({ ...payload.user }),
             })
                 .then(checkStatus)
@@ -123,7 +123,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/manage_users`, {
                 method: 'PUT',
                 headers: { ...BASE_HEADERS },
-                credentials: 'same-origin',
+                credentials: 'include',
                 body: JSON.stringify({ ...payload.user }),
             })
                 .then(checkStatus)
@@ -141,7 +141,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/manage_users?userName=${payload.userName}`, {
                 method: 'DELETE',
                 headers: { ...BASE_HEADERS },
-                credentials: 'same-origin',
+                credentials: 'include',
             })
                 .then(checkStatus)
                 .then(() => {
@@ -156,7 +156,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/saved_config?page=${page}&size=${pageCount}`, {
                 method: 'GET',
                 headers: { ...BASE_HEADERS },
-                credentials: 'same-origin',
+                credentials: 'include',
             })
                 .then(checkStatus)
                 .then(results => {
@@ -169,6 +169,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/saved_config`, {
                 method: 'POST',
                 headers: { ...BASE_HEADERS },
+                credentials: 'include',
                 body: JSON.stringify({ ...scanConfig }),
             })
                 .then(checkStatus)
@@ -180,6 +181,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/saved_config`, {
                 method: 'PUT',
                 headers: { ...BASE_HEADERS },
+                credentials: 'include',
                 body: JSON.stringify({ ...scanConfig }),
             })
                 .then(checkStatus)
@@ -191,6 +193,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/saved_config`, {
                 method: 'DELETE',
                 headers: { ...BASE_HEADERS },
+                credentials: 'include',
                 body: JSON.stringify({ id }),
             })
                 .then(checkStatus)
@@ -207,7 +210,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/completed_scans?page=${page}&size=${pageCount}`, {
                 method: 'GET',
                 headers: { ...BASE_HEADERS },
-                credentials: 'same-origin',
+                credentials: 'include',
             })
                 .then(checkStatus)
                 .then(results => {
@@ -222,7 +225,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/start_scan`, {
                 method: 'POST',
                 headers: { ...BASE_HEADERS },
-                credentials: 'same-origin',
+                credentials: 'include',
                 body: JSON.stringify({ id: scanId }),
             })
                 .then(checkStatus)
@@ -236,7 +239,7 @@ export default class ApiGateway {
             return fetch(`${END_POINTS.gatewayURL}/results?scanName=${scanId}`, {
                 method: 'GET',
                 headers: { ...BASE_HEADERS },
-                credentials: 'same-origin',
+                credentials: 'include',
             })
                 .then(checkStatus)
                 .then(results => {
@@ -250,13 +253,14 @@ export default class ApiGateway {
 }
 
 async function checkStatus(response: Response) {
-    console.log('Resp: ', response);
     if (response.status >= 200 && response.status < 300) {
         const jsonResponse = await response.json();
+        console.log('Response: ', jsonResponse);
         const { results } = jsonResponse;
         return results;
     } else {
         const { error } = (await response.json()) as ServerError;
+        console.log('Error: ', error);
         throw error;
     }
 }
