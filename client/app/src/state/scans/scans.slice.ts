@@ -88,6 +88,7 @@ const scansSlice = createSlice({
             };
         },
         scanCompleted(state) {
+            console.log("Scan completed Slice");
             return {
                 ...state,
                 isScanRunning: false,
@@ -117,6 +118,7 @@ export function selectIsScanRunning(state: { scans: ScansState }) {
 export const fetchCompletedScans = createAction<FetchAllParams>(scansSlice.name + '/fetchCompletedScans');
 export const startScan = createAction<{ scanId: string }>(scansSlice.name + '/startScan');
 export const fetchScanResults = createAction<{ scanId: string }>(scansSlice.name + '/fetchScanResults');
+export const updateScanCompleted = createAction(scansSlice.name + '/updateScanCompleted');
 
 // -- SAGA ACTIONS -- //
 export const {

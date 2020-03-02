@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction, createAction } from '@reduxjs/toolkit';
 
 interface AppState {
+    isAdmin: boolean;
     login: {
         isLoading: boolean;
         isLoggedIn: boolean;
@@ -9,6 +10,7 @@ interface AppState {
 }
 
 const initialState: AppState = {
+    isAdmin: false,
     login: {
         isLoading: false,
         isLoggedIn: false,
@@ -29,9 +31,11 @@ const appSlice = createSlice({
                 },
             };
         },
-        loginSucceed(state) {
+        loginSucceed(state, action: PayloadAction<{ isAdmin: boolean }>) {
+            console.log('%%%% isAdmin: ', action.payload.isAdmin);
             return {
                 ...state,
+                isAdmin: action.payload.isAdmin,
                 login: {
                     loginError: undefined,
                     isLoggedIn: true,
@@ -42,6 +46,7 @@ const appSlice = createSlice({
         loginFailed(state, action: PayloadAction<{ error: string }>) {
             return {
                 ...state,
+                isAdmin: false,
                 login: {
                     loginError: action.payload.error,
                     isLoggedIn: false,
@@ -52,6 +57,7 @@ const appSlice = createSlice({
         logoutSucceed(state) {
             return {
                 ...state,
+                isAdmin: false,
                 login: {
                     loginError: undefined,
                     isLoggedIn: false,

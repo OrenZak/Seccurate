@@ -10,8 +10,8 @@ function handleLogin({ apiGateway }: { apiGateway: ApiGateway }) {
         console.log('Login ', result);
         if (result.error) {
             yield put(loginFailed({ error: result.error }));
-        } else if (result.response) {
-            yield put(loginSucceed());
+        } else {
+            yield put(loginSucceed({ isAdmin: result.isAdmin }));
         }
     };
 }

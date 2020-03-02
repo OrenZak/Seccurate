@@ -13,7 +13,7 @@ export interface ApiResult<T extends object> {
 
 export default class ApiGateway {
     user = {
-        async login(username: string, password: string): Promise<ApiResult<{ result: string }>> {
+        async login(username: string, password: string): Promise<ApiResult<{ isAdmin: boolean }>> {
             return fetch(`${END_POINTS.gatewayURL}/login`, {
                 method: 'POST',
                 headers: { ...BASE_HEADERS },
@@ -22,7 +22,7 @@ export default class ApiGateway {
             })
                 .then(checkStatus)
                 .then(result => {
-                    return { response: { result } };
+                    return result;
                 })
                 .catch(error => ({ error }));
         },

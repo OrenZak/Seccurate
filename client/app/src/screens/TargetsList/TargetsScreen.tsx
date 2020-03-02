@@ -13,9 +13,10 @@ import {
     selectDeleteTargetsInfo,
     selectTargets,
 } from '../../state/targets/targets.slice';
-import { startScan, selectIsScanRunning } from '../../state/scans/scans.slice';
+import { startScan, selectIsScanRunning, updateScanCompleted } from '../../state/scans/scans.slice';
 import { connect } from 'react-redux';
 import { selectIsLoggedIn } from '../../state/app/app.slice';
+import { END_POINTS } from '../../config';
 
 interface OwnProps {}
 
@@ -31,6 +32,7 @@ interface DispatchProps {
     fetchAllTargets: ({ page, pageCount }: FetchAllParams) => void;
     deleteTarget: ({ id }: DeleteTargetParams) => void;
     startScan: ({ scanId }: { scanId: string }) => void;
+    updateScanCompleted: () => void;
 }
 
 type Props = OwnProps & ConnectedProps & DispatchProps;
@@ -82,6 +84,13 @@ const TargetsScreen: React.FC<Props> = props => {
     useEffect(() => {
         props.fetchAllTargets({ page: 0, pageCount: 10 });
     }, [props.isLoggedIn]);
+
+    useEffect(() => {
+        const api_gateway = require('socket.io-client')(END_POINTS.gatewayURL);
+        api_gateway.on('scan_completed', () => {
+            props.updateScanCompleted();
+        });
+    }, []);
 
     return (
         <div>
@@ -135,6 +144,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
             fetchAllTargets,
             deleteTarget,
             startScan,
+            updateScanCompleted,
         },
         dispatch,
     );

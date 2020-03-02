@@ -11,14 +11,16 @@ import {
     startScan,
     fetchScanResults,
     scanCompleted,
+    updateScanCompleted
 } from './scans.slice';
 import ApiGateway, { ApiResult } from '../../services/gateway.api';
-import { END_POINTS } from '../../config';
 
-// const api_gateway = require('socket.io-client')(END_POINTS.gatewayURL);
-// api_gateway.on('scan_completed', function*() {
-//     yield put(scanCompleted());
-// });
+function handleUpdateScanCompleted() {
+    return function*() {
+    console.log("updateScanCompleted");
+    yield put(scanCompleted());
+    };
+}
 
 function handleFetchCompletedScans({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: FetchAllParams }) {
@@ -62,4 +64,5 @@ export default sagaCreator({
     [fetchCompletedScans.type]: { handler: handleFetchCompletedScans },
     [startScan.type]: { handler: handleStartScan },
     [fetchScanResults.type]: { handler: handleFetchScanResults },
+    [updateScanCompleted.type]: { handler: handleUpdateScanCompleted },
 });

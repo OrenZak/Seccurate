@@ -55,9 +55,14 @@ const AddUserModal: React.FC<Props> = props => {
                     </Grid>
                 </Grid>
                 <Grid item>
-                    <Button color={'primary'} variant={'contained'} disabled={username.trim().length === 0} onClick={() => {
-                        props.onCreateUser({username, role: roleType, password})
-                    }}>
+                    <Button
+                        color={'primary'}
+                        variant={'contained'}
+                        disabled={username.trim().length === 0 || password.trim().length === 0}
+                        onClick={() => {
+                            props.onCreateUser({ username, role: roleType, password });
+                        }}
+                    >
                         Done
                     </Button>
                 </Grid>
