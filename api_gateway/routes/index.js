@@ -209,8 +209,7 @@ router.post(PATHS.LOGIN, function(req, res, next) {
             res.status(500).send({ error: 'Bad username/password' });
           } else {
             req.session.user = user;
-            console.log('200 - User connected');
-            res.status(200).send({ results: 'Connected' });
+            res.status(200).send({ results: { isAdmin: user.admin === 1 } });
           }
         }
       );
@@ -260,7 +259,7 @@ router.post(PATHS.MANAGE_USERS, function(req, res, next) {
 router.delete(PATHS.MANAGE_USERS, function(req, res, next) {
   try {
     if (req.session.user && req.cookies.user_sid) {
-      if (req.session.user[0].admin == 1) {
+      if (req.session.user.admin == 1) {
         logicService.deleteUser(req.query.userName, result => {
           if (result == null) {
             res.status(500).send({ error: 'something bad happened' });
@@ -280,7 +279,7 @@ router.delete(PATHS.MANAGE_USERS, function(req, res, next) {
 router.put(PATHS.MANAGE_USERS, function(req, res, next) {
   try {
     if (req.session.user && req.cookies.user_sid) {
-      if (req.session.user[0].admin == 1) {
+      if (req.session.user.admin == 1) {
         let usersBoundary = UsersBoundary.deserializeWithNoPassword(req.body);
         let user = logicService.updateUser(
           usersBoundary.username,
@@ -313,7 +312,7 @@ router.put(PATHS.MANAGE_USERS, function(req, res, next) {
 router.get(PATHS.USERS, function(req, res, next) {
   try {
     if (req.session.user && req.cookies.user_sid) {
-      if (req.session.user[0].admin == 1) {
+      if (req.session.user.admin == 1) {
         logicService.getAllUsers(usersEntity => {
           if (usersEntity == null) {
             res.status(200).send({ results: 'something bad happened' });
