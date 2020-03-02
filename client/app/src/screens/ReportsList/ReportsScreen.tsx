@@ -33,7 +33,7 @@ const ReportsScreen: React.FC<Props> = props => {
     const [targetLoadingIndex, setTargetLoadingIndex] = useState(-1);
 
     useEffect(() => {
-        props.fetchCompletedScans({ page: 0, pageCount: 10 });
+        props.fetchCompletedScans({ page: 0, pageCount: 100 });
     }, []);
 
     useEffect(() => {
