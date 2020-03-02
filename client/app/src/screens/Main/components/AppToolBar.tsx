@@ -4,30 +4,39 @@ import { AppBar, Toolbar, Button, Typography } from '@material-ui/core';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import AppLogo from './AppLogo';
 import ManageUsersModal from '../../ManageUsers';
-import { prependOnceListener } from 'cluster';
+import { RootState } from '../../../state/rootReducer';
+import { connect } from 'react-redux';
 
-interface Props {
+interface OwnProps {
     onLogoutClicked: () => void;
 }
+
+interface ConnectedProps {
+    isAdmin?: boolean;
+}
+
+type Props = OwnProps & ConnectedProps;
 
 const AppToolBar: React.FC<Props> = props => {
     const classes = useStyles();
 
     const [manageUsersShow, setManageUsersShow] = useState<boolean>(false);
-
+    console.log('props?.isAdmin:', props?.isAdmin);
     return (
         <div>
             <ManageUsersModal isOpen={manageUsersShow} close={() => setManageUsersShow(false)} />
             <AppBar position="fixed" className={classes.appBar}>
                 <Toolbar className={classes.toolbar}>
                     <AppLogo />
-                    <Button
-                        onClick={() => {
-                            setManageUsersShow(true);
-                        }}
-                    >
-                        <SupervisedUserCircleIcon fontSize="large" className={classes.manageButton} />
-                    </Button>
+                    {props?.isAdmin == true && (
+                        <Button
+                            onClick={() => {
+                                setManageUsersShow(true);
+                            }}
+                        >
+                            <SupervisedUserCircleIcon fontSize="large" className={classes.manageButton} />
+                        </Button>
+                    )}
                     <Button
                         onClick={() => {
                             props.onLogoutClicked();
@@ -58,4 +67,10 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default AppToolBar;
+function mapStateToProps(state: RootState, ownProps: OwnProps): ConnectedProps {
+    return {
+        isAdmin: state.app.isAdmin,
+    };
+}
+
+export default connect(mapStateToProps, null)(AppToolBar);
