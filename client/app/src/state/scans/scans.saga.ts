@@ -10,8 +10,15 @@ import {
     fetchCompletedScans,
     startScan,
     fetchScanResults,
+    scanCompleted,
 } from './scans.slice';
 import ApiGateway, { ApiResult } from '../../services/gateway.api';
+import { END_POINTS } from '../../config';
+
+// const api_gateway = require('socket.io-client')(END_POINTS.gatewayURL);
+// api_gateway.on('scan_completed', function*() {
+//     yield put(scanCompleted());
+// });
 
 function handleFetchCompletedScans({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: FetchAllParams }) {

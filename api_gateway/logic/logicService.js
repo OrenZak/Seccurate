@@ -42,8 +42,6 @@ class LogicService {
 
     scanDoneCallback() {
         console.log('entered scan Done Callback with ' + currentID);
-        //let dbName = 'test';
-        //let scansDao = new ScansDao(dbName);
         scansDao.updateScanFinished(currentID, (err, result) => {
             if (!err) {
                 console.log('scan finished');
@@ -215,7 +213,7 @@ class LogicService {
               }
               else{
                 throw "Scan already in progress";
-              }   
+              }
         } catch (error) {
             throw error;
         }
@@ -255,7 +253,7 @@ class LogicService {
                 callback(null);
             } else {
                 // check if user exist
-                if (results.length == 1) {
+                if (results.length === 1) {
                     // user exists
                     let userEntity = new UsersEntity(
                         results[0]['username'],
@@ -265,7 +263,7 @@ class LogicService {
                     );
                     if (bcrypt.compareSync(password, userEntity.passwordHash)) {
                         // true
-                        callback(results);
+                        callback(userEntity);
                     } else {
                         // false, bad password
                         callback(false);
@@ -411,7 +409,7 @@ class LogicService {
                 interval
             );
             let newEntity = savedConfigDao.insertValue(savedConfigEntity);
-            return newEntity.getID();   
+            return newEntity.getID();
         } catch (error) {
             throw error;
         }
@@ -429,7 +427,7 @@ class LogicService {
                 interval
             );
             savedConfigDao.updateValue(configEntity);
-            return;   
+            return;
         } catch (error) {
             throw error;
         }
@@ -439,7 +437,7 @@ class LogicService {
         try {
             //let dbName = 'test';
             //let savedConfigDao = new SavedConfigurarionDao(dbName);
-            savedConfigDao.deleteValue(id);   
+            savedConfigDao.deleteValue(id);
         } catch (error) {
             throw error;
         }
@@ -470,7 +468,7 @@ class LogicService {
                 },
                 page,
                 size
-            );   
+            );
         } catch (error) {
             throw error;
         }
@@ -504,7 +502,7 @@ class LogicService {
                 },
                 page,
                 size
-            );   
+            );
         } catch (error) {
             throw error;
         }
@@ -520,7 +518,7 @@ class LogicService {
                 } else {
                     callback(count);
                 }
-            });   
+            });
         } catch (error) {
             throw error;
         }
@@ -536,7 +534,7 @@ class LogicService {
                 } else {
                     callback(count);
                 }
-            });   
+            });
         } catch (error) {
             throw error;
         }
@@ -552,7 +550,7 @@ class LogicService {
                 } else {
                     callback(count);
                 }
-            });   
+            });
         } catch (error) {
             throw error;
         }

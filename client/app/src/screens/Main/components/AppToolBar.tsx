@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Toolbar, Button } from '@material-ui/core';
+import { AppBar, Toolbar, Button, Typography } from '@material-ui/core';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import AppLogo from './AppLogo';
 import ManageUsersModal from '../../ManageUsers';
+import { prependOnceListener } from 'cluster';
 
-const AppToolBar: React.FC = () => {
+interface Props {
+    onLogoutClicked: () => void;
+}
+
+const AppToolBar: React.FC<Props> = props => {
     const classes = useStyles();
 
     const [manageUsersShow, setManageUsersShow] = useState<boolean>(false);
@@ -22,6 +27,13 @@ const AppToolBar: React.FC = () => {
                         }}
                     >
                         <SupervisedUserCircleIcon fontSize="large" className={classes.manageButton} />
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            props.onLogoutClicked();
+                        }}
+                    >
+                        <Typography>Logout</Typography>
                     </Button>
                 </Toolbar>
             </AppBar>

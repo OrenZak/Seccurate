@@ -77,7 +77,7 @@ export function selectLoginLoading(state: { app: AppState }) {
 
 // -- SAGA ACTIONS -- //
 export const login = createAction<LoginParams>(appSlice.name + '/login');
-export const logout = createAction<LoginParams>(appSlice.name + '/logout');
+export const logout = createAction(appSlice.name + '/logout');
 
 // -- SAGA ACTIONS -- //
 export const { loginStart, logoutSucceed, loginSucceed, loginFailed } = appSlice.actions;

@@ -65,12 +65,12 @@ function start(server, scanDoneCallback) {
         socket.on(ACTIONS.PAGE_FETCHED, async function (pageBoundary) {
             console.log("Fetched page ", pageBoundary.url);
             let crawlerPageboundary = CrawlerPageBoundary.deserialize(pageBoundary);
-            
+
             //save url discovered using pageCrud
             page = new pageEntity(crawlerPageboundary.URL);
             p_crud = new pageCRUD('test', scanID);
             p_crud.insertValue(page);
-            
+
             //pass page to vuln service
             let vulnerabilityPageBoundary = new VulnerabilityPageBoundary(crawlerPageboundary.url, crawlerPageboundary.pageHash, crawlerPageboundary.type, crawlerPageboundary.value);
             if (pageQueue.length == 0 && !isVulnerabilityScanning) {
@@ -89,10 +89,12 @@ function start(server, scanDoneCallback) {
                 isVulnerabilityScanning = false;
             }
             else{
+                io.emit(EVENTS.SCAM_COMPLETE);
                 scanDoneCallback();
             }
         });
         socket.on(ACTIONS.CRAWLER_DONE, async function (results) {
+            console.log("CRAWLER_DONE");
             isCrawlerScanning = false;
             if(!isCrawlerScanning && !isVulnerabilityScanning && pageQueue.length == 0){
                 io.emit(EVENTS.SCAM_COMPLETE);

@@ -19,6 +19,7 @@ function handleLogin({ apiGateway }: { apiGateway: ApiGateway }) {
 function handleLogout({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*() {
         const result = yield call(apiGateway.user.logout);
+        console.log('Logout ', result);
         if (result.error) {
             yield put(loginFailed({ error: result.error }));
         } else if (result.response) {

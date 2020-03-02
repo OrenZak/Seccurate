@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles, createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 import AppToolBar from './screens/Main/components/AppToolBar';
@@ -31,13 +31,21 @@ const theme = createMuiTheme({
 
 const App: React.FC = () => {
     const classes = useStyles();
+    const [isLoginClicked, setIsLoginClicked] = useState<boolean>(false);
     return (
         <div className={classes.root}>
             <CookiesProvider>
                 <Provider store={store}>
                     <ThemeProvider theme={theme}>
-                        <AppToolBar />
-                        <MainScreen />
+                        <AppToolBar
+                            onLogoutClicked={() => {
+                                setIsLoginClicked(true);
+                                setTimeout(() => {
+                                    setIsLoginClicked(false);
+                                }, 250);
+                            }}
+                        />
+                        <MainScreen isLoginClicked={isLoginClicked} />
                     </ThemeProvider>
                 </Provider>
             </CookiesProvider>

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction, createAction } from '@reduxjs/toolkit';
 
 interface ScansState {
+    isScanRunning: boolean;
     completedScans: {
         data: Scan[];
         error?: string;
@@ -16,6 +17,7 @@ interface ScansState {
 }
 
 const initialState: ScansState = {
+    isScanRunning: false,
     completedScans: {
         data: [],
     },
@@ -51,6 +53,7 @@ const scansSlice = createSlice({
         startScanSucceed(state) {
             return {
                 ...state,
+                isScanRunning: true,
                 startScan: {
                     succeed: true,
                     error: undefined,
@@ -67,7 +70,6 @@ const scansSlice = createSlice({
             };
         },
         fetchScanResultsSucceed(state, action: PayloadAction<{ scanResults: Result[] }>) {
-            console.log('fetchScanResultsSucceed: ', action.payload);
             return {
                 ...state,
                 scanResults: {
@@ -83,6 +85,12 @@ const scansSlice = createSlice({
                     data: [],
                     error: action.payload.error,
                 },
+            };
+        },
+        scanCompleted(state) {
+            return {
+                ...state,
+                isScanRunning: false,
             };
         },
     },
@@ -101,6 +109,10 @@ export function selectScanResults(state: { scans: ScansState }) {
     return state.scans.scanResults;
 }
 
+export function selectIsScanRunning(state: { scans: ScansState }) {
+    return state.scans.isScanRunning;
+}
+
 // -- SAGA ACTIONS -- //
 export const fetchCompletedScans = createAction<FetchAllParams>(scansSlice.name + '/fetchCompletedScans');
 export const startScan = createAction<{ scanId: string }>(scansSlice.name + '/startScan');
@@ -114,6 +126,7 @@ export const {
     startScanFailed,
     fetchScanResultsSucceed,
     fetchScanResultsFailed,
+    scanCompleted,
 } = scansSlice.actions;
 
 export default scansSlice.reducer;
