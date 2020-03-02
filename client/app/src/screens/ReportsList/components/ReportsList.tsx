@@ -125,13 +125,13 @@ const ReportsList: React.FC<Props> = props => {
                         {completedScans
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((scan: Scan, index: number) => {
-                                const key = page * (index + 1) + index + 1;
+                                const key = page * rowsPerPage + index + 1;
                                 return (
                                     <TableRow hover role="checkbox" tabIndex={-1} key={key}>
                                         {columns.map((column: Column, index: number) => {
                                             return (
                                                 <TableCell key={column.id} align={column.align}>
-                                                    {renderValue(column, scan, index)}
+                                                    {renderValue(column, scan, key)}
                                                 </TableCell>
                                             );
                                         })}

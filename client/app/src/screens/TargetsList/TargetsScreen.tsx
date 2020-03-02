@@ -82,7 +82,7 @@ const TargetsScreen: React.FC<Props> = props => {
     };
 
     useEffect(() => {
-        props.fetchAllTargets({ page: 0, pageCount: 10 });
+        props.fetchAllTargets({ page: 0, pageCount: 100 });
     }, [props.isLoggedIn]);
 
     useEffect(() => {

@@ -80,7 +80,7 @@ const TargetList: React.FC<Props> = props => {
                         {props.targets
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((target: Target, index: number) => {
-                                const key = page * (index + 1) + index + 1;
+                                const key = page * rowsPerPage + index + 1;
                                 return (
                                     <TableRow
                                         hover
