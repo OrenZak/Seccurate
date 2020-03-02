@@ -125,7 +125,6 @@ const ReportsList: React.FC<Props> = props => {
                         {completedScans
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((scan: Scan, index: number) => {
-                                console.log('page, index : ', page, index);
                                 const key = page * rowsPerPage + index + 1;
                                 return (
                                     <TableRow hover role="checkbox" tabIndex={-1} key={key}>
