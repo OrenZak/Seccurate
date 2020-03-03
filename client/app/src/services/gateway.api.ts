@@ -49,7 +49,7 @@ export default class ApiGateway {
                 .then(results => {
                     return { response: { targets: [...results.scansEntityArray] } };
                 })
-                .catch(error => ({ error: error.msg }));
+                .catch(error => ({ error }));
         },
 
         async add(target: Target): Promise<any> {
@@ -60,7 +60,7 @@ export default class ApiGateway {
             })
                 .then(checkStatus)
                 .then(() => ({ response: { succeed: true } }))
-                .catch(error => ({ error: error.msg }));
+                .catch(error => ({ error }));
         },
 
         async update(target: Target): Promise<any> {
@@ -71,7 +71,7 @@ export default class ApiGateway {
             })
                 .then(checkStatus)
                 .then(() => ({ response: { succeed: true } }))
-                .catch(error => ({ error: error.msg }));
+                .catch(error => ({ error }));
         },
 
         async delete(id: string): Promise<any> {
@@ -82,7 +82,7 @@ export default class ApiGateway {
             })
                 .then(checkStatus)
                 .then(() => ({ response: { succeed: true } }))
-                .catch(error => ({ error: error.msg }));
+                .catch(error => ({ error }));
         },
     };
 
@@ -98,7 +98,7 @@ export default class ApiGateway {
                     return { response: { usersArray: [...results] } };
                 })
                 .catch(error => {
-                    return { error: error.msg };
+                    return { error };
                 });
         },
 
@@ -115,7 +115,7 @@ export default class ApiGateway {
                 })
                 .catch(error => {
                     console.log('Create user Error: ', error);
-                    return { error: error.msg };
+                    return { error };
                 });
         },
 
@@ -133,7 +133,7 @@ export default class ApiGateway {
                 })
                 .catch(error => {
                     console.log('error: ', error);
-                    return { error: error.msg };
+                    return { error };
                 });
         },
 
@@ -147,7 +147,7 @@ export default class ApiGateway {
                 .then(() => {
                     return { response: { msg: 'deleted' } };
                 })
-                .catch(error => ({ error: error.msg }));
+                .catch(error => ({ error }));
         },
     };
 
@@ -162,7 +162,7 @@ export default class ApiGateway {
                 .then(results => {
                     return { response: { configs: [...results._configEntityArray] } };
                 })
-                .catch(error => ({ error: error.msg }));
+                .catch(error => ({ error }));
         },
 
         async add(scanConfig: ScanConfig): Promise<ApiResult<{ scanConfigID: string }>> {
@@ -174,7 +174,7 @@ export default class ApiGateway {
             })
                 .then(checkStatus)
                 .then(configID => ({ response: { scanConfigID: configID } }))
-                .catch(error => ({ error: error.msg }));
+                .catch(error => ({ error }));
         },
 
         async update(scanConfig: ScanConfig): Promise<ApiResult<{ msg: string }>> {
@@ -186,7 +186,7 @@ export default class ApiGateway {
             })
                 .then(checkStatus)
                 .then(() => ({ response: { msg: 'updated' } }))
-                .catch(error => ({ error: error.msg }));
+                .catch(error => ({ error }));
         },
 
         async delete(id: string): Promise<ApiResult<{ msg: string }>> {
@@ -198,7 +198,7 @@ export default class ApiGateway {
             })
                 .then(checkStatus)
                 .then(() => ({ response: { msg: 'deleted' } }))
-                .catch(error => ({ error: error.msg }));
+                .catch(error => ({ error }));
         },
     };
 
@@ -217,7 +217,7 @@ export default class ApiGateway {
                     return { response: { scans: [...results.scanEntityArray] } };
                 })
                 .catch(error => {
-                    return { error: error.msg };
+                    return { error: error };
                 });
         },
 
@@ -232,7 +232,7 @@ export default class ApiGateway {
                 .then(() => {
                     return { response: { msg: 'started' } };
                 })
-                .catch(error => ({ error: error.msg }));
+                .catch(error => ({ error }));
         },
 
         async getResults(scanId: string): Promise<ApiResult<{ results: Result[] }>> {
@@ -246,7 +246,7 @@ export default class ApiGateway {
                     return { response: { results } };
                 })
                 .catch(error => {
-                    return { error: error.msg };
+                    return { error };
                 });
         },
     };

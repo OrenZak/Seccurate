@@ -53,7 +53,6 @@ const scansSlice = createSlice({
         startScanSucceed(state) {
             return {
                 ...state,
-                isScanRunning: true,
                 startScan: {
                     succeed: true,
                     error: undefined,
@@ -88,7 +87,6 @@ const scansSlice = createSlice({
             };
         },
         scanCompleted(state) {
-            console.log("Scan completed Slice");
             return {
                 ...state,
                 isScanRunning: false,

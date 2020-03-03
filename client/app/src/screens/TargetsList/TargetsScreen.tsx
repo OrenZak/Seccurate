@@ -31,7 +31,7 @@ interface ConnectedProps {
 interface DispatchProps {
     fetchAllTargets: ({ page, pageCount }: FetchAllParams) => void;
     deleteTarget: ({ id }: DeleteTargetParams) => void;
-    startScan: ({ scanId }: { scanId: string }) => void;
+    startScan: ({ scanId, scanName }: StartScanPayload) => void;
     updateScanCompleted: () => void;
 }
 
@@ -64,7 +64,7 @@ const TargetsScreen: React.FC<Props> = props => {
 
     const onStartScanClicked = () => {
         if (selectedTarget) {
-            props.startScan({ scanId: selectedTarget.scanID! });
+            props.startScan({ scanId: selectedTarget.scanID!, scanName: selectedTarget.name });
         }
     };
 

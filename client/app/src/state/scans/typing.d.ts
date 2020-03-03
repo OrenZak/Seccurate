@@ -5,6 +5,7 @@ interface FetchAllParams {
 
 interface StartScanPayload {
     scanId: string;
+    scanName: string;
 }
 
 interface FetchScanResultsPayload {

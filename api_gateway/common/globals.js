@@ -13,7 +13,7 @@ const DB_INFO = {
     database: 'test'
 };
 
-const CLIENT_HOSTNAME = 'http://localhost:3002';
+const CLIENT_HOSTNAME = 'http://localhost:3000';
 
 const THRESHOLD_VALUES = {
     maxDepth: {

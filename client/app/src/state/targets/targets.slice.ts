@@ -117,6 +117,12 @@ const targetsSlice = createSlice({
                 },
             };
         },
+        removeTargetByScanId(state, action: PayloadAction<{ scanId: string }>) {
+            return {
+                ...state,
+                targets: state.targets.filter((target: Target) => target.scanID !== action.payload.scanId),
+            };
+        },
     },
 });
 
@@ -158,6 +164,7 @@ export const {
     updateTargetsFailed,
     deleteTargetsSucceed,
     deleteTargetsFailed,
+    removeTargetByScanId,
 } = targetsSlice.actions;
 
 export default targetsSlice.reducer;

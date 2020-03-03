@@ -16,6 +16,7 @@ import {
     deleteTargetsSucceed,
 } from './targets.slice';
 import ApiGateway, { ApiResult } from '../../services/gateway.api';
+import { showMessage } from '../app/app.slice';
 
 function handleFetchAll({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: FetchAllParams }) {
@@ -39,9 +40,10 @@ function handleAddTarget({ apiGateway }: { apiGateway: ApiGateway }) {
         if (result.error) {
             yield put(addTargetsFailed({ error: result.error }));
         } else if (result.response) {
-            console.log("handleAddTarget", result);
-            yield put(fetchAllTargets({page: 0, pageCount: 100}));
+            console.log('handleAddTarget', result);
+            yield put(fetchAllTargets({ page: 0, pageCount: 100 }));
             yield put(addTargetsSucceed());
+            yield put(showMessage({ msg: { text: 'Target was added', type: 'success' } }));
         }
     };
 }
@@ -49,12 +51,13 @@ function handleAddTarget({ apiGateway }: { apiGateway: ApiGateway }) {
 function handleUpdateTarget({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: UpdateTargetParams }) {
         const result: ApiResult<UpdateTargetParams> = yield call(apiGateway.targets.update, payload.target);
-        console.log("handleUpdateTarget ", result);
+        console.log('handleUpdateTarget ', result);
         if (result.error) {
             yield put(updateTargetsFailed({ error: result.error }));
         } else if (result.response) {
-            yield put(fetchAllTargets({page: 0, pageCount: 100}));
+            yield put(fetchAllTargets({ page: 0, pageCount: 100 }));
             yield put(updateTargetsSucceed());
+            yield put(showMessage({ msg: { text: 'Target was updated', type: 'success' } }));
         }
     };
 }
@@ -65,8 +68,9 @@ function handleDeleteTarget({ apiGateway }: { apiGateway: ApiGateway }) {
         if (result.error) {
             yield put(deleteTargetsFailed({ error: result.error }));
         } else if (result.response) {
-            yield put(fetchAllTargets({page: 0, pageCount: 100}));
+            yield put(fetchAllTargets({ page: 0, pageCount: 100 }));
             yield put(deleteTargetsSucceed());
+            yield put(showMessage({ msg: { text: 'Target was deleted', type: 'success' } }));
         }
     };
 }
