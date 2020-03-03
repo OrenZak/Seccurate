@@ -11,14 +11,16 @@ import {
     startScan,
     fetchScanResults,
     scanCompleted,
-    updateScanCompleted
+    updateScanCompleted,
 } from './scans.slice';
 import ApiGateway, { ApiResult } from '../../services/gateway.api';
+import { showMessage } from '../app/app.slice';
+import { removeTargetByScanId } from '../targets/targets.slice';
 
 function handleUpdateScanCompleted() {
     return function*() {
-    console.log("updateScanCompleted");
-    yield put(scanCompleted());
+        console.log('updateScanCompleted');
+        yield put(scanCompleted());
     };
 }
 
@@ -43,8 +45,27 @@ function handleStartScan({ apiGateway }: { apiGateway: ApiGateway }) {
         const result: ApiResult<{ msg: string }> = yield call(apiGateway.scans.start, payload.scanId);
         if (result.error) {
             yield put(startScanFailed({ error: result.error }));
+            yield put(
+                showMessage({
+                    msg: {
+                        text: result.error || 'Failed to start scan',
+                        type: 'error',
+                        duration: 2000,
+                    },
+                }),
+            );
         } else if (result.response) {
             yield put(startScanSucceed());
+            yield put(removeTargetByScanId({ scanId: payload.scanId }));
+            yield put(
+                showMessage({
+                    msg: {
+                        text: `Successfully started scan ${payload.scanName}. A detailed report will appear in the Reports tab upon scan completion`,
+                        type: 'success',
+                        duration: 3000,
+                    },
+                }),
+            );
         }
     };
 }

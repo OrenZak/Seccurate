@@ -88,7 +88,7 @@ const ManageUsersContent: React.FC<Props> = props => {
             <Grid container item direction={'column'} style={{ width: '80%' }}>
                 <Grid container item xs={12} direction={'row'} justify={'center'} alignItems={'center'}>
                     <Grid item xs={12} sm={6}>
-                        <h4 className={classes.columnTitle}>Email</h4>
+                        <h4 className={classes.columnTitle}>User Name</h4>
                     </Grid>
                     <Grid item xs={12} sm={6}>
                         <h4 className={classes.columnTitle}>Role</h4>

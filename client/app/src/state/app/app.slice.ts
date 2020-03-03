@@ -1,11 +1,19 @@
 import { createSlice, PayloadAction, createAction } from '@reduxjs/toolkit';
 
+export interface SnackBarMessage {
+    text: string;
+    type: 'success' | 'error';
+    duration?: number;
+}
 interface AppState {
     isAdmin: boolean;
     login: {
         isLoading: boolean;
         isLoggedIn: boolean;
         loginError?: string;
+    };
+    snackbar: {
+        msg?: SnackBarMessage;
     };
 }
 
@@ -15,6 +23,7 @@ const initialState: AppState = {
         isLoading: false,
         isLoggedIn: false,
     },
+    snackbar: {},
 };
 
 const appSlice = createSlice({
@@ -65,6 +74,14 @@ const appSlice = createSlice({
                 },
             };
         },
+        setSnackbarMessage(state, action: PayloadAction<{ msg: SnackBarMessage }>) {
+            return {
+                ...state,
+                snackbar: {
+                    msg: action.payload.msg,
+                },
+            };
+        },
     },
 });
 
@@ -81,11 +98,16 @@ export function selectLoginLoading(state: { app: AppState }) {
     return state.app.login.isLoading;
 }
 
+export function selectSnackbar(state: { app: AppState }) {
+    return state.app.snackbar;
+}
+
 // -- SAGA ACTIONS -- //
 export const login = createAction<LoginParams>(appSlice.name + '/login');
 export const logout = createAction(appSlice.name + '/logout');
+export const showMessage = createAction<{ msg: SnackBarMessage }>(appSlice.name + '/showMessage');
 
 // -- SAGA ACTIONS -- //
-export const { loginStart, logoutSucceed, loginSucceed, loginFailed } = appSlice.actions;
+export const { loginStart, logoutSucceed, loginSucceed, loginFailed, setSnackbarMessage } = appSlice.actions;
 
 export default appSlice.reducer;

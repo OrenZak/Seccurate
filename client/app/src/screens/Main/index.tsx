@@ -2,12 +2,22 @@ import { makeStyles } from '@material-ui/core/styles';
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { login, selectIsLoggedIn, selectLoginError, selectLoginLoading, logout } from '../../state/app/app.slice';
+import {
+    login,
+    selectIsLoggedIn,
+    selectLoginError,
+    selectLoginLoading,
+    logout,
+    SnackBarMessage,
+    selectSnackbar,
+} from '../../state/app/app.slice';
 import { RootState } from '../../state/rootReducer';
 import LoginModal from '../Login';
 import Screens from '../screen';
 import AppNavDrawer from './components/AppNavDrawer';
 import { withCookies, ReactCookieProps } from 'react-cookie';
+import { Snackbar } from '@material-ui/core';
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 
 interface OwnProps {
     isLoginClicked: boolean;
@@ -17,6 +27,7 @@ interface ConnectedProps {
     loggedIn: boolean;
     loginError?: string;
     loginLoading: boolean;
+    snackbar: { msg?: SnackBarMessage };
 }
 
 interface DispatchProps {
@@ -25,6 +36,10 @@ interface DispatchProps {
 }
 
 type Props = OwnProps & ConnectedProps & DispatchProps & ReactCookieProps;
+
+function Alert(props: AlertProps) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const MainScreen: React.FC<Props> = props => {
     const classes = useStyles();
@@ -37,12 +52,28 @@ const MainScreen: React.FC<Props> = props => {
         props.login({ username, password });
     };
 
+    const [open, setOpen] = useState(false);
+
     useEffect(() => {
         if (props.isLoginClicked) {
             props.logout();
         }
     }, [props.isLoginClicked]);
 
+    useEffect(() => {
+        if (snackbar.msg) {
+            setOpen(true);
+        }
+    }, [props.snackbar]);
+
+    const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
+    };
+    const { snackbar } = props;
     return (
         <div className={classes.container}>
             <div>
@@ -60,6 +91,11 @@ const MainScreen: React.FC<Props> = props => {
                 loginError={props.loginError}
                 loginLoading={props.loginLoading}
             />
+            <Snackbar open={open} autoHideDuration={1500} onClose={handleClose}>
+                <Alert onClose={handleClose} severity={snackbar.msg?.type}>
+                    {snackbar.msg?.text}
+                </Alert>
+            </Snackbar>
         </div>
     );
 };
@@ -80,6 +116,7 @@ function mapStateToProps(state: RootState, ownProps: OwnProps): ConnectedProps {
         loggedIn: selectIsLoggedIn(state),
         loginError: selectLoginError(state),
         loginLoading: selectLoginLoading(state),
+        snackbar: selectSnackbar(state),
     };
 }
 

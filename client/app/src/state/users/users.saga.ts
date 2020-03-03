@@ -16,6 +16,7 @@ import {
     deleteUserSucceed,
 } from './users.slice';
 import ApiGateway, { ApiResult } from '../../services/gateway.api';
+import { showMessage } from '../app/app.slice';
 
 function handleFetchAllUsers({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*() {
@@ -34,9 +35,11 @@ function handleCreateUser({ apiGateway }: { apiGateway: ApiGateway }) {
         const result: ApiResult<{ msg: string }> = yield call(apiGateway.users.createUser, payload);
         if (result.error) {
             yield put(addUserFailed({ error: result.error }));
+            yield put(showMessage({ msg: { text: result.error, type: 'error' } }));
         } else if (result.response) {
             yield put(fetchAllUsers());
             yield put(addUserSucceed());
+            yield put(showMessage({ msg: { text: 'User Added Successfully', type: 'success' } }));
         }
     };
 }
@@ -46,9 +49,11 @@ function handleUpdateUser({ apiGateway }: { apiGateway: ApiGateway }) {
         const result: ApiResult<{ msg: string }> = yield call(apiGateway.users.updateUser, payload);
         if (result.error) {
             yield put(updateUserFailed({ error: result.error }));
+            yield put(showMessage({ msg: { text: result.error, type: 'error' } }));
         } else if (result.response) {
             yield put(fetchAllUsers());
             yield put(updateUserSucceed());
+            yield put(showMessage({ msg: { text: 'User Updated Successfully', type: 'success' } }));
         }
     };
 }
@@ -58,9 +63,11 @@ function handleDeleteUser({ apiGateway }: { apiGateway: ApiGateway }) {
         const result: ApiResult<{ msg: string }> = yield call(apiGateway.users.deleteUser, payload);
         if (result.error) {
             yield put(deleteUserFailed({ error: result.error }));
+            yield put(showMessage({ msg: { text: result.error, type: 'error' } }));
         } else if (result.response) {
             yield put(fetchAllUsers());
             yield put(deleteUserSucceed());
+            yield put(showMessage({ msg: { text: 'User Deleted Successfully', type: 'success' } }));
         }
     };
 }
