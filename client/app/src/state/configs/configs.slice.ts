@@ -2,6 +2,7 @@ import { createSlice, PayloadAction, createAction } from '@reduxjs/toolkit';
 
 interface ConfigsState {
     configs: ScanConfig[];
+    totalConfigCount: number;
     fetch: {
         isLoading: boolean;
         error?: string;
@@ -22,6 +23,7 @@ interface ConfigsState {
 
 const initialState: ConfigsState = {
     configs: [],
+    totalConfigCount: 0,
     fetch: {
         isLoading: false,
     },
@@ -43,10 +45,11 @@ const configsSlice = createSlice({
                 },
             };
         },
-        fetchConfigsSucceed(state, action: PayloadAction<{ configs: ScanConfig[] }>) {
+        fetchConfigsSucceed(state, action: PayloadAction<{ configs: ScanConfig[], count: number }>) {
             return {
                 ...state,
                 configs: action.payload.configs,
+                totalConfigCount: action.payload.count,
                 fetch: {
                     isLoading: false,
                     error: undefined,

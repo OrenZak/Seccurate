@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import {
     fetchCompletedScans,
     fetchScanResults,
-    selectCompltedScans,
+    selectCompletedScans,
     selectScanResults,
 } from '../../state/scans/scans.slice';
 
@@ -103,7 +103,7 @@ const useStyles = makeStyles(_ => ({
 
 function mapStateToProps(state: RootState, ownProps: OwnProps): ConnectedProps {
     return {
-        completedScans: selectCompltedScans(state),
+        completedScans: selectCompletedScans(state),
         scanResults: selectScanResults(state),
     };
 }
