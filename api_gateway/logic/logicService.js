@@ -62,7 +62,7 @@ class LogicService {
         scanID
     ) {
         try {
-           // let dbName = 'test';
+            // let dbName = 'test';
             //let scansDao = new ScansDao(dbName);
             let scanEntity = new ScanEntity(
                 name,
@@ -178,42 +178,41 @@ class LogicService {
 
     async startCrawl(id) {
         try {
-            if(currentID == null) {
+            if (currentID == null) {
                 currentID = id;
                 //let dbName = 'test';
                 //let scansDao = new ScansDao(dbName);
                 scansDao.getValue(id, (err, value) => {
-                  if (err) {
-                    throw err;
-                  } else {
-                    let config = {
-                      interval: value[0]['interval_crawler'],
-                      maxDepth: value[0]['maxDepth'],
-                      timeout: value[0]['timeout']
-                    };
-                    let crawlerConfigBoundary = new CrawlerConfigScanBoundary(
-                        config,
-                        value[0]['scanType'],
-                        value[0]['url'],
-                        JSON.parse(value[0]['loginInfo'])
-                    );
-                    let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(
-                        globals.VULN_TABLE_PREFIX + value[0]['scanID'],
-                        value[0]['scanType'],
-                        value[0]['url'],
-                        JSON.parse(value[0]['loginInfo'])
-                    );
-                    // INIT vulnerability micro service scan configuration
-                    socketManager.configDatabase(vulnerabilityConfigBoundary);
-                    console.log('config vulnerability database before scan');
-                    socketManager.startCrawl(crawlerConfigBoundary, id);
-                    console.log('crawler starts');
-                  }
+                    if (err) {
+                        throw err;
+                    } else {
+                        let config = {
+                            interval: value[0]['interval_crawler'],
+                            maxDepth: value[0]['maxDepth'],
+                            timeout: value[0]['timeout']
+                        };
+                        let crawlerConfigBoundary = new CrawlerConfigScanBoundary(
+                            config,
+                            value[0]['scanType'],
+                            value[0]['url'],
+                            JSON.parse(value[0]['loginInfo'])
+                        );
+                        let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(
+                            globals.VULN_TABLE_PREFIX + value[0]['scanID'],
+                            value[0]['scanType'],
+                            value[0]['url'],
+                            JSON.parse(value[0]['loginInfo'])
+                        );
+                        // INIT vulnerability micro service scan configuration
+                        socketManager.configDatabase(vulnerabilityConfigBoundary);
+                        console.log('config vulnerability database before scan');
+                        socketManager.startCrawl(crawlerConfigBoundary, id);
+                        console.log('crawler starts');
+                    }
                 });
-              }
-              else{
-                throw "Scan already in progress";
-              }
+            } else {
+                throw new Error("Scan already in progress");
+            }
         } catch (error) {
             throw error;
         }
@@ -279,10 +278,9 @@ class LogicService {
     async register(username, password, role, callback) {
         if (!username.trim() || !password.trim()) {
             callback(false);
-        }
-        else {
-        //let dbName = 'test';
-        //let usersDao = new UsersDao(dbName);
+        } else {
+            //let dbName = 'test';
+            //let usersDao = new UsersDao(dbName);
             usersDao.getValue(username, (err, results) => {
                 if (err) {
                     console.log(err);
@@ -314,28 +312,31 @@ class LogicService {
         }
     }
 
-    async getAllUsers(callback) {
-        //let dbName = 'test';
-        //let usersDao = new UsersDao(dbName);
-        usersDao.getAll(
-            (err, results) => {
-                if (err) {
-                    callback(null);
-                } else {
-                    callback(results);
-                }
-            },
-            0,
-            200
-        );
+    async getAllUsers(page, size, callback) {
+        try {
+            //let dbName = 'test';
+            //let usersDao = new UsersDao(dbName);
+            usersDao.getAll(
+                (err, results) => {
+                    if (err) {
+                        callback(null);
+                    } else {
+                        callback(results);
+                    }
+                },
+                page, size
+            );
+        }
+        catch (err){
+            throw err;
+        }
     }
 
     async updateUser(username, role, callback) {
         if (!username.trim()) {
             callback(null);
             return;
-        }
-        else {
+        } else {
             //let dbName = 'test';
             //let usersDao = new UsersDao(dbName);
             // check if user exist
