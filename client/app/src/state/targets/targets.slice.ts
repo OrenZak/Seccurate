@@ -2,6 +2,7 @@ import { createSlice, PayloadAction, createAction } from '@reduxjs/toolkit';
 
 interface TargetsState {
     targets: Target[];
+    totalTargetCount: number;
     fetch: {
         isLoading: boolean;
         error?: string;
@@ -22,6 +23,7 @@ interface TargetsState {
 
 const initialState: TargetsState = {
     targets: [],
+    totalTargetCount: 0,
     fetch: {
         isLoading: false,
     },
@@ -43,10 +45,11 @@ const targetsSlice = createSlice({
                 },
             };
         },
-        fetchTargetsSucceed(state, action: PayloadAction<{ targets: Target[] }>) {
+        fetchTargetsSucceed(state, action: PayloadAction<{ targets: Target[], count: number }>) {
             return {
                 ...state,
                 targets: action.payload.targets,
+                totalTargetCount: action.payload.count,
                 fetch: {
                     isLoading: false,
                     error: undefined,

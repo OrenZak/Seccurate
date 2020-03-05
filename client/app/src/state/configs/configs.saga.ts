@@ -25,12 +25,13 @@ function handleFetchAllConfigs({ apiGateway }: { apiGateway: ApiGateway }) {
             payload.page,
             payload.pageCount,
         );
-
-        console.log('handleFetchAllConfigs ', result);
+        const countResult: ApiResult<{count: number}> = yield call(apiGateway.savedConfig.getCount);
         if (result.error) {
             yield put(fetchConfigsFailed({ error: result.error }));
         } else if (result.response) {
-            yield put(fetchConfigsSucceed({ configs: result.response.configs }));
+            const configs = result.response.configs;
+            const count = countResult.response?.count ?? configs.length;
+            yield put(fetchConfigsSucceed({ configs, count }));
         }
     };
 }

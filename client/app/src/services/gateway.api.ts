@@ -84,6 +84,16 @@ export default class ApiGateway {
                 .then(() => ({ response: { succeed: true } }))
                 .catch(error => ({ error }));
         },
+
+        async getCount(): Promise<any> {
+            return fetch(`${END_POINTS.gatewayURL}/targets_count`, {
+                method: 'GET',
+                headers: { ...BASE_HEADERS },
+            })
+                .then(checkStatus)
+                .then((count) => ({ response: { count } }))
+                .catch(error => ({ error }));
+        },
     };
 
     users = {
@@ -200,6 +210,16 @@ export default class ApiGateway {
                 .then(() => ({ response: { msg: 'deleted' } }))
                 .catch(error => ({ error }));
         },
+
+        async getCount(): Promise<any> {
+            return fetch(`${END_POINTS.gatewayURL}/config_count`, {
+                method: 'GET',
+                headers: { ...BASE_HEADERS },
+            })
+                .then(checkStatus)
+                .then((count) => ({ response: { count } }))
+                .catch(error => ({ error }));
+        },
     };
 
     scans = {
@@ -248,6 +268,16 @@ export default class ApiGateway {
                 .catch(error => {
                     return { error };
                 });
+        },
+
+        async getCount(): Promise<any> {
+            return fetch(`${END_POINTS.gatewayURL}/completed_scans_count`, {
+                method: 'GET',
+                headers: { ...BASE_HEADERS },
+            })
+                .then(checkStatus)
+                .then((count) => ({ response: { count } }))
+                .catch(error => ({ error }));
         },
     };
 }

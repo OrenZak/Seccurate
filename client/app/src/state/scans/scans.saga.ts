@@ -32,10 +32,13 @@ function handleFetchCompletedScans({ apiGateway }: { apiGateway: ApiGateway }) {
             payload.page,
             payload.pageCount,
         );
+        const countResult: ApiResult<{count: number}> = yield call(apiGateway.scans.getCount);
         if (result.error) {
             yield put(fetchCompletedScansFailed({ error: result.error }));
         } else if (result.response) {
-            yield put(fetchCompletedScansSucceed({ scans: result.response.scans }));
+            const scans = result.response.scans;
+            const count = countResult.response?.count ?? scans.length;
+            yield put(fetchCompletedScansSucceed({ scans, count }));
         }
     };
 }

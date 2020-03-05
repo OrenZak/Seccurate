@@ -4,6 +4,7 @@ interface ScansState {
     isScanRunning: boolean;
     completedScans: {
         data: Scan[];
+        totalCount: number;
         error?: string;
     };
     startScan: {
@@ -20,6 +21,7 @@ const initialState: ScansState = {
     isScanRunning: false,
     completedScans: {
         data: [],
+        totalCount: 0,
     },
     startScan: {},
     scanResults: {
@@ -31,11 +33,12 @@ const scansSlice = createSlice({
     name: 'scans',
     initialState,
     reducers: {
-        fetchCompletedScansSucceed(state, action: PayloadAction<{ scans: Scan[] }>) {
+        fetchCompletedScansSucceed(state, action: PayloadAction<{ scans: Scan[], count: number }>) {
             return {
                 ...state,
                 completedScans: {
                     data: action.payload.scans,
+                    totalCount: action.payload.count,
                     error: undefined,
                 },
             };
@@ -45,7 +48,7 @@ const scansSlice = createSlice({
                 ...state,
                 completedScans: {
                     data: [],
-                    isLoading: false,
+                    totalCount: 0,
                     error: action.payload.error,
                 },
             };
@@ -96,7 +99,7 @@ const scansSlice = createSlice({
 });
 
 // -- STATE SELECTORS --//
-export function selectCompltedScans(state: { scans: ScansState }) {
+export function selectCompletedScans(state: { scans: ScansState }) {
     return state.scans.completedScans;
 }
 

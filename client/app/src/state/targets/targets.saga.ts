@@ -26,10 +26,13 @@ function handleFetchAll({ apiGateway }: { apiGateway: ApiGateway }) {
             payload.page,
             payload.pageCount,
         );
+        const countResult: ApiResult<{count: number}> = yield call(apiGateway.targets.getCount);
         if (result.error) {
             yield put(fetchTargetsFailed({ error: result.error }));
         } else if (result.response) {
-            yield put(fetchTargetsSucceed({ targets: result.response.targets }));
+            const targets = result.response.targets;
+            const count = countResult.response?.count ?? targets.length;
+            yield put(fetchTargetsSucceed({ targets, count }));
         }
     };
 }
