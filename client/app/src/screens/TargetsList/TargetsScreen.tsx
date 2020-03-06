@@ -8,10 +8,12 @@ import { RootState } from '../../state/rootReducer';
 import { Dispatch, bindActionCreators } from 'redux';
 import {
     fetchAllTargets,
+    fetchNextPage,
     deleteTarget,
     selectFetchTargetsInfo,
     selectDeleteTargetsInfo,
     selectTargets,
+    selectTotalTargets,
 } from '../../state/targets/targets.slice';
 import { startScan, selectIsScanRunning, updateScanCompleted } from '../../state/scans/scans.slice';
 import { connect } from 'react-redux';
@@ -23,6 +25,7 @@ interface OwnProps {}
 interface ConnectedProps {
     isLoggedIn: boolean;
     targets: Target[];
+    totalTargets: number;
     fetch: { isLoading: boolean; error?: string };
     delete: { succeed?: boolean; error?: string };
     isScanRunning: boolean;
@@ -30,6 +33,7 @@ interface ConnectedProps {
 
 interface DispatchProps {
     fetchAllTargets: ({ page, pageCount }: FetchAllParams) => void;
+    fetchNextPage: ({ page, pageCount }: FetchAllParams) => void;
     deleteTarget: ({ id }: DeleteTargetParams) => void;
     startScan: ({ scanId, scanName }: StartScanPayload) => void;
     updateScanCompleted: () => void;
@@ -41,6 +45,8 @@ const TargetsScreen: React.FC<Props> = props => {
     const classes = useStyles();
     const [selectedTarget, setSelectedTarget] = useState<Target>();
     const [openCrateTargetModal, setOpenCrateTargetModal] = useState(false);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const onAddTargetClicked = () => {
         if (!openCrateTargetModal) {
@@ -82,7 +88,7 @@ const TargetsScreen: React.FC<Props> = props => {
     };
 
     useEffect(() => {
-        props.fetchAllTargets({ page: 0, pageCount: 100 });
+        props.fetchAllTargets({ page: 0, pageCount: 10 });
     }, [props.isLoggedIn]);
 
     useEffect(() => {
@@ -92,11 +98,39 @@ const TargetsScreen: React.FC<Props> = props => {
         });
     }, []);
 
+    const handleOnChangePage = (newPage: number) => {
+        if (page < newPage) {
+            if (props.targets.length < props.totalTargets) {
+                props.fetchNextPage({ page: newPage, pageCount: rowsPerPage });
+            }
+        }
+        setPage(newPage);
+    };
+
+    const handleOnChangeRowsPerPage = (newRowsPerPage: number) => {
+        const currentTargetsCount = props.targets.length;
+        if (currentTargetsCount < props.totalTargets && currentTargetsCount < (page + 1) * newRowsPerPage) {
+            props.fetchAllTargets({ page: 0, pageCount: (page + 1) * newRowsPerPage });
+        }
+        if (props.totalTargets <= (page + 1) * newRowsPerPage && page > 0) {
+            setPage(page - 1);
+        }
+        setRowsPerPage(newRowsPerPage);
+    };
+
     return (
         <div>
             <Grid container direction="row" spacing={4} className={classes.listFabContainer}>
                 <Grid item xs={8}>
-                    <TargetList targets={props.targets} onItemSelected={onItemSelected} />
+                    <TargetList
+                        targets={props.targets}
+                        totalTargets={props.totalTargets}
+                        onItemSelected={onItemSelected}
+                        page={page}
+                        rowsPerPage={rowsPerPage}
+                        onChangePage={handleOnChangePage}
+                        onChangeRowsPerPage={handleOnChangeRowsPerPage}
+                    />
                 </Grid>
                 <MainButtons
                     showStartScan={!props.isScanRunning && selectedTarget !== undefined}
@@ -132,6 +166,7 @@ function mapStateToProps(state: RootState, ownProps: OwnProps): ConnectedProps {
     return {
         isLoggedIn: selectIsLoggedIn(state),
         targets: selectTargets(state),
+        totalTargets: selectTotalTargets(state),
         fetch: selectFetchTargetsInfo(state),
         delete: selectDeleteTargetsInfo(state),
         isScanRunning: selectIsScanRunning(state),
@@ -142,6 +177,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
     return bindActionCreators(
         {
             fetchAllTargets,
+            fetchNextPage,
             deleteTarget,
             startScan,
             updateScanCompleted,

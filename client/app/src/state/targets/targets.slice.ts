@@ -45,7 +45,7 @@ const targetsSlice = createSlice({
                 },
             };
         },
-        fetchTargetsSucceed(state, action: PayloadAction<{ targets: Target[], count: number }>) {
+        fetchTargetsSucceed(state, action: PayloadAction<{ targets: Target[]; count: number }>) {
             return {
                 ...state,
                 targets: action.payload.targets,
@@ -134,6 +134,10 @@ export function selectTargets(state: { targets: TargetsState }) {
     return state.targets.targets;
 }
 
+export function selectTotalTargets(state: { targets: TargetsState }) {
+    return state.targets.totalTargetCount;
+}
+
 export function selectFetchTargetsInfo(state: { targets: TargetsState }) {
     return state.targets.fetch;
 }
@@ -152,6 +156,7 @@ export function selectDeleteTargetsInfo(state: { targets: TargetsState }) {
 
 // -- SAGA ACTIONS -- //
 export const fetchAllTargets = createAction<FetchAllParams>(targetsSlice.name + '/fetchAllTargets');
+export const fetchNextPage = createAction<FetchAllParams>(targetsSlice.name + '/fetchNextPage');
 export const addTarget = createAction<AddTargetParams>(targetsSlice.name + '/addTarget');
 export const updateTarget = createAction<UpdateTargetParams>(targetsSlice.name + '/updateTarget');
 export const deleteTarget = createAction<DeleteTargetParams>(targetsSlice.name + '/deleteTarget');

@@ -1,5 +1,5 @@
 import { sagaCreator } from '../../utils/saga';
-import { put, call } from 'redux-saga/effects';
+import { put, call, select } from 'redux-saga/effects';
 import {
     fetchCompletedScansSucceed,
     fetchCompletedScansFailed,
@@ -8,10 +8,12 @@ import {
     fetchScanResultsSucceed,
     fetchScanResultsFailed,
     fetchCompletedScans,
+    fetchNextCompletedScans,
     startScan,
     fetchScanResults,
     scanCompleted,
     updateScanCompleted,
+    selectCompletedScans,
 } from './scans.slice';
 import ApiGateway, { ApiResult } from '../../services/gateway.api';
 import { showMessage } from '../app/app.slice';
@@ -32,11 +34,31 @@ function handleFetchCompletedScans({ apiGateway }: { apiGateway: ApiGateway }) {
             payload.page,
             payload.pageCount,
         );
-        const countResult: ApiResult<{count: number}> = yield call(apiGateway.scans.getCount);
+        const countResult: ApiResult<{ count: number }> = yield call(apiGateway.scans.getCount);
         if (result.error) {
             yield put(fetchCompletedScansFailed({ error: result.error }));
         } else if (result.response) {
             const scans = result.response.scans;
+            const count = countResult.response?.count ?? scans.length;
+            yield put(fetchCompletedScansSucceed({ scans, count }));
+        }
+    };
+}
+
+function handleFetchNextCompletedScans({ apiGateway }: { apiGateway: ApiGateway }) {
+    return function*({ payload }: { payload: FetchAllParams }) {
+        console.log('handleFetchNextCompletedScans', payload);
+        const result: ApiResult<FetchAllCompletedScansResponse> = yield call(
+            apiGateway.scans.fetchAllCompleted,
+            payload.page,
+            payload.pageCount,
+        );
+        const countResult: ApiResult<{ count: number }> = yield call(apiGateway.scans.getCount);
+        if (result.error) {
+            yield put(fetchCompletedScansFailed({ error: result.error }));
+        } else if (result.response) {
+            const currentScans: Scan[] = yield select(selectCompletedScans);
+            const scans = currentScans.concat(result.response.scans);
             const count = countResult.response?.count ?? scans.length;
             yield put(fetchCompletedScansSucceed({ scans, count }));
         }
@@ -86,6 +108,7 @@ function handleFetchScanResults({ apiGateway }: { apiGateway: ApiGateway }) {
 
 export default sagaCreator({
     [fetchCompletedScans.type]: { handler: handleFetchCompletedScans },
+    [fetchNextCompletedScans.type]: { handler: handleFetchNextCompletedScans },
     [startScan.type]: { handler: handleStartScan },
     [fetchScanResults.type]: { handler: handleFetchScanResults },
     [updateScanCompleted.type]: { handler: handleUpdateScanCompleted },

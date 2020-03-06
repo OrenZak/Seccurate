@@ -1,7 +1,8 @@
 import { sagaCreator } from '../../utils/saga';
-import { put, call } from 'redux-saga/effects';
+import { put, call, select } from 'redux-saga/effects';
 import {
     fetchAllConfigs,
+    fetchNextConfigs,
     fetchConfigsStart,
     fetchConfigsSucceed,
     fetchConfigsFailed,
@@ -14,6 +15,7 @@ import {
     updateConfigFailed,
     deleteConfigFailed,
     deleteConfigSucceed,
+    selectConfigs,
 } from './configs.slice';
 import ApiGateway, { ApiResult } from '../../services/gateway.api';
 
@@ -25,11 +27,31 @@ function handleFetchAllConfigs({ apiGateway }: { apiGateway: ApiGateway }) {
             payload.page,
             payload.pageCount,
         );
-        const countResult: ApiResult<{count: number}> = yield call(apiGateway.savedConfig.getCount);
+        const countResult: ApiResult<{ count: number }> = yield call(apiGateway.savedConfig.getCount);
         if (result.error) {
             yield put(fetchConfigsFailed({ error: result.error }));
         } else if (result.response) {
             const configs = result.response.configs;
+            const count = countResult.response?.count ?? configs.length;
+            yield put(fetchConfigsSucceed({ configs, count }));
+        }
+    };
+}
+
+function handleFetchNextConfigs({ apiGateway }: { apiGateway: ApiGateway }) {
+    return function*({ payload }: { payload: FetchAllParams }) {
+        yield put(fetchConfigsStart());
+        const result: ApiResult<FetchAllConfigsResponse> = yield call(
+            apiGateway.savedConfig.fetchAll,
+            payload.page,
+            payload.pageCount,
+        );
+        const countResult: ApiResult<{ count: number }> = yield call(apiGateway.savedConfig.getCount);
+        if (result.error) {
+            yield put(fetchConfigsFailed({ error: result.error }));
+        } else if (result.response) {
+            const currentConfigs: ScanConfig[] = yield select(selectConfigs);
+            const configs = currentConfigs.concat(result.response.configs);
             const count = countResult.response?.count ?? configs.length;
             yield put(fetchConfigsSucceed({ configs, count }));
         }
@@ -71,6 +93,7 @@ function handleDeleteConfig({ apiGateway }: { apiGateway: ApiGateway }) {
 
 export default sagaCreator({
     [fetchAllConfigs.type]: { handler: handleFetchAllConfigs },
+    [fetchNextConfigs.type]: { handler: handleFetchNextConfigs },
     [addConfig.type]: { handler: handleAddConfig },
     [updateConfig.type]: { handler: handleUpdateConfig },
     [deleteConfig.type]: { handler: handleDeleteConfig },

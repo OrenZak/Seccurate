@@ -1,7 +1,8 @@
 import { sagaCreator } from '../../utils/saga';
-import { put, call } from 'redux-saga/effects';
+import { put, call, select } from 'redux-saga/effects';
 import {
     fetchAllTargets,
+    fetchNextPage,
     fetchTargetsStart,
     fetchTargetsSucceed,
     fetchTargetsFailed,
@@ -14,6 +15,7 @@ import {
     updateTargetsFailed,
     deleteTargetsFailed,
     deleteTargetsSucceed,
+    selectTargets,
 } from './targets.slice';
 import ApiGateway, { ApiResult } from '../../services/gateway.api';
 import { showMessage } from '../app/app.slice';
@@ -26,11 +28,31 @@ function handleFetchAll({ apiGateway }: { apiGateway: ApiGateway }) {
             payload.page,
             payload.pageCount,
         );
-        const countResult: ApiResult<{count: number}> = yield call(apiGateway.targets.getCount);
+        const countResult: ApiResult<{ count: number }> = yield call(apiGateway.targets.getCount);
         if (result.error) {
             yield put(fetchTargetsFailed({ error: result.error }));
         } else if (result.response) {
             const targets = result.response.targets;
+            const count = countResult.response?.count ?? targets.length;
+            yield put(fetchTargetsSucceed({ targets, count }));
+        }
+    };
+}
+
+function handleFetchNextPage({ apiGateway }: { apiGateway: ApiGateway }) {
+    return function*({ payload }: { payload: FetchAllParams }) {
+        yield put(fetchTargetsStart());
+        const result: ApiResult<FetchAllResponse> = yield call(
+            apiGateway.targets.fetchAll,
+            payload.page,
+            payload.pageCount,
+        );
+        const countResult: ApiResult<{ count: number }> = yield call(apiGateway.targets.getCount);
+        if (result.error) {
+            yield put(fetchTargetsFailed({ error: result.error }));
+        } else if (result.response) {
+            const currentTargets: Target[] = yield select(selectTargets);
+            const targets = currentTargets.concat(result.response.targets);
             const count = countResult.response?.count ?? targets.length;
             yield put(fetchTargetsSucceed({ targets, count }));
         }
@@ -80,6 +102,7 @@ function handleDeleteTarget({ apiGateway }: { apiGateway: ApiGateway }) {
 
 export default sagaCreator({
     [fetchAllTargets.type]: { handler: handleFetchAll },
+    [fetchNextPage.type]: { handler: handleFetchNextPage },
     [addTarget.type]: { handler: handleAddTarget },
     [updateTarget.type]: { handler: handleUpdateTarget },
     [deleteTarget.type]: { handler: handleDeleteTarget },

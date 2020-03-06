@@ -45,7 +45,7 @@ const configsSlice = createSlice({
                 },
             };
         },
-        fetchConfigsSucceed(state, action: PayloadAction<{ configs: ScanConfig[], count: number }>) {
+        fetchConfigsSucceed(state, action: PayloadAction<{ configs: ScanConfig[]; count: number }>) {
             return {
                 ...state,
                 configs: action.payload.configs,
@@ -128,6 +128,10 @@ export function selectConfigs(state: { configs: ConfigsState }) {
     return state.configs.configs;
 }
 
+export function selectTotalConfigs(state: { configs: ConfigsState }) {
+    return state.configs.totalConfigCount;
+}
+
 export function selectFetchConfigsInfo(state: { configs: ConfigsState }) {
     return state.configs.fetch;
 }
@@ -146,6 +150,7 @@ export function selectDeleteConfigInfo(state: { configs: ConfigsState }) {
 
 // -- SAGA ACTIONS -- //
 export const fetchAllConfigs = createAction<FetchAllConfigsParams>(configsSlice.name + '/fetchAllConfigs');
+export const fetchNextConfigs = createAction<FetchAllConfigsParams>(configsSlice.name + '/fetchNextConfigs');
 export const addConfig = createAction<AddConfigParams>(configsSlice.name + '/addConfig');
 export const updateConfig = createAction<UpdateConfigParams>(configsSlice.name + '/updateConfig');
 export const deleteConfig = createAction<DeleteConfigParams>(configsSlice.name + '/deleteConfig');

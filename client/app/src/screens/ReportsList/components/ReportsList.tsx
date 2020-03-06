@@ -62,28 +62,30 @@ const useStyles = makeStyles({
         width: '100%',
     },
     container: {
-        minHeight: 500,
+        minHeight: 600,
+        maxHeight: 600,
     },
 });
 
 interface Props {
     completedScans: Scan[];
+    totalCompletedScans: number;
     onItemClicked: (scan: Scan, index: number) => void;
     scanLoadingIndex: number;
+    page: number;
+    rowsPerPage: number;
+    onChangePage: (newPage: number) => void;
+    onChangeRowsPerPage: (newRowsPerPage: number) => void;
 }
 
 const ReportsList: React.FC<Props> = props => {
     const classes = useStyles();
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
     const handleChangePage = (event: unknown, newPage: number) => {
-        setPage(newPage);
+        props.onChangePage(newPage);
     };
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
+        props.onChangeRowsPerPage(+event.target.value);
     };
 
     const renderValue = (column: Column, scan: Scan, index: number): any => {
@@ -107,7 +109,7 @@ const ReportsList: React.FC<Props> = props => {
                 return scan[column.id];
         }
     };
-    const { completedScans } = props;
+    const { completedScans, page, rowsPerPage } = props;
     return (
         <Paper className={classes.root}>
             <TableContainer className={classes.container}>
@@ -144,7 +146,7 @@ const ReportsList: React.FC<Props> = props => {
             <TablePagination
                 rowsPerPageOptions={[10, 25, 100]}
                 component="div"
-                count={completedScans.length}
+                count={props.totalCompletedScans}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onChangePage={handleChangePage}

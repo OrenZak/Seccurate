@@ -117,6 +117,7 @@ export function selectIsScanRunning(state: { scans: ScansState }) {
 
 // -- SAGA ACTIONS -- //
 export const fetchCompletedScans = createAction<FetchAllParams>(scansSlice.name + '/fetchCompletedScans');
+export const fetchNextCompletedScans = createAction<FetchAllParams>(scansSlice.name + '/fetchNextCompletedScans');
 export const startScan = createAction<{ scanId: string }>(scansSlice.name + '/startScan');
 export const fetchScanResults = createAction<{ scanId: string }>(scansSlice.name + '/fetchScanResults');
 export const updateScanCompleted = createAction(scansSlice.name + '/updateScanCompleted');

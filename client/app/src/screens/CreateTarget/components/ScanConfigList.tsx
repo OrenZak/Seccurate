@@ -10,7 +10,13 @@ import TableRow from '@material-ui/core/TableRow';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { fetchAllConfigs, selectConfigs, selectFetchConfigsInfo } from '../../../state/configs/configs.slice';
+import {
+    fetchAllConfigs,
+    fetchNextConfigs,
+    selectConfigs,
+    selectFetchConfigsInfo,
+    selectTotalConfigs,
+} from '../../../state/configs/configs.slice';
 import { RootState } from '../../../state/rootReducer';
 
 interface OwnProps {
@@ -20,10 +26,12 @@ interface OwnProps {
 interface ConnectedProps {
     configs: ScanConfig[];
     fetch: { isLoading: boolean; error?: string };
+    totalConfigs: number;
 }
 
 interface DispatchProps {
     fetchAllConfigs: ({ page, pageCount }: FetchAllConfigsParams) => void;
+    fetchNextConfigs: ({ page, pageCount }: FetchAllConfigsParams) => void;
 }
 
 type Props = OwnProps & ConnectedProps & DispatchProps;
@@ -31,14 +39,14 @@ type Props = OwnProps & ConnectedProps & DispatchProps;
 interface Column {
     id: 'id' | 'name';
     label: string;
-    minWidth?: number;
+    style?: object;
     align: 'right' | 'left' | 'center';
     format?: (value: number) => string;
 }
 
 const columns: Column[] = [
-    { id: 'id', label: '#', minWidth: 10, align: 'left' },
-    { id: 'name', label: 'Config Name', minWidth: 50, align: 'left' },
+    { id: 'id', label: '#', style: { minWidth: 10 }, align: 'left' },
+    { id: 'name', label: 'Config Name', style: { minWidth: '30', maxWidth: 30 }, align: 'left' },
 ];
 
 const useStyles = makeStyles({
@@ -57,12 +65,24 @@ const ScanConfigList: React.FC<Props> = props => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const handleChangePage = (event: unknown, newPage: number) => {
+        if (page < newPage) {
+            if (props.configs.length < props.totalConfigs) {
+                props.fetchNextConfigs({ page: newPage, pageCount: rowsPerPage });
+            }
+        }
         setPage(newPage);
     };
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
+        const newRowsPerPage = +event.target.value;
+        const currentConfigsCount = props.configs.length;
+        if (currentConfigsCount < props.totalConfigs && currentConfigsCount < (page + 1) * newRowsPerPage) {
+            props.fetchAllConfigs({ page: 0, pageCount: (page + 1) * newRowsPerPage });
+        }
+        if (props.totalConfigs <= (page + 1) * newRowsPerPage && page > 0) {
+            setPage(page - 1);
+        }
+        setRowsPerPage(newRowsPerPage);
     };
 
     useEffect(() => {
@@ -76,7 +96,7 @@ const ScanConfigList: React.FC<Props> = props => {
                     <TableHead>
                         <TableRow>
                             {columns.map(column => (
-                                <TableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
+                                <TableCell key={column.id} align={column.align} style={column.style}>
                                     {column.label}
                                 </TableCell>
                             ))}
@@ -87,7 +107,7 @@ const ScanConfigList: React.FC<Props> = props => {
                             props.configs
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((config: ScanConfig, index: number) => {
-                                    const key = page * (index + 1) + index + 1;
+                                    const key = page * rowsPerPage + index + 1;
                                     return (
                                         <TableRow
                                             hover
@@ -117,9 +137,10 @@ const ScanConfigList: React.FC<Props> = props => {
             <TablePagination
                 rowsPerPageOptions={[10, 25, 100]}
                 component="div"
-                count={(props.configs || []).length}
+                count={props.totalConfigs}
                 rowsPerPage={rowsPerPage}
                 page={page}
+                labelRowsPerPage={'Per page'}
                 onChangePage={handleChangePage}
                 onChangeRowsPerPage={handleChangeRowsPerPage}
             />
@@ -131,6 +152,7 @@ function mapStateToProps(state: RootState, ownProps: OwnProps): ConnectedProps {
     return {
         configs: selectConfigs(state),
         fetch: selectFetchConfigsInfo(state),
+        totalConfigs: selectTotalConfigs(state),
     };
 }
 
@@ -138,6 +160,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
     return bindActionCreators(
         {
             fetchAllConfigs,
+            fetchNextConfigs,
         },
         dispatch,
     );
