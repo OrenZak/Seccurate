@@ -2,4 +2,5 @@ FROM node:12-alpine3.9
 ADD Seccurate/client/ /opt/Seccurate/client/
 WORKDIR /opt/Seccurate/client/app
 RUN npm install
+EXPOSE 3000
 ENTRYPOINT npm start

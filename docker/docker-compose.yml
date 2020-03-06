@@ -12,6 +12,19 @@ services:
     image: 'seccurate:crawler'
     networks:
       secNetwork:
+    depends_on:
+      - api_gateway
+  mySQL:
+    image: 'seccurate:mySQL'
+    environment:
+      MYSQL_ROOT_PASSWORD: 311248496
+    networks:
+      secNetwork:
+    healthcheck:
+      test: 'ss -ltpn | grep 3306'
+      interval: 15s
+      timeout: 5s
+      retries: 3
   api_gateway:
     image: 'seccurate:apiGateway'
     ports:
@@ -20,21 +33,19 @@ services:
       - mySQL
     networks:
       secNetwork:
-  mySQL:
-    image: 'seccurate:mySQL'
-    environment:
-        MYSQL_ROOT_PASSWORD: 311248496
-    networks:
-      secNetwork:
   vulnerabilities:
     image: 'seccurate:vulnerabilities'
     networks:
       secNetwork:
+    depends_on:
+      - api_gateway
     environment:
-      PYTHONPATH: /opt/Seccurate/:/opt/Seccurate/vulnerabilities/:/opt/Seccurate/vulnerabilities/Scanner/common/:/opt/Seccurate/vulnerabilities/Scanner/dao/:/opt/Seccurate/vulnerabilities/Scanner/data/:/opt/Seccurate/vulnerabilities/Scanner/layout/:/opt/Seccurate/vulnerabilities/Scanner/logic/:/opt/Seccurate/vulnerabilities/Scanner/Test/:/opt/Seccurate/vulnerabilities/Scanner/:/opt/Seccurate/vulnerabilities/Scanner/layout/boundaries/:/opt/Seccurate/vulnerabilities/Scanner/common/exceptions/:/opt/Seccurate/vulnerabilities/Scanner/common/QueueMessages/
+      PYTHONPATH: /opt/Seccurate/:/opt/Seccurate/vulnerabilities/:/opt/Seccurate/vulnerabilities/Scanner/common/:/opt/Seccurate/vulnerabilities/Scanner/common/Scripts:/opt/Seccurate/vulnerabilities/Scanner/dao/:/opt/Seccurate/vulnerabilities/Scanner/data/:/opt/Seccurate/vulnerabilities/Scanner/layout/:/opt/Seccurate/vulnerabilities/Scanner/logic/:/opt/Seccurate/vulnerabilities/Scanner/Test/:/opt/Seccurate/vulnerabilities/Scanner/:/opt/Seccurate/vulnerabilities/Scanner/layout/boundaries/:/opt/Seccurate/vulnerabilities/Scanner/common/exceptions/:/opt/Seccurate/vulnerabilities/Scanner/common/QueueMessages/
   client:
     image: 'seccurate:client'
     networks:
       secNetwork:
+    depends_on:
+      - api_gateway
     ports:
       - '3000:3000'
