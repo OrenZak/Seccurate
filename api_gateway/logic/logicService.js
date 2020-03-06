@@ -211,7 +211,7 @@ class LogicService {
           }
         });
       } else {
-        throw 'Scan already in progress';
+        throw new Error('Scan already in progress');
       }
     } catch (error) {
       throw error;
@@ -312,20 +312,24 @@ class LogicService {
     }
   }
 
-  async getAllUsers(callback) {
-    //let dbName = 'test';
-    //let usersDao = new UsersDao(dbName);
-    usersDao.getAll(
-      (err, results) => {
-        if (err) {
-          callback(null);
-        } else {
-          callback(results);
-        }
-      },
-      0,
-      200
-    );
+  async getAllUsers(page, size, callback) {
+    try {
+      //let dbName = 'test';
+      //let usersDao = new UsersDao(dbName);
+      usersDao.getAll(
+        (err, results) => {
+          if (err) {
+            callback(null);
+          } else {
+            callback(results);
+          }
+        },
+        page,
+        size
+      );
+    } catch (err) {
+      throw err;
+    }
   }
 
   async updateUser(username, role, callback) {
@@ -405,7 +409,6 @@ class LogicService {
         timeout,
         interval
       );
-      console.log('Inserting new cong: ', savedConfigEntity);
       let newEntity = savedConfigDao.insertValue(savedConfigEntity);
       return newEntity.getID();
     } catch (error) {

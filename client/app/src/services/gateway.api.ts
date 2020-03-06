@@ -91,14 +91,14 @@ export default class ApiGateway {
                 headers: { ...BASE_HEADERS },
             })
                 .then(checkStatus)
-                .then((count) => ({ response: { count } }))
+                .then(count => ({ response: { count } }))
                 .catch(error => ({ error }));
         },
     };
 
     users = {
         async fetchAll(): Promise<ApiResult<FetchAllUsersResponse>> {
-            return fetch(`${END_POINTS.gatewayURL}/users`, {
+            return fetch(`${END_POINTS.gatewayURL}/users?page=0&size=1000`, {
                 method: 'GET',
                 headers: { ...BASE_HEADERS },
                 credentials: 'include',
@@ -217,7 +217,7 @@ export default class ApiGateway {
                 headers: { ...BASE_HEADERS },
             })
                 .then(checkStatus)
-                .then((count) => ({ response: { count } }))
+                .then(count => ({ response: { count } }))
                 .catch(error => ({ error }));
         },
     };
@@ -276,7 +276,7 @@ export default class ApiGateway {
                 headers: { ...BASE_HEADERS },
             })
                 .then(checkStatus)
-                .then((count) => ({ response: { count } }))
+                .then(count => ({ response: { count } }))
                 .catch(error => ({ error }));
         },
     };
