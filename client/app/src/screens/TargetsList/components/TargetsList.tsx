@@ -39,30 +39,34 @@ const useStyles = makeStyles({
         width: '100%',
     },
     container: {
-        minHeight: 500,
+        minHeight: 600,
+        maxHeight: 600,
     },
 });
 
 interface Props {
     targets: Target[];
+    totalTargets: number;
+    page: number;
+    rowsPerPage: number;
     onItemSelected: (target: Target) => void;
+    onChangePage: (newPage: number) => void;
+    onChangeRowsPerPage: (newRowsPerPage: number) => void;
 }
 
 const TargetList: React.FC<Props> = props => {
     const classes = useStyles();
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
     const handleChangePage = (event: unknown, newPage: number) => {
-        setPage(newPage);
+        props.onChangePage(newPage);
     };
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
+        props.onChangeRowsPerPage(+event.target.value);
     };
 
+    const { page, rowsPerPage } = props;
     return (
         <Paper className={classes.root}>
             <TableContainer className={classes.container}>
@@ -116,7 +120,7 @@ const TargetList: React.FC<Props> = props => {
             <TablePagination
                 rowsPerPageOptions={[10, 25, 100]}
                 component="div"
-                count={props.targets.length}
+                count={props.totalTargets}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onChangePage={handleChangePage}

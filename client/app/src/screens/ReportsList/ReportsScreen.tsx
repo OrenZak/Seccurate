@@ -8,6 +8,7 @@ import { Dispatch, bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
     fetchCompletedScans,
+    fetchNextCompletedScans,
     fetchScanResults,
     selectCompletedScans,
     selectScanResults,
@@ -16,12 +17,13 @@ import {
 interface OwnProps {}
 
 interface ConnectedProps {
-    completedScans: { data: Scan[]; error?: string };
+    completedScans: { data: Scan[]; error?: string; totalCount: number };
     scanResults: { data: Result[]; error?: string };
 }
 
 interface DispatchProps {
     fetchCompletedScans: ({ page, pageCount }: FetchAllParams) => void;
+    fetchNextCompletedScans: ({ page, pageCount }: FetchAllParams) => void;
     fetchScanResults: ({ scanId }: FetchScanResultsPayload) => void;
 }
 
@@ -31,6 +33,8 @@ const ReportsScreen: React.FC<Props> = props => {
     const { completedScans, scanResults } = props;
     const [showReportModal, setShowReportModal] = useState(false);
     const [targetLoadingIndex, setTargetLoadingIndex] = useState(-1);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     useEffect(() => {
         props.fetchCompletedScans({ page: 0, pageCount: 100 });
@@ -74,6 +78,26 @@ const ReportsScreen: React.FC<Props> = props => {
         setTargetLoadingIndex(-1);
     };
 
+    const handleOnChangePage = (newPage: number) => {
+        if (page < newPage) {
+            if (props.completedScans.data.length < props.completedScans.totalCount) {
+                props.fetchNextCompletedScans({ page: newPage, pageCount: rowsPerPage });
+            }
+        }
+        setPage(newPage);
+    };
+
+    const handleOnChangeRowsPerPage = (newRowsPerPage: number) => {
+        const currentScansCount = props.completedScans.data.length;
+        if (currentScansCount < props.completedScans.totalCount && currentScansCount < (page + 1) * newRowsPerPage) {
+            props.fetchCompletedScans({ page: 0, pageCount: (page + 1) * newRowsPerPage });
+        }
+        if (props.completedScans.totalCount <= (page + 1) * newRowsPerPage && page > 0) {
+            setPage(page - 1);
+        }
+        setRowsPerPage(newRowsPerPage);
+    };
+
     return (
         <div>
             <Grid container direction="row" spacing={4} className={classes.listFabContainer}>
@@ -82,6 +106,11 @@ const ReportsScreen: React.FC<Props> = props => {
                         completedScans={completedScans.data || []}
                         onItemClicked={onTargetClicked}
                         scanLoadingIndex={targetLoadingIndex}
+                        page={page}
+                        totalCompletedScans={completedScans.totalCount}
+                        rowsPerPage={rowsPerPage}
+                        onChangePage={handleOnChangePage}
+                        onChangeRowsPerPage={handleOnChangeRowsPerPage}
                     />
                 </Grid>
             </Grid>
@@ -112,6 +141,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
     return bindActionCreators(
         {
             fetchCompletedScans,
+            fetchNextCompletedScans,
             fetchScanResults,
         },
         dispatch,
