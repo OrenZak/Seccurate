@@ -1,5 +1,6 @@
 FROM python:2.7-alpine3.11
 ADD Seccurate/vulnerabilities/ /opt/Seccurate/vulnerabilities/
+ENV PYTHONPATH=/opt/Seccurate/:/opt/Seccurate/vulnerabilities/:/opt/Seccurate/vulnerabilities/Scanner/common/:/opt/Seccurate/vulnerabilities/Scanner/common/Scripts:/opt/Seccurate/vulnerabilities/Scanner/dao/:/opt/Seccurate/vulnerabilities/Scanner/data/:/opt/Seccurate/vulnerabilities/Scanner/layout/:/opt/Seccurate/vulnerabilities/Scanner/logic/:/opt/Seccurate/vulnerabilities/Scanner/Test/:/opt/Seccurate/vulnerabilities/Scanner/:/opt/Seccurate/vulnerabilities/Scanner/layout/boundaries/:/opt/Seccurate/vulnerabilities/Scanner/common/exceptions/:/opt/Seccurate/vulnerabilities/Scanner/common/QueueMessages/
 WORKDIR /opt/Seccurate/vulnerabilities/
 RUN apk add musl musl-dev \
     && apk add linux-headers \
@@ -11,5 +12,6 @@ RUN pip install -r requirements.txt
 RUN apk add sqlite
 RUN touch /usr/bin/VulnServiceDB.db
 WORKDIR /opt/Seccurate/vulnerabilities/Scanner/layout
+RUN python /opt/Seccurate/vulnerabilities/Scanner/common/Scripts/FirstDBPopulation.py
 ENTRYPOINT python Main.py
 EXPOSE 5000
