@@ -9,7 +9,7 @@ docker build . -f APIGatewayDockerfile -t seccurate:apiGateway
 docker build . -f MySQLDockerFile -t seccurate:mySQL
 docker build . -f VulnerabilitiesDockerFile -t seccurate:vulnerabilities
 docker build . -f ClientDockerFile -t seccurate:client
-docker-compose up -d
+docker-compose up -d -- do it until all services are up, you can see the container list by doing docker ps, you should see 6 containers
 
 
 ****** usefull command ******
