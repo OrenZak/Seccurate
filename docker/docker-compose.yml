@@ -12,18 +12,18 @@ services:
     image: 'seccurate:crawler'
     networks:
       secNetwork:
+  mySQL:
+    image: 'seccurate:mySQL'
+    environment:
+      MYSQL_ROOT_PASSWORD: 311248496
+    networks:
+      secNetwork:
   api_gateway:
     image: 'seccurate:apiGateway'
     ports:
       - '3001:3001'
     depends_on:
       - mySQL
-    networks:
-      secNetwork:
-  mySQL:
-    image: 'seccurate:mySQL'
-    environment:
-        MYSQL_ROOT_PASSWORD: 311248496
     networks:
       secNetwork:
   vulnerabilities:
@@ -36,5 +36,7 @@ services:
     image: 'seccurate:client'
     networks:
       secNetwork:
+    depends_on:
+      - api_gateway
     ports:
       - '3000:3000'
