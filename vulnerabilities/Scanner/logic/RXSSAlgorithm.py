@@ -114,8 +114,10 @@ class MainWindow():
                         print "<h1>[-]Error:<h1><h2>URL:</h2> " + self.urlform + "<br><h2>Data:</h2> " + data.encode(
                             'utf-8') + "<br><h2>Error: </h2>" + str(e) + "<br><br><br><br>"
                     if check_r:
-                        self.validatePayload(payload=payload, method=method, data=data, htmlResponse=htmlResponse,
+                        result = self.validatePayload(payload=payload, method=method, data=data, htmlResponse=htmlResponse,
                                              requestB64=requestB64)
+                        if result:
+                            break
 
     def validatePayload(self, payload=None, method=None, data=None, htmlResponse=None, requestB64=None):
         self.htmlResponse = htmlResponse
@@ -126,10 +128,12 @@ class MainWindow():
                 self.event = "**XSS Detected After Rendering** method: " + method + " payload " + payload.getPayload() + " URL : " + self.url + " payload: " + data + "\n"
                 self.vulnUtils.add_event(name=self.descriptionKey, url=self.url, payload=payload.getPayload(),
                                     requestB64=requestB64)
+                return True
             else:  # False Positive
                 print "***Identified False Positive*** method:" + method + " payload " + payload.getPayload() + " URL: " + self.url + " payload: " + data + "\n"
         else:
             print("page : " + self.url + " does not vulnerable to RXSS using the following payload :" + payload.getPayload())
+        return False
 
     def GetLinkInputFields(self, link):
         self.urlform = urlparse(link).scheme + "://" + urlparse(link).hostname + urlparse(link).path + urlparse(
@@ -162,8 +166,10 @@ class MainWindow():
                             self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
                             htmlresponse, response_hash, elapsed_time, requestB64 = self.vulnUtils.get_url_open_results(
                                 method, data, self.url)
-                            self.validatePayload(payload=payload, method=method, data=data, htmlResponse=htmlresponse,
+                            result = self.validatePayload(payload=payload, method=method, data=data, htmlResponse=htmlresponse,
                                                  requestB64=requestB64)
+                            if result:
+                                break
                         except Exception as e:
                             print "[-] Error happend " + str(e)
 
