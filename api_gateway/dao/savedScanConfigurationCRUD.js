@@ -8,7 +8,7 @@ class SavedConfigurationCRUD {
         let dbInfo = globals.DB_INFO;
         dbInfo.database = db;
         this.conn = mysql.createConnection(dbInfo);
-        this.conn.connect(function(err) {
+        this.conn.connect(function (err) {
             if (err) {
                 throw err;
             } else {
@@ -21,28 +21,33 @@ class SavedConfigurationCRUD {
 
     createTable() {
         const sql = `CREATE TABLE IF NOT EXISTS ?? (id VARCHAR(100) PRIMARY KEY, name VARCHAR(100) UNIQUE, maxDepth INTEGER, timeout INTEGER, interval_crawler INTEGER, UNIQUE KEY unique_scan (maxDepth,timeout,interval_crawler))`
-        this.conn.query(sql, [this.table_name], function(err) {
+        this.conn.query(sql, [this.table_name], function (err) {
             if (err) {
                 throw err;
             }
         })
     }
 
-    insertValue(value) {
-        this.validateValue(value);
-        const id = new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('')+Math.floor(Math.random()*100000)
-        let name = id;
-        if (value.getName() != null) {
-            name = value.getName()
-        }
-        const sql = `INSERT INTO ?? VALUES (?,?,?,?,?)`
-        this.conn.query(sql, [this.table_name, id, name, value.getMaxDepth(), value.getTimeout(), value.getInterval()], (err) => {
-            if (err) {
-                throw err;
+    insertValue(value, callback) {
+        try {
+            this.validateValue(value);
+            const id = new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('') + Math.floor(Math.random() * 100000)
+            let name = id;
+            if (value.getName() != null) {
+                name = value.getName()
             }
-        })
-        value.setID(id)
-        return value
+            const sql = `INSERT INTO ?? VALUES (?,?,?,?,?)`;
+            this.conn.query(sql, [this.table_name, id, name, value.getMaxDepth(), value.getTimeout(), value.getInterval()], (err) => {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    value.setID(id);
+                    callback(null, value);
+                }
+            });
+        } catch (error) {
+            throw error;
+        }
     }
 
     updateValue(new_value) {
@@ -53,7 +58,7 @@ class SavedConfigurationCRUD {
             }
         })
         const sql = `UPDATE ?? SET name=?, maxDepth=?, timeout=?, interval_crawler=? WHERE id=?`
-        this.conn.query(sql,[this.table_name, new_value.getName(), new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(), new_value.getID()], (err) => {
+        this.conn.query(sql, [this.table_name, new_value.getName(), new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(), new_value.getID()], (err) => {
             if (err) {
                 throw err;
             }
@@ -61,7 +66,7 @@ class SavedConfigurationCRUD {
         return new_value
     }
 
-    validateValue (value) {
+    validateValue(value) {
         if (!vaildators.checkNumericValues('interval', value.getInterval()))
             throw new Error('Wrong interval value supplied');
         if (!vaildators.checkNumericValues('maxDepth', value.getMaxDepth()))
@@ -74,11 +79,10 @@ class SavedConfigurationCRUD {
 
     getValue(value_id, callback) {
         const sql = `SELECT * FROM ?? WHERE id=?`
-        this.conn.query(sql,[this.table_name, value_id], function (err, result) {
+        this.conn.query(sql, [this.table_name, value_id], function (err, result) {
             if (!err) {
                 callback(null, result)
-            }
-            else {
+            } else {
                 throw err;
             }
         })
@@ -86,31 +90,29 @@ class SavedConfigurationCRUD {
 
     getValueCount(callback) {
         const sql = `SELECT COUNT(*) as value FROM ??`
-        this.conn.query(sql,[this.table_name], function (err, result) {
+        this.conn.query(sql, [this.table_name], function (err, result) {
             if (!err) {
                 callback(null, result[0].value)
-            }
-            else {
+            } else {
                 throw err;
             }
         })
     }
 
-    getAll(callback, page=0, size=10) {
-        let intPage = parseInt(page,10);
-        let intSize = parseInt(size,10);
+    getAll(callback, page = 0, size = 10) {
+        let intPage = parseInt(page, 10);
+        let intSize = parseInt(size, 10);
         const sql = `SELECT * from ?? ORDER BY id ASC LIMIT ? OFFSET ?`;
-        this.conn.query(sql, [this.table_name,intSize,intPage*intSize], function(err, results) {
+        this.conn.query(sql, [this.table_name, intSize, intPage * intSize], function (err, results) {
             if (!err) {
                 callback(null, results)
-            }
-            else {
+            } else {
                 throw err;
             }
         })
     }
 
-    deleteValue(id){
+    deleteValue(id) {
         this.getValue(id, function (err, res) {
             if (err) {
                 throw new Error('No such value ' + id + '\n' + err)
@@ -143,7 +145,7 @@ class SavedConfigurationCRUD {
     }
 
     closeConnection() {
-        this.conn.end(function(err) {
+        this.conn.end(function (err) {
             if (err) {
                 throw err;
             }
@@ -151,6 +153,7 @@ class SavedConfigurationCRUD {
         console.log('disconnected from db')
     }
 }
+
 module.exports = SavedConfigurationCRUD
 
 //console.log('Config'+new Date().toString().split(' ').join('').split('(').join('').split(')').join('').split(':').join('').split('+').join('')+Math.random()*100000)

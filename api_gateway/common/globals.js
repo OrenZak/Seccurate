@@ -6,10 +6,10 @@ const SCAN_CRUD_TABLE = 'scans';
 const USERS_CRUD_TABLE = 'users';
 const VULN_TABLE_PREFIX = 'vuln_';
 const DB_INFO = {
-    host: 'mySQL',
+    host: 'localhost',
     port: 3306,
     user: 'root',
-    password: '311248496',
+    password: '',
     database: 'test'
 };
 

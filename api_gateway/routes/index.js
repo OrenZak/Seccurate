@@ -391,9 +391,15 @@ router.post(PATHS.SAVED_CONFIG, async function (req, res, next) {
             scanConfigBoundary.name,
             scanConfigBoundary.interval,
             scanConfigBoundary.maxDepth,
-            scanConfigBoundary.timeout
+            scanConfigBoundary.timeout,(err,result)=>{
+                if(err !=null){
+                    res.status(500).send({error: err.message});
+                }
+                else{
+                    res.status(200).send({results: result});
+                }
+            }
         );
-        res.status(200).send({results: result});
     } catch (error) {
         res.status(500).send({error: error.message});
     }
