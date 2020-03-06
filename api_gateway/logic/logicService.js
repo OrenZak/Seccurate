@@ -421,7 +421,7 @@ class LogicService {
         }
     }
 
-    async updateSavedConfig(id, name, interval, maxDepth, timeout) {
+    async updateSavedConfig(id, name, interval, maxDepth, timeout,callback) {
         try {
             //let dbName = 'test';
             //let savedConfigDao = new SavedConfigurarionDao(dbName);
@@ -432,7 +432,14 @@ class LogicService {
                 timeout,
                 interval
             );
-            savedConfigDao.updateValue(configEntity);
+            savedConfigDao.updateValue(configEntity,(err,result)=>{
+              if(err!=null){
+                callback(err,null);
+              }
+              else{
+                callback(null,result);
+              }
+            });
             return;
         } catch (error) {
             throw error;

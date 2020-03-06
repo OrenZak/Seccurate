@@ -50,20 +50,21 @@ class SavedConfigurationCRUD {
         }
     }
 
-    updateValue(new_value) {
+    updateValue(new_value, callback) {
         this.validateValue(new_value);
         this.getValue(new_value.getID(), function (err, res) {
             if (err) {
                 throw new Error('No such value ' + new_value.getID() + '\n' + err)
             }
         })
-        const sql = `UPDATE ?? SET name=?, maxDepth=?, timeout=?, interval_crawler=? WHERE id=?`
+        const sql = `UPDATE ?? SET name=?, maxDepth=?, timeout=?, interval_crawler=? WHERE id=?`;
         this.conn.query(sql, [this.table_name, new_value.getName(), new_value.getMaxDepth(), new_value.getTimeout(), new_value.getInterval(), new_value.getID()], (err) => {
             if (err) {
-                throw err;
+                callback(err, null);
+            } else{
+                callback(null,new_value);
             }
-        })
-        return new_value
+        });
     }
 
     validateValue(value) {
