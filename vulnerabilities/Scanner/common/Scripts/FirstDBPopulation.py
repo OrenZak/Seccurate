@@ -11,7 +11,7 @@ if __name__ == "__main__":
     VulnerabilityDescriptionCRUD.createTable("test")
     RXSSCrud.createTable("test")
     SQLICrud.createSQLITable("test")
-    with open("DBData.json", "r") as readFile:
+    with open("/opt/Seccurate/vulnerabilities/Scanner/common/Scripts/DBData.json", "r") as readFile:
         data = json.load(readFile)
     for vuln in data['Vulnerability Descriptions']:
         vulnObject = VulnerabilityDescriptionEntity(name=str(vuln['name']), severity=str(vuln['severity']),
