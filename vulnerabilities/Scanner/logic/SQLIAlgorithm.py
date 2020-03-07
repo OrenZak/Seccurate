@@ -13,7 +13,6 @@ sys.setdefaultencoding('utf8')
 class SQLIAlgorithm():
 
     def __init__(self, db_type):
-        self.sqliDBInstance = SQLICrud  # TODO: remove this - not needed
         self.get_configuration_properties()
 
     def get_configuration_properties(self):
@@ -41,6 +40,7 @@ class SQLIAlgorithm():
         self.injection_types_count = len(self.config.options('SQLITypes'))
         self.injection_types = [self.config.get('SQLITypes', option) for option in self.config.options('SQLITypes')]
         self.error_based = self.config.get('SQLITypes', 'error_based')
+        self.time_based = self.config.get('SQLITypes', 'time_based')
 
     def start_scan(self, pageEntity, forms, links, vulnUtils):
         # if forms or links:
@@ -55,11 +55,13 @@ class SQLIAlgorithm():
     def inject_to_form(self, form_attributes, page_entity, vulnUtils):
         non_vulnerable_inputnames = form_attributes[self.inputnames_index]
         i = 0
+        #print("there are " + str(self.injection_types_count) + " types of injections")
         while i < self.injection_types_count and non_vulnerable_inputnames != {}:
             non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=self.injection_types[i],
                                                                   non_vulnerable_inputnames=non_vulnerable_inputnames,
                                                                   page_entity=page_entity,
                                                                   form_attributes=form_attributes, vulnUtils=vulnUtils)
+            print ("in inject to form => there are " + str(len(non_vulnerable_inputnames)) + " non_vulnerable_inputnames after round " + str(i))
             i += 1
 
     def inject_to_links(self, link, page_entity, vulnUtils):
@@ -85,6 +87,15 @@ class SQLIAlgorithm():
                 return self.handle_error_based(non_vulnerable_inputnames=non_vulnerable_inputnames,
                                                page_entity=page_entity, link_attributes=link_attributes,
                                                vulnUtils=vulnUtils)
+        elif injection_type == self.time_based:
+            if form_attributes:
+                return self.handle_time_based(non_vulnerable_inputnames=non_vulnerable_inputnames,
+                                              page_entity=page_entity, form_attributes=form_attributes,
+                                              vulnUtils=vulnUtils)
+            elif link_attributes:
+                return self.handle_time_based(non_vulnerable_inputnames=non_vulnerable_inputnames,
+                                              page_entity=page_entity, link_attributes=link_attributes,
+                                              vulnUtils=vulnUtils)
 
     def handle_error_based(self, non_vulnerable_inputnames, page_entity, form_attributes=None, link_attributes=None,
                            vulnUtils=None):
@@ -102,10 +113,11 @@ class SQLIAlgorithm():
                     data = self.get_form_data_with_payload(inputname=inputname,
                                                            inputnames=form_attributes[self.inputnames_index],
                                                            inputnonames=form_attributes[self.inputnonames_index],
-                                                           splitted_payload=splitted_payload)
+                                                           payload_list=splitted_payload)
                 else:  # links
                     method = "get"
-                    data = self.get_link_data_with_payload(inputname, link_attributes, splitted_payload)
+                    data = self.get_link_data_with_payload(inputname=inputname, inputnames=link_attributes,
+                                                           payload_list=splitted_payload)
 
                 regular_result = vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
                 vulnUtils.verifyHash(url, page_entity.getPageHash())
@@ -128,8 +140,45 @@ class SQLIAlgorithm():
                 final_non_vulnerable_input_names.append(inputname)
         return final_non_vulnerable_input_names
 
-    def get_form_data_with_payload(self, inputname, inputnames, inputnonames, splitted_payload):
-        return [ParseForms(inputname, inputnames, payload, inputnonames) for payload in splitted_payload]
+    def handle_time_based(self, non_vulnerable_inputnames, page_entity, form_attributes=None, link_attributes=None,
+                          vulnUtils=None):
+        url = self.link_to_url(page_entity.getURL())
+        final_non_vulnerable_input_names = []
+        for inputname in non_vulnerable_inputnames:
+            vulnerable = False
+            for payload in vulnUtils.getTimeBasedPayloads():
+                print("there are payloads in timebased")
+                payload_string = payload.getPayload().split(';;')[1]
+                time = float(payload.getPayload().split(';;')[0])
+
+                if form_attributes:
+                    method = form_attributes[self.method_index]
+                    data = self.get_form_data_with_payload(inputname=inputname,
+                                                           inputnames=form_attributes[self.inputnames_index],
+                                                           inputnonames=form_attributes[self.inputnonames_index],
+                                                           payload_list=[payload_string])
+                else:  # links
+                    method = "get"
+                    data = self.get_link_data_with_payload(inputname=inputname, inputnames=link_attributes,
+                                                           payload_list=[payload_string])
+
+                result = vulnUtils.get_url_open_results(method=method, data=data[0], url=url)
+
+                if self.validate_time_based(result=result, time=time, vulnUtils=vulnUtils, url=url):
+                    self.event = "SQLI Detected in :" + inputname
+                    print(self.event)
+                    vulnUtils.add_event(name=payload.getType(), url=url, payload=payload_string,
+                                        requestB64=result[self.requestb64_index])
+                    vulnerable = True
+                    break
+                else:
+                    print (inputname + " not vulnerable to payload " + payload_string)  # non_vulnerable_inputnames.append(inputname)
+            if not vulnerable:
+                final_non_vulnerable_input_names.append(inputname)
+        return final_non_vulnerable_input_names
+
+    def get_form_data_with_payload(self, inputname, inputnames, inputnonames, payload_list):
+        return [ParseForms(inputname, inputnames, payload, inputnonames) for payload in payload_list]
 
     def get_link_input_names(self, link):
         inputnames = {}
@@ -141,9 +190,9 @@ class SQLIAlgorithm():
                     inputnames[parameter.split('=')[0]] = ''
         return inputnames
 
-    def get_link_data_with_payload(self, inputname, inputnames, splittes_payload):
+    def get_link_data_with_payload(self, inputname, inputnames, payload_list):
         data = []
-        for payload in splittes_payload:
+        for payload in payload_list:
             temp_inputnames = inputnames
             temp_inputnames[inputname] = payload
             data.append(urlencode(temp_inputnames))
@@ -165,6 +214,21 @@ class SQLIAlgorithm():
                 if response.getResponse() in diff:
                     return True
         return False
+
+    def validate_time_based(self, result, time, vulnUtils, url):
+        if time <= result[self.time_index]:
+            return True
+        else:
+            #get the content of the regular page
+            regular_page_response = vulnUtils.get_url_open_results("get", "", url)
+            diff = self.get_diff_response_content(result[self.response_index],
+                                                  regular_page_response[self.response_index],
+                                                  result[self.response_index])
+            for response in vulnUtils.getErrorBasedResponses():
+                if response.getResponse() in diff:
+                    return True
+        return False
+
 
     def get_diff_response_content(self, response1, response2, response3):
         soup1 = BeautifulSoup(response1, 'html.parser').find_all()

@@ -12,6 +12,12 @@
               "severity": 2,
               "description": "description of rxss",
               "recommendations": "{'description':'Implement the following solutions:','mitigations':['Validate and verify input existence, length, type, permitted values and verify logical compliance of any user-controlled input. A whitelist approach for input validation is suggested, rather than a blacklist approach that prevents the usage of certain characters.','Encode user-controlled output based on the context into which it is being embedded.','Prevent unauthorized user inputs from being embedded into client-side scripts.','sanitize all user input data on the client side.']}"
+            },
+            {
+              "name": "time-based",
+              "severity": 3,
+              "description": "description of time-based sql injection",
+              "recommendations": "recommendations for time-based"
             }
           ],
   "SQLI Payloads":
@@ -19,6 +25,14 @@
             {
               "payload": "5;;5';;5'';;",
               "type": "error-based"
+            },
+            {
+              "payload": "2;;' or sleep(2) -- -",
+              "type": "time-based"
+            },
+            {
+              "payload": "2;;' or WAIT FOR DELAY '00:00:02' -- -",
+              "type": "time-based"
             }
           ],
   "RXSS Payloads":
