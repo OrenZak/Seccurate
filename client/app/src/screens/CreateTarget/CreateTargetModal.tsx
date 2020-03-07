@@ -33,7 +33,7 @@ interface DispatchProps {
     addConfig: ({ name, config }: AddConfigParams) => void;
     updateConfig: ({ name, config }: UpdateConfigParams) => void;
     deleteConfig: ({ id }: DeleteConfigParams) => void;
-    showMessage: ({ text, type, duration }: SnackBarMessage) => void;
+    showMessage: ({ msg }: { msg: SnackBarMessage }) => void;
 }
 
 type Props = OwnProps & ConnectedProps & DispatchProps;
@@ -61,12 +61,10 @@ const CreateTargetModal: React.FC<Props> = props => {
     };
 
     const handleOnUpdateConfig = ({ name, config }: UpdateConfigParams) => {
-        console.log('handleOnUpdateConfig');
         props.updateConfig({ name, config });
     };
 
     const handleOnDeleteConfig = ({ id }: DeleteConfigParams) => {
-        console.log('handleOnDeleteConfig');
         props.deleteConfig({ id });
     };
 
@@ -94,8 +92,7 @@ const CreateTargetModal: React.FC<Props> = props => {
                             onUpdateConfig={handleOnUpdateConfig}
                             onDeleteConfig={handleOnDeleteConfig}
                             onShowMessage={({ text, type, duration }: SnackBarMessage) => {
-                                console.log('onUpdateConfigError Modal', text);
-                                props.showMessage({ text, type, duration });
+                                props.showMessage({ msg: { text, type, duration } });
                             }}
                         />
                     </div>

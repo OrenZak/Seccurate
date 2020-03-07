@@ -20,7 +20,8 @@ import {
 import { RootState } from '../../../state/rootReducer';
 
 interface OwnProps {
-    onItemSelected: (target: ScanConfig) => void;
+    selectedConfig?: ScanConfig;
+    onItemSelected: (config: ScanConfig) => void;
 }
 
 interface ConnectedProps {
@@ -90,6 +91,12 @@ const ScanConfigList: React.FC<Props> = props => {
         props.fetchAllConfigs({ page, pageCount: 10 });
     }, []);
 
+    useEffect(() => {
+        if (!props.selectedConfig) {
+            setSelectedIndex(-1);
+        }
+    }, [props.selectedConfig]);
+
     return (
         <Paper className={classes.root}>
             <TableContainer className={classes.container}>
@@ -122,6 +129,7 @@ const ScanConfigList: React.FC<Props> = props => {
                                                 } else {
                                                     setSelectedIndex(key);
                                                 }
+                                                console.log('Selected Config: ', config);
                                                 props.onItemSelected({ ...config });
                                             }}
                                         >

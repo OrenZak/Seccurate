@@ -76,7 +76,6 @@ function handleAddTarget({ apiGateway }: { apiGateway: ApiGateway }) {
 function handleUpdateTarget({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: UpdateTargetParams }) {
         const result: ApiResult<UpdateTargetParams> = yield call(apiGateway.targets.update, payload.target);
-        console.log('handleUpdateTarget ', result);
         if (result.error) {
             yield put(updateTargetsFailed({ error: result.error }));
         } else if (result.response) {

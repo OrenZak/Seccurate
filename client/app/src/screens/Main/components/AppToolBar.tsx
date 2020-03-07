@@ -21,7 +21,6 @@ const AppToolBar: React.FC<Props> = props => {
     const classes = useStyles();
 
     const [manageUsersShow, setManageUsersShow] = useState<boolean>(false);
-    console.log('props?.isAdmin:', props?.isAdmin);
     return (
         <div>
             <ManageUsersModal isOpen={manageUsersShow} close={() => setManageUsersShow(false)} />

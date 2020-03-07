@@ -124,7 +124,6 @@ export default class ApiGateway {
                     return { response: { msg: 'registered' } };
                 })
                 .catch(error => {
-                    console.log('Create user Error: ', error);
                     return { error };
                 });
         },
@@ -138,11 +137,9 @@ export default class ApiGateway {
             })
                 .then(checkStatus)
                 .then(() => {
-                    console.log('Updated');
                     return { response: { msg: 'updated' } };
                 })
                 .catch(error => {
-                    console.log('error: ', error);
                     return { error };
                 });
         },
@@ -192,7 +189,7 @@ export default class ApiGateway {
                 method: 'PUT',
                 headers: { ...BASE_HEADERS },
                 credentials: 'include',
-                body: JSON.stringify({ name, ...scanConfig }),
+                body: JSON.stringify({ ...scanConfig, name }),
             })
                 .then(checkStatus)
                 .then(() => ({ response: { msg: 'updated' } }))

@@ -311,7 +311,8 @@ const CreateTargetContent: React.FC<Props> = props => {
 
     const onScanConfigSelected = (scanConfig: ScanConfig) => {
         setTarget({ ...target, config: scanConfig });
-        if (scanConfig.id !== selectedConfig?.id) {
+        if (!selectedConfig || scanConfig.id !== selectedConfig?.id) {
+            console.log('selectedConfig: ', scanConfig);
             setSelectedConfig(scanConfig);
         } else {
             setSelectedConfig(undefined);
@@ -319,7 +320,7 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const renderScanConfigList = () => {
-        return <ScanConfigList onItemSelected={onScanConfigSelected} />;
+        return <ScanConfigList onItemSelected={onScanConfigSelected} selectedConfig={selectedConfig} />;
     };
 
     const handleAddFields = (fields: Field[]) => {
@@ -360,12 +361,12 @@ const CreateTargetContent: React.FC<Props> = props => {
     const onUpdateConfig = ({ name, config }: UpdateConfigParams) => {
         console.log('Create content onUpdateConfig');
         props.onUpdateConfig({ name, config });
+        setTarget({ ...target, config });
         setSelectedConfig(undefined);
         setEditConfigModalShow(false);
     };
 
     const onUpdateConfigError = ({ err }: { err: string }) => {
-        console.log('onUpdateConfigError', err);
         props.onShowMessage({ text: err, type: 'error' });
     };
 

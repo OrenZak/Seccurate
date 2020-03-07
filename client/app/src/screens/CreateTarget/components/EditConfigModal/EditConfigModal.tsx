@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
@@ -17,9 +17,17 @@ const EditConfigModal: React.FC<Props> = props => {
     const classes = useStyles();
 
     const [configName, setConfigName] = useState(props.config?.name ?? '');
-    const [maxDepth, setMaxDepth] = useState<number | undefined>(props.config?.maxDepth);
-    const [interval, setTheInterval] = useState<number | undefined>(props.config?.interval);
-    const [timeout, setTheTimeout] = useState<number | undefined>(props.config?.timeout);
+    const [maxDepth, setMaxDepth] = useState<number | undefined>();
+    const [interval, setTheInterval] = useState<number | undefined>();
+    const [timeout, setTheTimeout] = useState<number | undefined>();
+
+    useEffect(() => {
+        const { config } = props;
+        setConfigName(config?.name ?? '');
+        setMaxDepth(config?.maxDepth);
+        setTheInterval(config?.interval);
+        setTheTimeout(config?.timeout);
+    }, [props.config]);
 
     const handleClose = () => {
         props.onClose();
@@ -62,7 +70,6 @@ const EditConfigModal: React.FC<Props> = props => {
 
     const handleSubmit = () => {
         const { err } = isValid();
-        console.log('Update Error: ', err);
         if (!err && interval && timeout && maxDepth) {
             props.onUpdateConfig({
                 name: configName,
