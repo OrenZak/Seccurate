@@ -63,6 +63,7 @@ const ScanConfigList: React.FC<Props> = props => {
     const classes = useStyles();
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
 
     const handleChangePage = (event: unknown, newPage: number) => {
         if (page < newPage) {
@@ -112,9 +113,15 @@ const ScanConfigList: React.FC<Props> = props => {
                                         <TableRow
                                             hover
                                             role="checkbox"
+                                            selected={selectedIndex === key}
                                             tabIndex={-1}
                                             key={key}
                                             onClick={() => {
+                                                if (selectedIndex === key) {
+                                                    setSelectedIndex(-1);
+                                                } else {
+                                                    setSelectedIndex(key);
+                                                }
                                                 props.onItemSelected({ ...config });
                                             }}
                                         >

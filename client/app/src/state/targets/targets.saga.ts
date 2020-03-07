@@ -65,8 +65,8 @@ function handleAddTarget({ apiGateway }: { apiGateway: ApiGateway }) {
         if (result.error) {
             yield put(addTargetsFailed({ error: result.error }));
         } else if (result.response) {
-            console.log('handleAddTarget', result);
-            yield put(fetchAllTargets({ page: 0, pageCount: 100 }));
+            const currentTargets: Target[] = yield select(selectTargets);
+            yield put(fetchAllTargets({ page: 0, pageCount: currentTargets.length }));
             yield put(addTargetsSucceed());
             yield put(showMessage({ msg: { text: 'Target was added', type: 'success' } }));
         }
@@ -80,7 +80,8 @@ function handleUpdateTarget({ apiGateway }: { apiGateway: ApiGateway }) {
         if (result.error) {
             yield put(updateTargetsFailed({ error: result.error }));
         } else if (result.response) {
-            yield put(fetchAllTargets({ page: 0, pageCount: 100 }));
+            const currentTargets: Target[] = yield select(selectTargets);
+            yield put(fetchAllTargets({ page: 0, pageCount: currentTargets.length }));
             yield put(updateTargetsSucceed());
             yield put(showMessage({ msg: { text: 'Target was updated', type: 'success' } }));
         }
@@ -93,7 +94,8 @@ function handleDeleteTarget({ apiGateway }: { apiGateway: ApiGateway }) {
         if (result.error) {
             yield put(deleteTargetsFailed({ error: result.error }));
         } else if (result.response) {
-            yield put(fetchAllTargets({ page: 0, pageCount: 100 }));
+            const currentTargets: Target[] = yield select(selectTargets);
+            yield put(fetchAllTargets({ page: 0, pageCount: currentTargets.length }));
             yield put(deleteTargetsSucceed());
             yield put(showMessage({ msg: { text: 'Target was deleted', type: 'success' } }));
         }

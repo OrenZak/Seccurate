@@ -187,12 +187,12 @@ export default class ApiGateway {
                 .catch(error => ({ error }));
         },
 
-        async update(scanConfig: ScanConfig): Promise<ApiResult<{ msg: string }>> {
+        async update(name: string, scanConfig: ScanConfig): Promise<ApiResult<{ msg: string }>> {
             return fetch(`${END_POINTS.gatewayURL}/saved_config`, {
                 method: 'PUT',
                 headers: { ...BASE_HEADERS },
                 credentials: 'include',
-                body: JSON.stringify({ ...scanConfig }),
+                body: JSON.stringify({ name, ...scanConfig }),
             })
                 .then(checkStatus)
                 .then(() => ({ response: { msg: 'updated' } }))
