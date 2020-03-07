@@ -41,7 +41,6 @@ const appSlice = createSlice({
             };
         },
         loginSucceed(state, action: PayloadAction<{ isAdmin: boolean }>) {
-            console.log('%%%% isAdmin: ', action.payload.isAdmin);
             return {
                 ...state,
                 isAdmin: action.payload.isAdmin,

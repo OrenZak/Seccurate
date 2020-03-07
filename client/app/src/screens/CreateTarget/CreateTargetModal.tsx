@@ -12,7 +12,8 @@ import {
     selectAddTargetsInfo,
     selectUpdateTargetsInfo,
 } from '../../state/targets/targets.slice';
-import { addConfig } from '../../state/configs/configs.slice';
+import { showMessage, SnackBarMessage } from '../../state/app/app.slice';
+import { addConfig, updateConfig, deleteConfig } from '../../state/configs/configs.slice';
 import { connect } from 'react-redux';
 
 interface OwnProps {
@@ -30,6 +31,9 @@ interface DispatchProps {
     addTarget: ({ target }: AddTargetParams) => void;
     updateTarget: ({ target }: UpdateTargetParams) => void;
     addConfig: ({ name, config }: AddConfigParams) => void;
+    updateConfig: ({ name, config }: UpdateConfigParams) => void;
+    deleteConfig: ({ id }: DeleteConfigParams) => void;
+    showMessage: ({ msg }: { msg: SnackBarMessage }) => void;
 }
 
 type Props = OwnProps & ConnectedProps & DispatchProps;
@@ -56,6 +60,14 @@ const CreateTargetModal: React.FC<Props> = props => {
         props.addConfig({ name, config });
     };
 
+    const handleOnUpdateConfig = ({ name, config }: UpdateConfigParams) => {
+        props.updateConfig({ name, config });
+    };
+
+    const handleOnDeleteConfig = ({ id }: DeleteConfigParams) => {
+        props.deleteConfig({ id });
+    };
+
     return (
         <div>
             <Modal
@@ -77,6 +89,11 @@ const CreateTargetModal: React.FC<Props> = props => {
                             isEdit={props.target !== undefined}
                             onTargetAdded={handOnTargetAdded}
                             onSaveConfig={handleOnSaveConfig}
+                            onUpdateConfig={handleOnUpdateConfig}
+                            onDeleteConfig={handleOnDeleteConfig}
+                            onShowMessage={({ text, type, duration }: SnackBarMessage) => {
+                                props.showMessage({ msg: { text, type, duration } });
+                            }}
                         />
                     </div>
                 </Fade>
@@ -95,8 +112,6 @@ const useStyles = makeStyles((theme: Theme) =>
         paper: {
             backgroundColor: 'white',
             boxShadow: theme.shadows[5],
-            width: '70%',
-            height: '75%',
             borderRadius: 10,
             padding: theme.spacing(2, 4, 3),
             outline: 'none',
@@ -117,6 +132,9 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
             addTarget,
             updateTarget,
             addConfig,
+            updateConfig,
+            deleteConfig,
+            showMessage,
         },
         dispatch,
     );

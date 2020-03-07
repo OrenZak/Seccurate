@@ -9,6 +9,7 @@ interface AddConfigParams {
 }
 
 interface UpdateConfigParams {
+    name: string;
     config: ScanConfig;
 }
 

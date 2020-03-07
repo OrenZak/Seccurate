@@ -28,7 +28,6 @@ function handleUpdateScanCompleted() {
 
 function handleFetchCompletedScans({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: FetchAllParams }) {
-        console.log('handleFetchCompletedScans', payload);
         const result: ApiResult<FetchAllCompletedScansResponse> = yield call(
             apiGateway.scans.fetchAllCompleted,
             payload.page,

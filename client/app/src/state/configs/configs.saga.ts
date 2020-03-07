@@ -64,6 +64,8 @@ function handleAddConfig({ apiGateway }: { apiGateway: ApiGateway }) {
         if (result.error) {
             yield put(addConfigFailed({ error: result.error }));
         } else if (result.response) {
+            const currentConfigs: ScanConfig[] = yield select(selectConfigs);
+            yield put(fetchAllConfigs({ page: 0, pageCount: currentConfigs.length }));
             yield put(addConfigSucceed());
         }
     };
@@ -71,10 +73,16 @@ function handleAddConfig({ apiGateway }: { apiGateway: ApiGateway }) {
 
 function handleUpdateConfig({ apiGateway }: { apiGateway: ApiGateway }) {
     return function*({ payload }: { payload: UpdateConfigParams }) {
-        const result: ApiResult<{ msg: string }> = yield call(apiGateway.savedConfig.update, payload.config);
+        const result: ApiResult<{ msg: string }> = yield call(
+            apiGateway.savedConfig.update,
+            payload.name,
+            payload.config,
+        );
         if (result.error) {
             yield put(updateConfigFailed({ error: result.error }));
         } else if (result.response) {
+            const currentConfigs: ScanConfig[] = yield select(selectConfigs);
+            yield put(fetchAllConfigs({ page: 0, pageCount: currentConfigs.length }));
             yield put(updateConfigSucceed());
         }
     };
@@ -86,6 +94,8 @@ function handleDeleteConfig({ apiGateway }: { apiGateway: ApiGateway }) {
         if (result.error) {
             yield put(deleteConfigFailed({ error: result.error }));
         } else if (result.response) {
+            const currentConfigs: ScanConfig[] = yield select(selectConfigs);
+            yield put(fetchAllConfigs({ page: 0, pageCount: currentConfigs.length }));
             yield put(deleteConfigSucceed());
         }
     };

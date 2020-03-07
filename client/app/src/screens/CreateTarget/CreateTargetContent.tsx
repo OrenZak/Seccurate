@@ -11,12 +11,19 @@ import AddIcon from '@material-ui/icons/Add';
 import React, { useEffect, useState } from 'react';
 import AddFieldModal from './components/AddField/AddFieldModal';
 import ScanConfigList from './components/ScanConfigList';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
+import { SnackBarMessage } from '../../state/app/app.slice';
+import EditConfigModal from './components/EditConfigModal';
 
 interface Props {
     target?: Target;
     isEdit: boolean;
     onTargetAdded: ({ target }: AddTargetParams) => void;
     onSaveConfig: ({ name, config }: AddConfigParams) => void;
+    onUpdateConfig: ({ name, config }: UpdateConfigParams) => void;
+    onDeleteConfig: ({ id }: DeleteConfigParams) => void;
+    onShowMessage: ({ text, type, duration }: SnackBarMessage) => void;
 }
 
 const CreateTargetContent: React.FC<Props> = props => {
@@ -37,6 +44,8 @@ const CreateTargetContent: React.FC<Props> = props => {
     const [formAction, setFormAction] = useState<string>('');
     const [loginFormFields, setLoginFormFields] = useState<{ [key: string]: string }>({});
     const [addFieldShow, setAddFieldShow] = useState<boolean>(false);
+    const [selectedConfig, setSelectedConfig] = useState<ScanConfig>();
+    const [editConfigModalShow, setEditConfigModalShow] = useState<boolean>(false);
 
     const handleScanTypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
         const scanType: ScanType = event.target.value as ScanType;
@@ -301,21 +310,26 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const onScanConfigSelected = (scanConfig: ScanConfig) => {
-        console.log('ScanConfig: ', scanConfig);
         setTarget({ ...target, config: scanConfig });
+        if (!selectedConfig || scanConfig.id !== selectedConfig?.id) {
+            console.log('selectedConfig: ', scanConfig);
+            setSelectedConfig(scanConfig);
+        } else {
+            setSelectedConfig(undefined);
+        }
     };
 
     const renderScanConfigList = () => {
-        return <ScanConfigList onItemSelected={onScanConfigSelected} />;
+        return <ScanConfigList onItemSelected={onScanConfigSelected} selectedConfig={selectedConfig} />;
     };
 
     const handleAddFields = (fields: Field[]) => {
-        let simpifiedFields: { [key: string]: string } = {};
+        let simplifiedFields: { [key: string]: string } = {};
         fields.forEach((field: Field) => {
-            simpifiedFields[field.name] = field.value;
+            simplifiedFields[field.name] = field.value;
         });
 
-        setLoginFormFields(simpifiedFields);
+        setLoginFormFields(simplifiedFields);
         setAddFieldShow(false);
     };
 
@@ -344,6 +358,29 @@ const CreateTargetContent: React.FC<Props> = props => {
 
     const getTitleText = () => (props.isEdit ? 'Edit Target' : 'Add New Target');
 
+    const onUpdateConfig = ({ name, config }: UpdateConfigParams) => {
+        console.log('Create content onUpdateConfig');
+        props.onUpdateConfig({ name, config });
+        setTarget({ ...target, config });
+        setSelectedConfig(undefined);
+        setEditConfigModalShow(false);
+    };
+
+    const onUpdateConfigError = ({ err }: { err: string }) => {
+        props.onShowMessage({ text: err, type: 'error' });
+    };
+
+    const editSelectedConfig = () => {
+        setEditConfigModalShow(true);
+    };
+
+    const deleteSelectedConfig = () => {
+        if (selectedConfig) {
+            props.onDeleteConfig({ id: selectedConfig.id! });
+            setSelectedConfig(undefined);
+        }
+    };
+
     return (
         <div>
             <AddFieldModal
@@ -366,28 +403,74 @@ const CreateTargetContent: React.FC<Props> = props => {
                     </Grid>
                     <Grid container direction={'row'} item xs justify={'flex-end'} alignItems={'center'}>
                         <Grid item>{renderScanConfigList()}</Grid>
-                        <Grid item>
-                            <Button
-                                size="medium"
-                                variant="contained"
-                                color="primary"
-                                className={classes.addTargetButton}
-                                onClick={() => {
-                                    if (verifyValues()) {
-                                        props.onTargetAdded({ target });
-
-                                        if (configName) {
-                                            props.onSaveConfig({ name: configName, config: target.config! });
-                                        }
-                                    }
-                                }}
-                            >
-                                {getActionButtonText()}
-                            </Button>
+                        <Grid
+                            container
+                            item
+                            xs
+                            justify={'flex-end'}
+                            alignItems={'center'}
+                            className={classes.configButtons}
+                        >
+                            <Grid item xs={3}>
+                                <Button
+                                    size="medium"
+                                    variant="contained"
+                                    color="primary"
+                                    disabled={selectedConfig === undefined}
+                                    onClick={() => {
+                                        editSelectedConfig();
+                                    }}
+                                >
+                                    <EditIcon />
+                                </Button>
+                            </Grid>
+                            <Grid item xs={2}>
+                                <Button
+                                    size="medium"
+                                    variant="contained"
+                                    color="primary"
+                                    disabled={selectedConfig === undefined}
+                                    onClick={() => {
+                                        deleteSelectedConfig();
+                                    }}
+                                >
+                                    <DeleteIcon />
+                                </Button>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </Grid>
             </Grid>
+            <Grid container justify={'center'} alignItems={'center'} className={classes.bottomGrid}>
+                <Grid item>
+                    <Button
+                        size="large"
+                        variant="contained"
+                        color="primary"
+                        className={classes.addTargetButton}
+                        onClick={() => {
+                            if (verifyValues()) {
+                                props.onTargetAdded({ target });
+
+                                if (configName) {
+                                    props.onSaveConfig({ name: configName, config: target.config! });
+                                }
+                            }
+                        }}
+                    >
+                        {getActionButtonText()}
+                    </Button>
+                </Grid>
+            </Grid>
+            {selectedConfig && (
+                <EditConfigModal
+                    config={selectedConfig}
+                    isOpen={editConfigModalShow}
+                    onClose={() => setEditConfigModalShow(false)}
+                    onError={onUpdateConfigError}
+                    onUpdateConfig={onUpdateConfig}
+                />
+            )}
         </div>
     );
 };
@@ -420,6 +503,13 @@ const useStyles = makeStyles((theme: Theme) =>
         addTargetButton: {
             marginTop: theme.spacing(2),
             margin: theme.spacing(1),
+            width: '300px',
+        },
+        bottomGrid: {
+            marginTop: theme.spacing(6),
+        },
+        configButtons: {
+            marginTop: theme.spacing(2),
         },
     }),
 );

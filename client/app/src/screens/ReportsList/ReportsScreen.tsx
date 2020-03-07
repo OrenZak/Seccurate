@@ -41,7 +41,6 @@ const ReportsScreen: React.FC<Props> = props => {
     }, []);
 
     useEffect(() => {
-        console.log('scanResults updated: ', scanResults);
         if (scanResults.data && scanResults.data.length > 0) {
             setShowReportModal(true);
             stopLoader();

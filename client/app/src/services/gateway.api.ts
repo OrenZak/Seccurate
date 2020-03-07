@@ -124,7 +124,6 @@ export default class ApiGateway {
                     return { response: { msg: 'registered' } };
                 })
                 .catch(error => {
-                    console.log('Create user Error: ', error);
                     return { error };
                 });
         },
@@ -138,11 +137,9 @@ export default class ApiGateway {
             })
                 .then(checkStatus)
                 .then(() => {
-                    console.log('Updated');
                     return { response: { msg: 'updated' } };
                 })
                 .catch(error => {
-                    console.log('error: ', error);
                     return { error };
                 });
         },
@@ -187,12 +184,12 @@ export default class ApiGateway {
                 .catch(error => ({ error }));
         },
 
-        async update(scanConfig: ScanConfig): Promise<ApiResult<{ msg: string }>> {
+        async update(name: string, scanConfig: ScanConfig): Promise<ApiResult<{ msg: string }>> {
             return fetch(`${END_POINTS.gatewayURL}/saved_config`, {
                 method: 'PUT',
                 headers: { ...BASE_HEADERS },
                 credentials: 'include',
-                body: JSON.stringify({ ...scanConfig }),
+                body: JSON.stringify({ ...scanConfig, name }),
             })
                 .then(checkStatus)
                 .then(() => ({ response: { msg: 'updated' } }))
