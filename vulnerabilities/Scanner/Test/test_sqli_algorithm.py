@@ -25,12 +25,12 @@ class TestSQLIAlgorithm(unittest.TestCase):
                                                                                                                     '')
         # cls.__vulnsCRUD.createTable(cls.__table_name, "test")
         cls.__SQLICRUD = SQLICrud
-        cls.__SQLICRUD.dropPayloadsTable("test")
-        cls.__SQLICRUD.dropResponsesTable("test")
-        cls.__SQLICRUD.createSQLITable("test")
+        cls.__SQLICRUD.dropPayloadsTable("test2")
+        cls.__SQLICRUD.dropResponsesTable("test2")
+        cls.__SQLICRUD.createSQLITable("test2")
         cls.__vulnDescriptor = VulnerabilityDescriptionCRUD
-        cls.__vulnDescriptor.dropTable("test")
-        cls.__vulnDescriptor.createTable("test")
+        cls.__vulnDescriptor.dropTable("test2")
+        cls.__vulnDescriptor.createTable("test2")
         cls.__br = mechanize.Browser()
         cls.__br.addheaders = [('User-agent',
                                 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34')]
@@ -48,7 +48,7 @@ class TestSQLIAlgorithm(unittest.TestCase):
             # cookie_value_string += cookie.name + "=" + cookie.value + "=" + cookie.domain + "=" + cookie.path + ";"
         cls.__session_entity = SessionEntity('Cookie', cookie_value_string)
         # cls.vulnUtils = VulnerabilityUtils(cls.__table_name, 'SQLI')
-        cls.__sqlAlgorithm = SQLIAlgorithm(db_type='test')  # , vuln_table_name=cls.__table_name)
+        cls.__sqlAlgorithm = SQLIAlgorithm(db_type='test2')  # , vuln_table_name=cls.__table_name)
 
     @classmethod
     def tearDownClass(cls):
@@ -58,20 +58,25 @@ class TestSQLIAlgorithm(unittest.TestCase):
         cls.__vulnDescriptor = None
 
     def setUp(self):
-        self.__vulnsCRUD.createTable(self.__table_name, "test")
+        self.__vulnsCRUD.createTable(self.__table_name, "test2")
         self.vuln1 = VulnerabilityDescriptionEntity(name='error-based', severity=1, description='abc',
                                                     recommendations='aaa')
-        self.__vulnDescriptor.createVulnerabilityDescription(self.vuln1, "test")
+        self.vuln2 = VulnerabilityDescriptionEntity(name='time-based', severity=1, description='abc',
+                                                    recommendations='aaa')
+        self.__vulnDescriptor.createVulnerabilityDescription(self.vuln1, "test2")
+        self.__vulnDescriptor.createVulnerabilityDescription(self.vuln2, "test2")
         self.sqli1 = SQLIPayloadEntity(payload="5;;5';;5''", type='error-based')
-        self.sqli1ID = self.__SQLICRUD.createPayload(self.sqli1, "test").getID()
-        self.response1 = self.__SQLICRUD.createResponse(ResponseEntity("error"), "test")
+        self.sqli2 = SQLIPayloadEntity(payload="2;;' or sleep(2) -- -", type='time-based')
+        self.sqli1ID = self.__SQLICRUD.createPayload(self.sqli1, "test2").getID()
+        self.sqli2ID = self.__SQLICRUD.createPayload(self.sqli2, "test2").getID()
+        self.response1 = self.__SQLICRUD.createResponse(ResponseEntity("error"), "test2")
         self.vulnUtils = VulnerabilityUtils(self.__table_name, 'SQLI')
 
     def tearDown(self):
-        self.__vulnsCRUD.dropTable(self.__table_name, "test")
-        self.__SQLICRUD.deletePayloads("test")
-        self.__SQLICRUD.deleteResponses("test")
-        self.__vulnDescriptor.deleteAllDataFromTable("test")
+        self.__vulnsCRUD.dropTable(self.__table_name, "test2")
+        self.__SQLICRUD.deletePayloads("test2")
+        self.__SQLICRUD.deleteResponses("test2")
+        self.__vulnDescriptor.deleteAllDataFromTable("test2")
         self.vulnUtils = None
 
     def test_different_hash_detection(self):
@@ -88,7 +93,7 @@ class TestSQLIAlgorithm(unittest.TestCase):
         responses = [response.getResponse() for response in self.vulnUtils.get_error_based_responses()]
         self.assertIn(self.response1.getResponse(), responses)
 
-    def test_scan_sqli(self):
+    def test_scan_sqli_error_based(self):
         url = "http://localhost/bwapp/sqli_3.php"
         br = mechanize.Browser()
         br.addheaders = [('User-agent',
@@ -105,19 +110,10 @@ class TestSQLIAlgorithm(unittest.TestCase):
         forms, links = self.vulnUtils.get_injection_points(PageEntity(url=url, pageHash=hash), self.__session_entity)
         self.__sqlAlgorithm.start_scan(PageEntity(url=url, pageHash=hash), forms=forms, links=links,
                                        vulnUtils=self.vulnUtils)
-        self.assertEqual(len(VulnerabilitiesCRUD.getVulns("test", self.__table_name)), 2)
+        self.assertEqual(len(VulnerabilitiesCRUD.getVulns("test2", self.__table_name)), 2)
 
-    def test_generate_new_cookie(self):
-        url = "http://localhost/bwapp/sqli_3.php"
-        creds = CredentialsEntity(url, {"form": {
-            "login": "bee",
-            "password": "bug",
-            "security": 0,
-            "form": "submit"
-        }})
-        self.__vulnsCRUD.deleteAllDataFromTable(self.__table_name, "test")
-        vulnUtils = VulnerabilityUtils(self.__table_name, "SQLI", creds)
-        #vulnUtils.generateNewCookie(creds)
+    def test_scan_sqli_time_based(self):
+        url = "http://localhost/bwapp/sqli_15.php"
         br = mechanize.Browser()
         br.addheaders = [('User-agent',
                           'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34')]
@@ -130,10 +126,39 @@ class TestSQLIAlgorithm(unittest.TestCase):
         br.submit()
         r = br.open(url)
         hash = hashlib.md5(url + str(len(str(r.read())))).digest().encode("hex")
-        forms, links = vulnUtils.get_injection_points(PageEntity(url=url, pageHash=hash), None)
+        forms, links = self.vulnUtils.get_injection_points(PageEntity(url=url, pageHash=hash), self.__session_entity)
         self.__sqlAlgorithm.start_scan(PageEntity(url=url, pageHash=hash), forms=forms, links=links,
-                                       vulnUtils=vulnUtils)
-        self.assertEqual(len(VulnerabilitiesCRUD.getVulns("test", self.__table_name)), 2)
+                                       vulnUtils=self.vulnUtils)
+        a = VulnerabilitiesCRUD.getVulns("test2", self.__table_name)
+        self.assertEqual(len(VulnerabilitiesCRUD.getVulns("test2", self.__table_name)), 1)
+
+    # def test_generate_new_cookie(self):
+    #     url = "http://localhost/bwapp/sqli_3.php"
+    #     creds = CredentialsEntity(url, {"form": {
+    #         "login": "bee",
+    #         "password": "bug",
+    #         "security": 0,
+    #         "form": "submit"
+    #     }})
+    #     self.__vulnsCRUD.deleteAllDataFromTable(self.__table_name, "test2")
+    #     vulnUtils = VulnerabilityUtils(self.__table_name, "SQLI", creds)
+    #     #vulnUtils.generateNewCookie(creds)
+    #     br = mechanize.Browser()
+    #     br.addheaders = [('User-agent',
+    #                       'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34')]
+    #     cj = mechanize.CookieJar()
+    #     br.set_cookiejar(cj)
+    #     br.open("http://localhost/bwapp/login.php")
+    #     br.select_form(nr=0)
+    #     br.form['login'] = 'bee'
+    #     br.form['password'] = 'bug'
+    #     br.submit()
+    #     r = br.open(url)
+    #     hash = hashlib.md5(url + str(len(str(r.read())))).digest().encode("hex")
+    #     forms, links = vulnUtils.get_injection_points(PageEntity(url=url, pageHash=hash), None)
+    #     self.__sqlAlgorithm.start_scan(PageEntity(url=url, pageHash=hash), forms=forms, links=links,
+    #                                    vulnUtils=vulnUtils)
+    #     self.assertEqual(len(VulnerabilitiesCRUD.getVulns("test2", self.__table_name)), 2)
 
     def doCleanups(self):
         pass
