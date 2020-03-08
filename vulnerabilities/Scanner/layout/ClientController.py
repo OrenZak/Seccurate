@@ -72,7 +72,7 @@ class SocketIOClient(threading.Thread):
         print("config database")
         # global clientLogicService
         dbBoundary = ConfigScanBoundary.deserialize(dbNameBoundary)
-        credentialsEntity = CredentialsEntity(dbBoundary.getLoginUrl(), dbBoundary.getLoginInfo())
+        credentialsEntity = CredentialsEntity(dbBoundary.getLoginInfo())
         msg = ConfigDatabaseMessage(dbName=dbBoundary.getDbName(), scanType=dbBoundary.getScanType(),
                                     credentialsEntity=credentialsEntity)
         print("Inserting ConfigDatabaseMessage to queue")
