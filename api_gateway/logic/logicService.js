@@ -200,7 +200,6 @@ class LogicService {
             let vulnerabilityConfigBoundary = new VulnerabilityConfigScanBoundary(
               globals.VULN_TABLE_PREFIX + value[0]['scanID'],
               value[0]['scanType'],
-              value[0]['url'],
               JSON.parse(value[0]['loginInfo'])
             );
             // INIT vulnerability micro service scan configuration
