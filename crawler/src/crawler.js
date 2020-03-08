@@ -114,10 +114,10 @@ function startAfterLogin(crawler, loginInfo, mainUrl) {
 						const nextPage = response.headers.location;
 						addCookieHeader(crawler, response);
 						if (nextPage) {
-							const nextUrl = mainUrl.replace(/\/[^\/]*$/, '/' + nextPage);
+							const nextUrl = mainUrl + "/" + nextPage;
+							console.log("Crawler login succeed, adding to queue: ", nextUrl);
 							crawler.queueURL(nextUrl);
 						}
-
 						crawler.start();
 					}
 				},
@@ -142,6 +142,7 @@ function getCookies(crawler, url) {
 function addCookieHeader(crawler, response) {
 	if (response && response.headers && response.headers['set-cookie']) {
 		crawler.cookies.addFromHeaders(response.headers['set-cookie']);
+		console.log("The cookie is", response.headers['set-cookie']);
 	}
 }
 
@@ -156,6 +157,17 @@ function createHash(queueItem) {
 		.update(`${queueItem.url}${queueItem.stateData.actualDataSize}`)
 		.digest('hex');
 }
+
+// const loginInfo = {
+// 	form: {
+// 		login: 'bee',
+// 		password: 'bug',
+// 		security: 0,
+// 		form: 'submit',
+// 	},
+// 	formAction: 'http://192.168.64.2/bWAPP/login.php',
+// };
+// startCrawl('http://192.168.64.2/bWAPP', loginInfo);
 
 module.exports = {
 	eventEmitter: new events.EventEmitter(),
