@@ -6,7 +6,6 @@ class ConfigScanBoundary:
     def __init__(self, dbName=None, scanType=None, loginInfo=None):
         self.__dbName = dbName
         self.__scanType = scanType
-        #self.__loginUrl = loginUrl
         self.__loginInfo = loginInfo
 
     def getDbName(self):
@@ -21,12 +20,6 @@ class ConfigScanBoundary:
     def setScanType(self, scanType):
         self.__scanType = scanType
 
-    # def getLoginUrl(self):
-    #     return self.__loginUrl
-    #
-    # def setLoginUrl(self, loginUrl=None):
-    #     self.__loginUrl = loginUrl
-
     def getLoginInfo(self):
         return self.__loginInfo
 
@@ -40,7 +33,6 @@ class ConfigScanBoundary:
     def deserialize(serializedConfigScan):
         deserializedDbName = serializedConfigScan["dbName"]
         deserializedScanType = serializedConfigScan["scanType"]
-        #deserializedLoginUrl = serializedConfigScan["url"]
         deserializedLoginInfo = serializedConfigScan["loginInfo"]
         return ConfigScanBoundary(dbName=deserializedDbName, scanType=deserializedScanType,
                                   loginInfo=deserializedLoginInfo)
