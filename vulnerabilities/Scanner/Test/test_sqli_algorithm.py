@@ -144,44 +144,45 @@ class TestSQLIAlgorithm(unittest.TestCase):
     #     a = VulnerabilitiesCRUD.getVulns("test2", self.__table_name)
     #     self.assertEqual(len(VulnerabilitiesCRUD.getVulns("test2", self.__table_name)), 1)
 
-    # def test_generate_new_cookie(self):
-    #     url = "http://localhost/bwapp/sqli_3.php"
-    #     creds = CredentialsEntity({"formAction": "http://localhost//bWAPP/login.php", "form": {
-    #         "login": "bee",
-    #         "password": "bug",
-    #         "security_level": 0
-    #     }})
-    #     self.__vulnsCRUD.deleteAllDataFromTable(self.__table_name, "test2")
-    #     vulnUtils = VulnerabilityUtils(self.__table_name, "SQLI", creds)
-    #     #vulnUtils.generateNewCookie(creds)
-    #     br = mechanize.Browser()
-    #     br.addheaders = [('User-agent',
-    #                       'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34')]
-    #     cj = mechanize.CookieJar()
-    #     br.set_cookiejar(cj)
-    #     br.open("http://localhost/bwapp/login.php")
-    #     i = 0
-    #     found = False
-    #     while not found:
-    #         try:
-    #             br.select_form(nr=i)
-    #             br.form['login'] = 'bee'
-    #             br.form['password'] = 'bug'
-    #             br.submit()
-    #             found = True
-    #         except mechanize.ControlNotFoundError:
-    #             i += 1
-    #             print ("in controlnotfound")
-    #         except:
-    #             print ("no such control")
-    #             raise Exception(
-    #                 "Couldn't find form in login page. Please verify that the supplied login info is correct")
-    #     r = br.open(url)
-    #     hash = hashlib.md5(url + str(len(str(r.read())))).digest().encode("hex")
-    #     forms, links = vulnUtils.get_injection_points(PageEntity(url=url, pageHash=hash), None)
-    #     self.__sqlAlgorithm.start_scan(PageEntity(url=url, pageHash=hash), forms=forms, links=links,
-    #                                    vulnUtils=vulnUtils)
-    #     self.assertEqual(len(VulnerabilitiesCRUD.getVulns("test2", self.__table_name)), 2)
+    def test_generate_new_cookie(self):
+        url = "http://localhost/bwapp/sqli_3.php"
+        creds = CredentialsEntity({"formAction": "http://localhost//bWAPP/login.php", "form": {
+            "login": "bee",
+            "password": "bug",
+            "security_level": 0,
+            "form": "submit"
+        }})
+        self.__vulnsCRUD.deleteAllDataFromTable(self.__table_name, "test2")
+        vulnUtils = VulnerabilityUtils(self.__table_name, "SQLI", creds)
+        #vulnUtils.generateNewCookie(creds)
+        br = mechanize.Browser()
+        br.addheaders = [('User-agent',
+                          'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34')]
+        cj = mechanize.CookieJar()
+        br.set_cookiejar(cj)
+        br.open("http://localhost/bwapp/login.php")
+        i = 0
+        found = False
+        while not found:
+            try:
+                br.select_form(nr=i)
+                br.form['login'] = 'bee'
+                br.form['password'] = 'bug'
+                br.submit()
+                found = True
+            except mechanize.ControlNotFoundError:
+                i += 1
+                print ("in controlnotfound")
+            except:
+                print ("no such control")
+                raise Exception(
+                    "Couldn't find form in login page. Please verify that the supplied login info is correct")
+        r = br.open(url)
+        hash = hashlib.md5(url + str(len(str(r.read())))).digest().encode("hex")
+        forms, links = vulnUtils.get_injection_points(PageEntity(url=url, pageHash=hash), None)
+        self.__sqlAlgorithm.start_scan(PageEntity(url=url, pageHash=hash), forms=forms, links=links,
+                                       vulnUtils=vulnUtils)
+        self.assertEqual(len(VulnerabilitiesCRUD.getVulns("test2", self.__table_name)), 2)
 
     def doCleanups(self):
         pass
