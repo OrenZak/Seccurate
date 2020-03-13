@@ -3,7 +3,9 @@ class CrawlerConfigScanBoundary {
         this.config = config;
         this.scanType = scanType;
         this.url = url;
-        this.loginInfo = loginInfo;
+        if (Object.keys(loginInfo).length) {
+            this.loginInfo = loginInfo;
+        }
     }
 
     get Config() {
