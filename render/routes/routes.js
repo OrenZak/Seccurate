@@ -16,7 +16,7 @@ router.get(PATHS.HOME, function (req, res, next) {
 
 router.post(PATHS.RENDER, function (req, res, next) {
     let data = req.body;
-    console.log(data);
+    //console.log(data);
     (async () => {
         const browser = await puppeteer.launch({executablePath: process.env.CHROMIUM_PATH,
             args: ['--no-sandbox']});

@@ -39,7 +39,7 @@ function startCrawl(mainUrl, loginInfo) {
 		doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
 			url: queueItem.url,
 			value: urlCookies,
-			type: urlCookies.length > 0 ? 'Cookie' : 'Basic',
+			type: urlCookies.length > 0 ? 'Cookie' : null,
 			pageHash: hash,
 		});
 	});

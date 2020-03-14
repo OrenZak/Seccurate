@@ -121,11 +121,12 @@ class MainWindow():
 
     def validatePayload(self, payload=None, method=None, data=None, htmlResponse=None, requestB64=None):
         self.htmlResponse = htmlResponse
-        if (payload.getExpectedResult() in self.htmlResponse) or payload.getPayload() in self.htmlResponse:
+        if (payload.getExpectedResult() in urllib.unquote(self.htmlResponse)) or payload.getPayload() in urllib.unquote(self.htmlResponse):
             print "**Response Before Rendering** method: " + method + " Maybe XSS: payload " + payload.getPayload() + " return in the response, URL: " + self.url + " payload: " + data + "\n"
             req = requests.post(self.renderServiceURL, data={'content': str(self.htmlResponse)})
-            if payload.getExpectedResult() in req.json()["result"]:
+            if payload.getExpectedResult() in urllib.unquote(req.json()["result"]):
                 self.event = "**XSS Detected After Rendering** method: " + method + " payload " + payload.getPayload() + " URL : " + self.url + " payload: " + data + "\n"
+                print(self.event)
                 self.vulnUtils.add_event(name=self.descriptionKey, url=self.url, payload=payload.getPayload(),
                                     requestB64=requestB64)
                 return True
