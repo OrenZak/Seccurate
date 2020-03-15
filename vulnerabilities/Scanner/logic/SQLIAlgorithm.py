@@ -99,7 +99,8 @@ class SQLIAlgorithm():
 
     def handle_error_based(self, non_vulnerable_inputnames, page_entity, form_attributes=None, link_attributes=None,
                            vulnUtils=None):
-        url = self.link_to_url(page_entity.getURL())
+        #url = self.link_to_url(page_entity.getURL())
+        url = page_entity.getURL()
         final_non_vulnerable_input_names = []
         for inputname in non_vulnerable_inputnames:
             vulnerable = False
@@ -142,7 +143,8 @@ class SQLIAlgorithm():
 
     def handle_time_based(self, non_vulnerable_inputnames, page_entity, form_attributes=None, link_attributes=None,
                           vulnUtils=None):
-        url = self.link_to_url(page_entity.getURL())
+        #url = self.link_to_url(page_entity.getURL())
+        url = page_entity.getURL()
         final_non_vulnerable_input_names = []
         for inputname in non_vulnerable_inputnames:
             vulnerable = False
