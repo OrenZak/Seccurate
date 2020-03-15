@@ -154,9 +154,7 @@ function setConfig(config) {
 function createHash(queueItem, res) {
     console.log(queueItem.url);
     console.log(res.length);
-    if (res.url == 'http://192.168.56.101/dirtrav/example1.php?file=hacker.png') {
-        console.log(res);
-    }
+    console.log(res);
     return crypto
         .createHash('md5')
         .update(`${queueItem.url}${res.length}`.toString())
