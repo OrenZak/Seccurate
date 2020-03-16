@@ -31,6 +31,7 @@ function startCrawl(mainUrl, loginInfo) {
     crawler.filterByDomain = true;
     crawler.scanSubdomains = false;
     crawler.acceptCookies = true;
+    crawler.userAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34";
 
     crawler.on('fetchcomplete', function (queueItem, responseBuffer, response) {
         const hash = createHash(queueItem, responseBuffer);
@@ -152,9 +153,12 @@ function setConfig(config) {
 }
 
 function createHash(queueItem, res) {
-    console.log(queueItem.url);
-    console.log(res.length);
-    console.log(res);
+    if (queueItem.url == 'http://192.168.56.101/dirtrav/example3.php?file=hacker.png' || queueItem.url == 'http://192.168.56.101/dirtrav/example1.php?file=hacker.png' || queueItem.url == 'http://192.168.56.101/dirtrav/example1.php?file=hacker.png'){
+        let a = res.length;
+        console.log(queueItem.url);
+        console.log(res.length);
+        console.log(res);
+    }
     return crypto
         .createHash('md5')
         .update(`${queueItem.url}${res.length}`.toString())
