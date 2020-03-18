@@ -20,6 +20,7 @@ const EVENTS = {
     GET_RESULTS: "get_results",
     UPDATE_PAYLOADS: "update_payloads",
     SCAN_PAGE: "scan_page",
+    CRAWLER_COMPLETED: "crawler_completed",
     SCAM_COMPLETE: "scan_completed"
 };
 
@@ -48,7 +49,6 @@ function getResults(vulnerabilityGetResultsRequestBoundary) {
 
 function updatePayloads(payloadBoundary) {
     io.emit(EVENTS.UPDATE_PAYLOADS, payloadBoundary);
-
 }
 
 function scanPage(pageBoundary) {
@@ -95,6 +95,7 @@ function start(server, scanDoneCallback) {
         });
         socket.on(ACTIONS.CRAWLER_DONE, async function (results) {
             console.log("CRAWLER_DONE");
+            io.emit(EVENTS.CRAWLER_COMPLETED);
             isCrawlerScanning = false;
             if(!isCrawlerScanning && !isVulnerabilityScanning && pageQueue.length == 0){
                 io.emit(EVENTS.SCAM_COMPLETE);

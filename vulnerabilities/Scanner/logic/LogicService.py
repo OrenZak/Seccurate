@@ -11,6 +11,7 @@ import VulnerabilitiesCRUD
 from BaseVulnerabilityClass import VulnerabilityUtils
 from ScanCompleteMessage import ScanCompleteMessage
 from ScanPageMessage import ScanPageMessage
+from CrawlerCompletedMessage import CrawlerCompletedMessage
 from cookieExpiration import CookieException
 from UnexplainedDifferentHashesException import UnexplainedDifferentHashesException
 from DifferentHashesException import DifferentHashesException
@@ -31,6 +32,7 @@ class LogicService(threading.Thread):
         self.__vulnCrud = VulnerabilitiesCRUD
         self.__vulnDescriptor = VulnerabilityDescriptionCRUD
         self.rxssalgo = None
+        self.__pages = None
         ################################################
         # VulnerabilityDescriptionCRUD.createTable(self.env_type)
         # VulnerabilityDescriptionCRUD.createVulnerabilityDescription(VulnerabilityDescriptionEntity(name='error-based', severity=1, description='abcTest',
@@ -59,10 +61,12 @@ class LogicService(threading.Thread):
         self.__scanType = scanType
         self.credentialsEntity = credentialsEntity
         self.vulnUtils = VulnerabilityUtils(tableName, scanType, credentialsEntity)
+        self.__pages = []
         print("vulnutils object : " + str(self.vulnUtils))
         return
 
-    def startScan(self, pageEntity=None):#, sessionEntity=None):
+    def startScan(self, pageEntity=None, sessionEntity=None):
+        self.__pages.append(tuple((pageEntity, sessionEntity)))
         flag = False
         while not flag:
             try:
@@ -82,10 +86,23 @@ class LogicService(threading.Thread):
             self.__scanForSqlInjection(pageEntity=pageEntity, forms=forms, links=links)
         elif self.__scanType == "RXSS":
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)
-        scanCompleteMsg = ScanCompleteMessage()
-        print("Insert Scan complete message to queue")
-        ProducerConsumerQueue.getInstance().getOutQueue().put(scanCompleteMsg)
+            scanCompleteMsg = ScanCompleteMessage()
+            print("Insert Scan complete message to queue")
+            ProducerConsumerQueue.getInstance().getOutQueue().put(scanCompleteMsg)
         return
+
+    def startSqliSecondOrderScan(self):
+        if self.__scanType == "ALL" or self.__scanType == "SQLI":
+            sqli_algo = SQLIAlgorithm(db_type='test')
+            try:
+                sqli_algo.start_second_order_scan(pages=self.__pages, vulnUtils=self.vulnUtils)
+            except CookieException:
+                self.vulnUtils.generateNewCookie(self.credentialsEntity)
+            scanCompleteMsg = ScanCompleteMessage()
+            print("Insert Scan complete message to queue")
+            ProducerConsumerQueue.getInstance().getOutQueue().put(scanCompleteMsg)
+
+
 
     def retriveScanResults(self, getResultEntity):
         vulnerabilityEntities = self.__vulnCrud.getVulns(self.env_type, getResultEntity.getScanName(), 1000, 0)
@@ -130,3 +147,5 @@ class LogicService(threading.Thread):
                                        credentialsEntity=item.getCredentialsEntity())
                 elif isinstance(item, ScanPageMessage):
                     self.startScan(pageEntity=item.getPageEntity())
+                elif isinstance(item, CrawlerCompletedMessage):
+                    self.startSqliSecondOrderScan()

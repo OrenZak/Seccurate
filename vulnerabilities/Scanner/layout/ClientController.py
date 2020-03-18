@@ -3,6 +3,7 @@ import time
 import socketio
 
 from ConfigDatabaseMessage import ConfigDatabaseMessage
+from CrawlerCompletedMessage import CrawlerCompletedMessage
 from CredentialsObject import CredentialsEntity
 from GetResultsRequestBoundary import GetResultsRequestBoundary
 from PageBoundary import ScanBoundary
@@ -29,7 +30,7 @@ class RestServer():
         app.run(host='0.0.0.0')
 
     @app.route('/get_results', methods=['POST'])
-    def hello():
+    def results_api(self):
         #serializedGetResultBoundary):
         # TODO add threading support by create a new Message to return to the client, and wait for the message by while over the queue
         vulnBoundaryList = []
@@ -92,6 +93,12 @@ class SocketIOClient(threading.Thread):
         #                              sessionEntity=configScanBoundary.getSessionEntity())
         print("Inserting ScanPageMessage to queue")
         ProducerConsumerQueue.getInstance().getIncomeQueue().put(msg)
+
+    @sio.on('crawler_completed')
+    def onCrawlerCompleted():
+        print("Inserting CrawlerCompletedMessage to queue")
+        crawler_completed_message = CrawlerCompletedMessage()
+        ProducerConsumerQueue.getInstance().getIncomeQueue().put(crawler_completed_message)
 
     def run(self):
         while True:
