@@ -53,7 +53,7 @@ class SQLIAlgorithm():
         non_vulnerable_inputnames = form_attributes[self.inputnames_index]
         i = 0
         #print("there are " + str(self.injection_types_count) + " types of injections")
-        while i < self.injection_types_count and non_vulnerable_inputnames != {}:
+        while i < self.injection_types_count - 1 and non_vulnerable_inputnames != {}:
             non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=self.injection_types[i],
                                                                   non_vulnerable_inputnames=non_vulnerable_inputnames,
                                                                   page_entity=page_entity,
@@ -65,7 +65,7 @@ class SQLIAlgorithm():
         all_inputnames = self.get_link_input_names(link)
         non_vulnerable_inputnames = all_inputnames
         i = 0
-        while i < self.injection_types_count and non_vulnerable_inputnames != {}:
+        while i < self.injection_types_count - 1 and non_vulnerable_inputnames != {}:
             non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=self.injection_types[i],
                                                                   non_vulnerable_inputnames=non_vulnerable_inputnames,
                                                                   page_entity=page_entity,
@@ -109,10 +109,12 @@ class SQLIAlgorithm():
         for payload in payloads:
             splitted_payload = payload.getPayload().split(';;')
             for page in pages:
-                url = self.link_to_url(page.pageEntity.getURL())
-                forms, links = vulnUtils.get_injection_points(pageEntity=page.pageEntity, sessionEntity=page.sessionEntity)
+                pageEntity = page[0]
+                sessionEntity = page[1]
+                url = self.link_to_url(pageEntity.getURL())
+                forms, links = vulnUtils.get_injection_points(pageEntity=pageEntity, sessionEntity=sessionEntity)
                 # Create filtered list without the current running page.
-                otherPages = map(lambda a_page: a_page.pageEntity, filter(lambda a_page: a_page != page, pages))
+                otherPages = map(lambda a_page: a_page[0], filter(lambda a_page: a_page != page, pages))
 
                 # Inject to all forms
                 for form in forms:
@@ -124,7 +126,7 @@ class SQLIAlgorithm():
                                                                payload_list=splitted_payload)
 
                         vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
-                        vulnUtils.verifyHash(url, page.page_entity.getPageHash())
+                        vulnUtils.verifyHash(url, pageEntity.getPageHash())
                         otherPages_regular_results = self.get_pages_results(pages=otherPages, vulnUtils=vulnUtils)
 
                         error_result = vulnUtils.get_url_open_results(method, data[self.error_result_index], url)
@@ -157,7 +159,7 @@ class SQLIAlgorithm():
                                                                payload_list=splitted_payload)
 
                         vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
-                        vulnUtils.verifyHash(url, page.page_entity.getPageHash())
+                        vulnUtils.verifyHash(url, pageEntity.getPageHash())
                         otherPages_regular_results = self.get_pages_results(pages=otherPages, vulnUtils=vulnUtils)
 
                         error_result = vulnUtils.get_url_open_results(method, data[self.error_result_index], url)
