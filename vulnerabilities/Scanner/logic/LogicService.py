@@ -12,6 +12,8 @@ from BaseVulnerabilityClass import VulnerabilityUtils
 from ScanCompleteMessage import ScanCompleteMessage
 from ScanPageMessage import ScanPageMessage
 from cookieExpiration import CookieException
+from UnexplainedDifferentHashesException import UnexplainedDifferentHashesException
+from DifferentHashesException import DifferentHashesException
 ####################################################
 from VulnerabilityDescriptionObject import VulnerabilityDescriptionEntity
 import RXSSCrud
@@ -62,11 +64,17 @@ class LogicService(threading.Thread):
         flag = False
         while not flag:
             try:
+                #TODO: remove sessionEntity - should not be sent
                 forms, links = self.vulnUtils.get_injection_points(pageEntity=pageEntity, sessionEntity=sessionEntity)
                 flag = True
-            except:
-                print("Generate new Cookie")
-                self.vulnUtils.generateNewCookie(self.credentialsEntity)
+            except DifferentHashesException as e:
+                print("in startScan->getInjectionPoints\n" + e.message)
+                self.vulnUtils.updateAuthenticationMethod()
+            except UnexplainedDifferentHashesException:
+                raise UnexplainedDifferentHashesException("No login required yet different hash detected in url: " + pageEntity.getURL())
+            # except:
+            #     print("Generate new Cookie")
+            #     self.vulnUtils.generateNewCookie(self.credentialsEntity)
         print("url is being scanned : " + pageEntity.getURL())
         if self.__scanType == "ALL":
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)
@@ -96,8 +104,10 @@ class LogicService(threading.Thread):
             try:
                 self.rxssalgo.ScanPage(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
                 flag = True
-            except CookieException:
-                self.vulnUtils.generateNewCookie(self.credentialsEntity)
+            except DifferentHashesException as e:
+                print("in scan for rxss\n" + e.message)
+                self.vulnUtils.updateAuthenticationMethod()
+                #self.vulnUtils.generateNewCookie(self.credentialsEntity)
         return
 
     # TODO: what about type of db - prod or test? how do we get this value and pass it?
@@ -108,8 +118,10 @@ class LogicService(threading.Thread):
             try:
                 sqli_algo.start_scan(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
                 flag = True
-            except CookieException:
-                self.vulnUtils.generateNewCookie(self.credentialsEntity)
+            except DifferentHashesException as e:
+                print("in scan for sqli\n" + e.message)
+                self.vulnUtils.updateAuthenticationMethod()
+                #self.vulnUtils.generateNewCookie(self.credentialsEntity)
         return
 
     def run(self):

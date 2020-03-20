@@ -43,14 +43,10 @@ class SQLIAlgorithm():
         self.time_based = self.config.get('SQLITypes', 'time_based')
 
     def start_scan(self, pageEntity, forms, links, vulnUtils):
-        # if forms or links:
-        #    self.error_based_payloads = self.get_payloads_by_type(payload_type=self.error_based)
-        #    self.error_based_responses = self.get_error_based_responses()
-        print("in start scan")
         for link in links:
             self.inject_to_links(link, pageEntity, vulnUtils)
         for form in forms:
-            self.inject_to_form(forms[form], pageEntity, vulnUtils)  # self.update_scanned_pages()
+            self.inject_to_form(forms[form], pageEntity, vulnUtils)
 
     def inject_to_form(self, form_attributes, page_entity, vulnUtils):
         non_vulnerable_inputnames = form_attributes[self.inputnames_index]
