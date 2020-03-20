@@ -6,15 +6,8 @@ from SessionObject import SessionEntity
 
 class ScanBoundary:
 
-    def __init__(self, pageEntity=None, sessionEntity=None):
+    def __init__(self, pageEntity=None):
         self.__pageEntity = pageEntity
-        self.__sessionEntity = sessionEntity
-
-    def getSessionEntity(self):
-        return self.__sessionEntity
-
-    def setSessionEntity(self, sessionEntity=None):
-        self.__sessionEntity = sessionEntity
 
     def getPageEntity(self):
         return self.__pageEntity
@@ -28,6 +21,5 @@ class ScanBoundary:
     @staticmethod
     def deserialize(serializedConfigScan):
         deserialized = json.loads(serializedConfigScan)
-        sessionEntity = SessionEntity(deserialized["type"], deserialized["value"])
-        newPageEntity = PageEntity(deserialized["url"], deserialized["pageHash"])
-        return ScanBoundary(newPageEntity, sessionEntity)
+        newPageEntity = PageEntity(url=deserialized["url"])#, deserialized["pageHash"])
+        return ScanBoundary(newPageEntity)

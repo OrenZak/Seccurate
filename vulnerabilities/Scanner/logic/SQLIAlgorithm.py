@@ -95,7 +95,6 @@ class SQLIAlgorithm():
 
     def handle_error_based(self, non_vulnerable_inputnames, page_entity, form_attributes=None, link_attributes=None,
                            vulnUtils=None):
-        #url = self.link_to_url(page_entity.getURL())
         url = page_entity.getURL()
         final_non_vulnerable_input_names = []
         for inputname in non_vulnerable_inputnames:
@@ -117,11 +116,11 @@ class SQLIAlgorithm():
                                                            payload_list=splitted_payload)
 
                 regular_result = vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
-                vulnUtils.verifyHash(url, page_entity.getPageHash())
                 error_result = vulnUtils.get_url_open_results(method, data[self.error_result_index], url)
                 regular_imitating_result = vulnUtils.get_url_open_results(method,
                                                                           data[self.regular_imitating_result_index],
                                                                           url)
+                vulnUtils.compareHashes(url, page_entity.getPageHash())
 
                 if self.validate_error_based(regular_result, error_result, regular_imitating_result, vulnUtils):
                     self.event = "SQLI Detected in :" + inputname
@@ -139,7 +138,6 @@ class SQLIAlgorithm():
 
     def handle_time_based(self, non_vulnerable_inputnames, page_entity, form_attributes=None, link_attributes=None,
                           vulnUtils=None):
-        #url = self.link_to_url(page_entity.getURL())
         url = page_entity.getURL()
         final_non_vulnerable_input_names = []
         for inputname in non_vulnerable_inputnames:
