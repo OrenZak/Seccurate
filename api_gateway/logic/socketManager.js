@@ -72,7 +72,7 @@ function start(server, scanDoneCallback) {
             p_crud.insertValue(page);
 
             //pass page to vuln service
-            let vulnerabilityPageBoundary = new VulnerabilityPageBoundary(crawlerPageboundary.url, crawlerPageboundary.pageHash, crawlerPageboundary.type, crawlerPageboundary.value);
+            let vulnerabilityPageBoundary = new VulnerabilityPageBoundary(crawlerPageboundary.url);
             if (pageQueue.length == 0 && !isVulnerabilityScanning) {
                 scanPage(vulnerabilityPageBoundary);
                 isVulnerabilityScanning = true
