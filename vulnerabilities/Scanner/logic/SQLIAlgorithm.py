@@ -53,8 +53,9 @@ class SQLIAlgorithm():
         non_vulnerable_inputnames = form_attributes[self.inputnames_index]
         i = 0
         #print("there are " + str(self.injection_types_count) + " types of injections")
+        injection_types = self.filter_out_second_order_type()
         while i < self.injection_types_count - 1 and non_vulnerable_inputnames != {}:
-            non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=self.injection_types[i],
+            non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=injection_types[i],
                                                                   non_vulnerable_inputnames=non_vulnerable_inputnames,
                                                                   page_entity=page_entity,
                                                                   form_attributes=form_attributes, vulnUtils=vulnUtils)
@@ -65,12 +66,16 @@ class SQLIAlgorithm():
         all_inputnames = self.get_link_input_names(link)
         non_vulnerable_inputnames = all_inputnames
         i = 0
+        injection_types = self.filter_out_second_order_type()
         while i < self.injection_types_count - 1 and non_vulnerable_inputnames != {}:
-            non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=self.injection_types[i],
+            non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=injection_types[i],
                                                                   non_vulnerable_inputnames=non_vulnerable_inputnames,
                                                                   page_entity=page_entity,
                                                                   link_attributes=all_inputnames, vulnUtils=vulnUtils)
             i += 1
+
+    def filter_out_second_order_type(self):
+        return filter(lambda injection_type: injection_type != self.second_order, self.injection_types)
 
     def inject_to_inputnames(self, injection_type, non_vulnerable_inputnames, page_entity, form_attributes=None,
                              link_attributes=None, vulnUtils=None):
@@ -105,13 +110,13 @@ class SQLIAlgorithm():
     def start_second_order_scan(self, pages, vulnUtils):
         # TODO: run on all pages, get inject_p do injected, check all other pages if were changed
         print("@2nd start_second_order_scan")
-        payloads = vulnUtils.getErrorBasedPayloads()
+        payloads = vulnUtils.getSecondOrderPayloads()
         for payload in payloads:
             splitted_payload = payload.getPayload().split(';;')
             for page in pages:
                 pageEntity = page[0]
                 sessionEntity = page[1]
-                url = self.link_to_url(pageEntity.getURL())
+                url = pageEntity.getURL()
                 forms, links = vulnUtils.get_injection_points(pageEntity=pageEntity, sessionEntity=sessionEntity)
                 # Create filtered list without the current running page.
                 otherPages = map(lambda a_page: a_page[0], filter(lambda a_page: a_page != page, pages))
@@ -126,7 +131,6 @@ class SQLIAlgorithm():
                                                                payload_list=splitted_payload)
 
                         vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
-                        vulnUtils.verifyHash(url, pageEntity.getPageHash())
                         otherPages_regular_results = self.get_pages_results(pages=otherPages, vulnUtils=vulnUtils)
 
                         error_result = vulnUtils.get_url_open_results(method, data[self.error_result_index], url)
@@ -159,7 +163,6 @@ class SQLIAlgorithm():
                                                                payload_list=splitted_payload)
 
                         vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
-                        vulnUtils.verifyHash(url, pageEntity.getPageHash())
                         otherPages_regular_results = self.get_pages_results(pages=otherPages, vulnUtils=vulnUtils)
 
                         error_result = vulnUtils.get_url_open_results(method, data[self.error_result_index], url)

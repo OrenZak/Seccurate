@@ -1,6 +1,6 @@
 from AbstractMessage import AbstractMessage
 
 
-class CrawlerCompletedMessage(AbstractMessage):
+class NextPageMessage(AbstractMessage):
     def __init__(self):
-        return
+        None

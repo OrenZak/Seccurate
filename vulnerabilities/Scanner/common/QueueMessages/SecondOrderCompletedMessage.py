@@ -1,7 +1,7 @@
 from AbstractMessage import AbstractMessage
 
 
-class ScanCompleteMessage(AbstractMessage):
+class SecondOrderCompletedMessage(AbstractMessage):
     def __init__(self):
         None
 

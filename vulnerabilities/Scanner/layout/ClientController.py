@@ -3,7 +3,7 @@ import time
 import socketio
 
 from ConfigDatabaseMessage import ConfigDatabaseMessage
-from CrawlerCompletedMessage import CrawlerCompletedMessage
+from StartSecondOrderScanMessage import StartSecondOrderScanMessage
 from CredentialsObject import CredentialsEntity
 from GetResultsRequestBoundary import GetResultsRequestBoundary
 from PageBoundary import ScanBoundary
@@ -14,7 +14,8 @@ from flask import Flask, jsonify, request
 import threading
 import json
 
-from ScanCompleteMessage import ScanCompleteMessage
+from SecondOrderCompletedMessage import SecondOrderCompletedMessage
+from NextPageMessage import NextPageMessage
 from ScanPageMessage import ScanPageMessage
 from VulnerabilityBoundary import VulnerabilityBoundary
 
@@ -94,16 +95,19 @@ class SocketIOClient(threading.Thread):
         print("Inserting ScanPageMessage to queue")
         ProducerConsumerQueue.getInstance().getIncomeQueue().put(msg)
 
-    @sio.on('crawler_completed')
-    def onCrawlerCompleted():
+    @sio.on('start_second_order_scan')
+    def startSecondOrderScan():
         print("Inserting CrawlerCompletedMessage to queue")
-        crawler_completed_message = CrawlerCompletedMessage()
-        ProducerConsumerQueue.getInstance().getIncomeQueue().put(crawler_completed_message)
+        msg = StartSecondOrderScanMessage()
+        ProducerConsumerQueue.getInstance().getIncomeQueue().put(msg)
 
     def run(self):
         while True:
             if not ProducerConsumerQueue.getInstance().getOutQueue().empty():
                 item = ProducerConsumerQueue.getInstance().getOutQueue().get()
-                if isinstance(item, ScanCompleteMessage):
-                    print("Done Scanning Current Page")
-                    sio.emit('scan_page_done')
+                if isinstance(item, NextPageMessage):
+                    print("Done Scanning Current Page, Get Next Page")
+                    sio.emit('next_page')
+                if isinstance(item, SecondOrderCompletedMessage):
+                    print("Done Scanning SQLI - Second Order")
+                    sio.emit('second_order_completed')

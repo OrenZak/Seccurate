@@ -9,9 +9,10 @@ from RXSSAlgorithm import MainWindow
 from SQLIAlgorithm import SQLIAlgorithm
 import VulnerabilitiesCRUD
 from BaseVulnerabilityClass import VulnerabilityUtils
-from ScanCompleteMessage import ScanCompleteMessage
+from SecondOrderCompletedMessage import SecondOrderCompletedMessage
+from NextPageMessage import NextPageMessage
 from ScanPageMessage import ScanPageMessage
-from CrawlerCompletedMessage import CrawlerCompletedMessage
+from StartSecondOrderScanMessage import StartSecondOrderScanMessage
 from cookieExpiration import CookieException
 from UnexplainedDifferentHashesException import UnexplainedDifferentHashesException
 from DifferentHashesException import DifferentHashesException
@@ -86,9 +87,9 @@ class LogicService(threading.Thread):
             self.__scanForSqlInjection(pageEntity=pageEntity, forms=forms, links=links)
         elif self.__scanType == "RXSS":
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)
-            scanCompleteMsg = ScanCompleteMessage()
-            print("Insert Scan complete message to queue")
-            ProducerConsumerQueue.getInstance().getOutQueue().put(scanCompleteMsg)
+        nextPageMessage = NextPageMessage()
+        print("Insert Next Page message to queue")
+        ProducerConsumerQueue.getInstance().getOutQueue().put(nextPageMessage)
         return
 
     def startSqliSecondOrderScan(self):
@@ -98,9 +99,9 @@ class LogicService(threading.Thread):
                 sqli_algo.start_second_order_scan(pages=self.__pages, vulnUtils=self.vulnUtils)
             except CookieException:
                 self.vulnUtils.generateNewCookie(self.credentialsEntity)
-            scanCompleteMsg = ScanCompleteMessage()
+            secondOrderCompletedMessage = SecondOrderCompletedMessage()
             print("Insert Scan complete message to queue")
-            ProducerConsumerQueue.getInstance().getOutQueue().put(scanCompleteMsg)
+            ProducerConsumerQueue.getInstance().getOutQueue().put(secondOrderCompletedMessage)
 
 
 
@@ -147,5 +148,5 @@ class LogicService(threading.Thread):
                                        credentialsEntity=item.getCredentialsEntity())
                 elif isinstance(item, ScanPageMessage):
                     self.startScan(pageEntity=item.getPageEntity())
-                elif isinstance(item, CrawlerCompletedMessage):
+                elif isinstance(item, StartSecondOrderScanMessage):
                     self.startSqliSecondOrderScan()
