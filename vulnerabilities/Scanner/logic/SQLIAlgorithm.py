@@ -101,10 +101,8 @@ class SQLIAlgorithm():
 
     def get_pages_results(self, pages, vulnUtils):
         results = []
-        index = 0
         for page in pages:
-            results[index] = vulnUtils.get_url_open_results(method='get', data='', url=page.getURL())
-            index += 1
+            results.append(vulnUtils.get_url_open_results(method='get', data='', url=page.getURL()))
         return results
 
     def start_second_order_scan(self, pages, vulnUtils):
@@ -112,6 +110,7 @@ class SQLIAlgorithm():
         print("@2nd start_second_order_scan")
         payloads = vulnUtils.getSecondOrderPayloads()
         for payload in payloads:
+            print("Payload: " + payload.getPayload())
             splitted_payload = payload.getPayload().split(';;')
             for page in pages:
                 pageEntity = page[0]
@@ -123,11 +122,11 @@ class SQLIAlgorithm():
 
                 # Inject to all forms
                 for form in forms:
-                    for inputName in form[self.inputnames_index]:
-                        method = form[self.method_index]
+                    for inputName in forms[form][self.inputnames_index]:
+                        method = forms[form][self.method_index]
                         data = self.get_form_data_with_payload(inputname=inputName,
-                                                               inputnames=form[self.inputnames_index],
-                                                               inputnonames=form[self.inputnonames_index],
+                                                               inputnames=forms[form][self.inputnames_index],
+                                                               inputnonames=forms[form][self.inputnonames_index],
                                                                payload_list=splitted_payload)
 
                         vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
@@ -159,7 +158,7 @@ class SQLIAlgorithm():
                     for inputName in all_inputnames:
                         method = "get"
                         data = self.get_link_data_with_payload(inputname=inputName,
-                                                               inputnames=form[self.inputnames_index],
+                                                               inputnames=forms[form][self.inputnames_index],
                                                                payload_list=splitted_payload)
 
                         vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)

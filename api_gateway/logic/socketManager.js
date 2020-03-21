@@ -43,7 +43,7 @@ function startCrawl(crawlBoundary, id) {
 }
 
 function configDatabase(vulnerabilityConfigBoundary) {
-    scanType = vulnerabilityConfigBoundary.ScanType();
+    scanType = vulnerabilityConfigBoundary.scanType;
     io.emit(EVENTS.CONFIG_DATABASE, vulnerabilityConfigBoundary.serialize());
 }
 
