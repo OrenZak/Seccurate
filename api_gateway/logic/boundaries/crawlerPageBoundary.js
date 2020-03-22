@@ -1,5 +1,5 @@
 class CrawlerPageScanBoundary {
-    constructor(url, pageHash=null, sessionType=null, sessionValue=null) {
+    constructor(url) {
         this.url = url;
     }
 
