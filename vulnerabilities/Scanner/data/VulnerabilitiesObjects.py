@@ -1,10 +1,11 @@
 class SimpleVulnerabilityEntity():
-    def __init__(self, id=None, name=None, url=None, payload=None, requestB64=None):
+    def __init__(self, id=None, name=None, url=None, payload=None, requestB64=None, affected_urls=None):
         self.__id = id
         self.__name = name
         self.__url = url
         self.__payload = payload
         self.__requestB64 = requestB64
+        self.__affected_urls = affected_urls
         return
 
     def getID(self):
@@ -36,6 +37,12 @@ class SimpleVulnerabilityEntity():
 
     def setRequestB64(self, requestB64):
         self.__requestB64 = requestB64
+
+    def getAffectedURLs(self):
+        return self.__affected_urls
+
+    def setAffectedURLs(self, affected_urls):
+        self.__affected_urls = affected_urls
 
 
 class RXSSVulnerabilityEntity(SimpleVulnerabilityEntity):  # RXSS vulenrability entity

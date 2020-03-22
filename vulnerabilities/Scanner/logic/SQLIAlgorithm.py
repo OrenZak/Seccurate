@@ -43,14 +43,10 @@ class SQLIAlgorithm():
         self.time_based = self.config.get('SQLITypes', 'time_based')
 
     def start_scan(self, pageEntity, forms, links, vulnUtils):
-        # if forms or links:
-        #    self.error_based_payloads = self.get_payloads_by_type(payload_type=self.error_based)
-        #    self.error_based_responses = self.get_error_based_responses()
-        print("in start scan")
         for link in links:
             self.inject_to_links(link, pageEntity, vulnUtils)
         for form in forms:
-            self.inject_to_form(forms[form], pageEntity, vulnUtils)  # self.update_scanned_pages()
+            self.inject_to_form(forms[form], pageEntity, vulnUtils)
 
     def inject_to_form(self, form_attributes, page_entity, vulnUtils):
         non_vulnerable_inputnames = form_attributes[self.inputnames_index]
@@ -99,7 +95,6 @@ class SQLIAlgorithm():
 
     def handle_error_based(self, non_vulnerable_inputnames, page_entity, form_attributes=None, link_attributes=None,
                            vulnUtils=None):
-        #url = self.link_to_url(page_entity.getURL())
         url = page_entity.getURL()
         final_non_vulnerable_input_names = []
         for inputname in non_vulnerable_inputnames:
@@ -121,11 +116,11 @@ class SQLIAlgorithm():
                                                            payload_list=splitted_payload)
 
                 regular_result = vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
-                vulnUtils.verifyHash(url, page_entity.getPageHash())
                 error_result = vulnUtils.get_url_open_results(method, data[self.error_result_index], url)
                 regular_imitating_result = vulnUtils.get_url_open_results(method,
                                                                           data[self.regular_imitating_result_index],
                                                                           url)
+                vulnUtils.compareHashes(url, page_entity.getPageHash())
 
                 if self.validate_error_based(regular_result, error_result, regular_imitating_result, vulnUtils):
                     self.event = "SQLI Detected in :" + inputname
@@ -143,7 +138,6 @@ class SQLIAlgorithm():
 
     def handle_time_based(self, non_vulnerable_inputnames, page_entity, form_attributes=None, link_attributes=None,
                           vulnUtils=None):
-        #url = self.link_to_url(page_entity.getURL())
         url = page_entity.getURL()
         final_non_vulnerable_input_names = []
         for inputname in non_vulnerable_inputnames:

@@ -1,0 +1,2 @@
+class WrongAuthenticationMethodException(Exception):
+    pass

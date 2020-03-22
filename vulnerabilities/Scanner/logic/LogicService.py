@@ -12,6 +12,8 @@ from BaseVulnerabilityClass import VulnerabilityUtils
 from ScanCompleteMessage import ScanCompleteMessage
 from ScanPageMessage import ScanPageMessage
 from cookieExpiration import CookieException
+from UnexplainedDifferentHashesException import UnexplainedDifferentHashesException
+from DifferentHashesException import DifferentHashesException
 ####################################################
 from VulnerabilityDescriptionObject import VulnerabilityDescriptionEntity
 import RXSSCrud
@@ -45,7 +47,9 @@ class LogicService(threading.Thread):
         # self.response1 = SQLICrud.createResponse(ResponseEntity("error"), "test")
         ################################################
         # TODO: Zur I think the way we read configurations is not good. I t doesn't seem right
-        self.sqliErroBasedDescripor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'error_based'),
+        self.sqliErrorBasedDescriptor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'error_based'),
+                                                                          self.env_type)
+        self.sqliTimeBasedDescriptor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'time_based'),
                                                                           self.env_type)
         self.rxssDescriptor = self.__vulnDescriptor.getVulnByName(config.get('RXSS', 'rxss'), self.env_type)
 
@@ -58,15 +62,18 @@ class LogicService(threading.Thread):
         print("vulnutils object : " + str(self.vulnUtils))
         return
 
-    def startScan(self, pageEntity=None, sessionEntity=None):
+    def startScan(self, pageEntity=None):#, sessionEntity=None):
         flag = False
         while not flag:
             try:
-                forms, links = self.vulnUtils.get_injection_points(pageEntity=pageEntity, sessionEntity=sessionEntity)
+                forms, links = self.vulnUtils.get_injection_points(pageEntity=pageEntity)
+                pageEntity.setPageHash(self.vulnUtils.getPageHash(pageEntity.getURL()))
                 flag = True
-            except:
-                print("Generate new Cookie")
-                self.vulnUtils.generateNewCookie(self.credentialsEntity)
+            except DifferentHashesException as e:
+                print("in startScan->getInjectionPoints\n" + e.message)
+                self.vulnUtils.updateAuthenticationMethod()
+            except UnexplainedDifferentHashesException:
+                raise UnexplainedDifferentHashesException("No login required yet different hash detected in url: " + pageEntity.getURL())
         print("url is being scanned : " + pageEntity.getURL())
         if self.__scanType == "ALL":
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)
@@ -82,12 +89,12 @@ class LogicService(threading.Thread):
 
     def retriveScanResults(self, getResultEntity):
         vulnerabilityEntities = self.__vulnCrud.getVulns(self.env_type, getResultEntity.getScanName(), 1000, 0)
-        return vulnerabilityEntities, self.rxssDescriptor, self.sqliErroBasedDescripor
+        return vulnerabilityEntities, self.rxssDescriptor, self.sqliErrorBasedDescriptor, self.sqliTimeBasedDescriptor
 
     def updatePayloads(self, payloadObject):
         return
 
-    def __scanForRXSS(self, pageEntity=None, forms=None, links=None):  # sessionEntity=None):
+    def __scanForRXSS(self, pageEntity=None, forms=None, links=None):
         flag = False
         if self.rxssalgo == None:
             print("init MainWindows")
@@ -96,8 +103,9 @@ class LogicService(threading.Thread):
             try:
                 self.rxssalgo.ScanPage(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
                 flag = True
-            except CookieException:
-                self.vulnUtils.generateNewCookie(self.credentialsEntity)
+            except DifferentHashesException as e:
+                print("in scan for rxss\n" + e.message)
+                self.vulnUtils.updateAuthenticationMethod()
         return
 
     # TODO: what about type of db - prod or test? how do we get this value and pass it?
@@ -108,8 +116,9 @@ class LogicService(threading.Thread):
             try:
                 sqli_algo.start_scan(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
                 flag = True
-            except CookieException:
-                self.vulnUtils.generateNewCookie(self.credentialsEntity)
+            except DifferentHashesException as e:
+                print("in scan for sqli\n" + e.message)
+                self.vulnUtils.updateAuthenticationMethod()
         return
 
     def run(self):
@@ -120,5 +129,4 @@ class LogicService(threading.Thread):
                     self.configNewScan(tableName=item.getDbName(), scanType=item.getScanType(),
                                        credentialsEntity=item.getCredentialsEntity())
                 elif isinstance(item, ScanPageMessage):
-                    self.startScan(pageEntity=item.getPageEntity(),
-                                   sessionEntity=item.getSessionEntity())
+                    self.startScan(pageEntity=item.getPageEntity())

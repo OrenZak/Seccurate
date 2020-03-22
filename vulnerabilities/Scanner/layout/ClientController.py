@@ -33,7 +33,8 @@ class RestServer():
         #serializedGetResultBoundary):
         # TODO add threading support by create a new Message to return to the client, and wait for the message by while over the queue
         vulnBoundaryList = []
-        vulnerabilityEntities, rxssDescriptorEntity, sqliErroBasedDescriporEntity = clientLogicService.retriveScanResults(
+        vulnerabilityEntities, rxssDescriptorEntity, sqliErroBasedDescriporEntity, \
+        sqliTimeBasedDescriptorEntity = clientLogicService.retriveScanResults(
             GetResultsRequestBoundary.deserialize(request.get_json()).getResultsEntity())
         for vuln in vulnerabilityEntities:
             if vuln.getName() == rxssDescriptorEntity.getName():
@@ -41,6 +42,8 @@ class RestServer():
             elif vuln.getName() == sqliErroBasedDescriporEntity.getName():
                 vulnBoundary = VulnerabilityBoundary(vulnEntity=vuln,
                                                      vulnDescriptionEntity=sqliErroBasedDescriporEntity)
+            elif vuln.getName() == sqliTimeBasedDescriptorEntity.getName():
+                vulnBoundary = VulnerabilityBoundary(vulnEntity=vuln, vulnDescriptionEntity=sqliTimeBasedDescriptorEntity)
             else:
                 continue
             vulnBoundaryList.append(vulnBoundary.serialize())
@@ -84,8 +87,7 @@ class SocketIOClient(threading.Thread):
     @sio.on('scan_page')
     def startScan(scanParams):  # start scan method, the server needs to provide urls to scan
         configScanBoundary = ScanBoundary.deserialize(scanParams)
-        msg = ScanPageMessage(pageEntity=configScanBoundary.getPageEntity(),
-                              sessionEntity=configScanBoundary.getSessionEntity())
+        msg = ScanPageMessage(pageEntity=configScanBoundary.getPageEntity())
         # clientLogicService.startScan(pageEntity=configScanBoundary.getPageEntity(),
         #                              sessionEntity=configScanBoundary.getSessionEntity())
         print("Inserting ScanPageMessage to queue")

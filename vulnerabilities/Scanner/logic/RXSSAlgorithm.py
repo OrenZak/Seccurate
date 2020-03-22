@@ -106,9 +106,9 @@ class MainWindow():
                     check_r = True
                     try:
                         # Get Response From the Server
-                        self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
                         htmlResponse, response_hash, elapsed_time, requestB64 = self.vulnUtils.get_url_open_results(
                             method, data, self.url)
+                        self.vulnUtils.compareHashes(self.url, self.page_entity.getPageHash())
                     except Exception as e:
                         check_r = False
                         print "<h1>[-]Error:<h1><h2>URL:</h2> " + self.urlform + "<br><h2>Data:</h2> " + data.encode(
@@ -164,9 +164,9 @@ class MainWindow():
                         inputnames[inputname] = originalvalue
                         try:
                             method = "GET"
-                            self.vulnUtils.verifyHash(self.url, self.page_entity.getPageHash())
                             htmlresponse, response_hash, elapsed_time, requestB64 = self.vulnUtils.get_url_open_results(
                                 method, data, self.url)
+                            self.vulnUtils.compareHashes(self.url, self.page_entity.getPageHash())
                             result = self.validatePayload(payload=payload, method=method, data=data, htmlResponse=htmlresponse,
                                                  requestB64=requestB64)
                             if result:
