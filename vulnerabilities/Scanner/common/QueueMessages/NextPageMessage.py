@@ -1,7 +1,6 @@
 from AbstractMessage import AbstractMessage
 
 
-class ScanCompleteMessage(AbstractMessage):
+class NextPageMessage(AbstractMessage):
     def __init__(self):
         None
-

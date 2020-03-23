@@ -11,7 +11,8 @@ const ACTIONS = {
     PAGE_FETCHED: "page_fetched",
     CRAWLER_DONE: "crawler_done",
     SCAN_RESULTS: "scan_page",
-    SCAN_PAGE_DONE: "scan_page_done"
+    NEXT_PAGE: "next_page",
+    SECOND_ORDER_COMPLETED: "second_order_completed"
 };
 
 const EVENTS = {
@@ -20,12 +21,15 @@ const EVENTS = {
     GET_RESULTS: "get_results",
     UPDATE_PAYLOADS: "update_payloads",
     SCAN_PAGE: "scan_page",
-    SCAM_COMPLETE: "scan_completed"
+    CRAWLER_COMPLETED: "crawler_completed",
+    START_SECOND_ORDER_SCAN: "start_second_order_scan",
+    SCAN_COMPLETE: "scan_completed"
 };
 
 
 let io = undefined;
 let pageQueue = [];
+let scanType;
 let isCrawlerScanning = false;
 let isVulnerabilityScanning = false;
 let scanID;
@@ -39,6 +43,7 @@ function startCrawl(crawlBoundary, id) {
 }
 
 function configDatabase(vulnerabilityConfigBoundary) {
+    scanType = vulnerabilityConfigBoundary.scanType;
     io.emit(EVENTS.CONFIG_DATABASE, vulnerabilityConfigBoundary.serialize());
 }
 
@@ -48,7 +53,6 @@ function getResults(vulnerabilityGetResultsRequestBoundary) {
 
 function updatePayloads(payloadBoundary) {
     io.emit(EVENTS.UPDATE_PAYLOADS, payloadBoundary);
-
 }
 
 function scanPage(pageBoundary) {
@@ -80,25 +84,40 @@ function start(server, scanDoneCallback) {
                 pageQueue.push(vulnerabilityPageBoundary);
             }
         });
-        socket.on(ACTIONS.SCAN_PAGE_DONE, async function (results) {
+        socket.on(ACTIONS.NEXT_PAGE, async function (results) {
             if (pageQueue.length > 0) {
                 let vulnerabilityPageBoundary = pageQueue.shift();
                 isVulnerabilityScanning = true;
                 scanPage(vulnerabilityPageBoundary);
-            } else if(isCrawlerScanning) {
-                isVulnerabilityScanning = false;
+            } else {
+                if(isCrawlerScanning) {
+                    isVulnerabilityScanning = false;
+                }
+                else {
+                    if(scanType === 'RXSS') {
+                        io.emit(EVENTS.SCAN_COMPLETE);
+                        scanDoneCallback();
+                    } else {
+                        io.emit(EVENTS.START_SECOND_ORDER_SCAN)
+                    }
+                }
             }
-            else{
-                io.emit(EVENTS.SCAM_COMPLETE);
-                scanDoneCallback();
-            }
+        });
+        socket.on(ACTIONS.SECOND_ORDER_COMPLETED, async function () {
+            io.emit(EVENTS.SCAN_COMPLETE);
+            scanDoneCallback();
         });
         socket.on(ACTIONS.CRAWLER_DONE, async function (results) {
             console.log("CRAWLER_DONE");
+            io.emit(EVENTS.CRAWLER_COMPLETED);
             isCrawlerScanning = false;
-            if(!isCrawlerScanning && !isVulnerabilityScanning && pageQueue.length == 0){
-                io.emit(EVENTS.SCAM_COMPLETE);
-                scanDoneCallback();
+            if(!isCrawlerScanning && !isVulnerabilityScanning && pageQueue.length == 0) {
+                if(scanType === 'RXSS') {
+                    io.emit(EVENTS.SCAN_COMPLETE);
+                    scanDoneCallback();
+                } else {
+                    io.emit(EVENTS.START_SECOND_ORDER_SCAN)
+                }
             }
         });
     });

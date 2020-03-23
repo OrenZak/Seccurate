@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 from urllib import urlencode
 from urlparse import urlparse
 import ConfigParser
+from UnexplainedDifferentHashesException import UnexplainedDifferentHashesException
+from DifferentHashesException import DifferentHashesException
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -41,6 +43,7 @@ class SQLIAlgorithm():
         self.injection_types = [self.config.get('SQLITypes', option) for option in self.config.options('SQLITypes')]
         self.error_based = self.config.get('SQLITypes', 'error_based')
         self.time_based = self.config.get('SQLITypes', 'time_based')
+        self.second_order = self.config.get('SQLITypes', 'second_order')
 
     def start_scan(self, pageEntity, forms, links, vulnUtils):
         for link in links:
@@ -51,25 +54,31 @@ class SQLIAlgorithm():
     def inject_to_form(self, form_attributes, page_entity, vulnUtils):
         non_vulnerable_inputnames = form_attributes[self.inputnames_index]
         i = 0
-        #print("there are " + str(self.injection_types_count) + " types of injections")
-        while i < self.injection_types_count and non_vulnerable_inputnames != {}:
-            non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=self.injection_types[i],
+        # print("there are " + str(self.injection_types_count) + " types of injections")
+        injection_types = self.filter_out_second_order_type()
+        while i < self.injection_types_count - 1 and non_vulnerable_inputnames != {}:
+            non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=injection_types[i],
                                                                   non_vulnerable_inputnames=non_vulnerable_inputnames,
                                                                   page_entity=page_entity,
                                                                   form_attributes=form_attributes, vulnUtils=vulnUtils)
-            print ("in inject to form => there are " + str(len(non_vulnerable_inputnames)) + " non_vulnerable_inputnames after round " + str(i))
+            print ("in inject to form => there are " + str(
+                len(non_vulnerable_inputnames)) + " non_vulnerable_inputnames after round " + str(i))
             i += 1
 
     def inject_to_links(self, link, page_entity, vulnUtils):
         all_inputnames = self.get_link_input_names(link)
         non_vulnerable_inputnames = all_inputnames
         i = 0
-        while i < self.injection_types_count and non_vulnerable_inputnames != {}:
-            non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=self.injection_types[i],
+        injection_types = self.filter_out_second_order_type()
+        while i < self.injection_types_count - 1 and non_vulnerable_inputnames != {}:
+            non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=injection_types[i],
                                                                   non_vulnerable_inputnames=non_vulnerable_inputnames,
                                                                   page_entity=page_entity,
                                                                   link_attributes=all_inputnames, vulnUtils=vulnUtils)
             i += 1
+
+    def filter_out_second_order_type(self):
+        return filter(lambda injection_type: injection_type != self.second_order, self.injection_types)
 
     def inject_to_inputnames(self, injection_type, non_vulnerable_inputnames, page_entity, form_attributes=None,
                              link_attributes=None, vulnUtils=None):
@@ -92,6 +101,106 @@ class SQLIAlgorithm():
                 return self.handle_time_based(non_vulnerable_inputnames=non_vulnerable_inputnames,
                                               page_entity=page_entity, link_attributes=link_attributes,
                                               vulnUtils=vulnUtils)
+
+    def get_pages_results(self, pages, vulnUtils):
+        results = []
+        for page in pages:
+            results.append(vulnUtils.get_url_open_results(method='get', data='', url=page.getURL()))
+        return results
+
+    def start_second_order_scan(self, pages, vulnUtils):
+        # TODO: run on all pages, get inject_p do injected, check all other pages if were changed
+        print("@2nd start_second_order_scan")
+        payloads = vulnUtils.getSecondOrderPayloads()
+        for payload in payloads:
+            print("Payload: " + payload.getPayload())
+            splitted_payload = payload.getPayload().split(';;')
+            for page in pages:
+                url = page.getURL()
+                try:
+                    forms, links = vulnUtils.get_injection_points(pageEntity=page)
+                except DifferentHashesException as e:
+                    print("in startSqliSecondOrderScan\n" + e.message)
+                    vulnUtils.updateAuthenticationMethod()
+                except UnexplainedDifferentHashesException:
+                    raise UnexplainedDifferentHashesException(
+                        "No login required yet different hash detected in url: " + page.getURL())
+                # Create filtered list without the current running page.
+                other_pages = map(lambda a_page: a_page, filter(lambda a_page: a_page != page, pages))
+
+                # Inject to all forms
+                for form in forms:
+                    for inputName in forms[form][self.inputnames_index]:
+                        method = forms[form][self.method_index]
+                        data = self.get_form_data_with_payload(inputname=inputName,
+                                                               inputnames=forms[form][self.inputnames_index],
+                                                               inputnonames=forms[form][self.inputnonames_index],
+                                                               payload_list=splitted_payload)
+
+                        vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
+                        otherPages_regular_results = self.get_pages_results(pages=other_pages, vulnUtils=vulnUtils)
+
+                        error_result = vulnUtils.get_url_open_results(method, data[self.error_result_index], url)
+                        otherPages_error_results = self.get_pages_results(pages=other_pages, vulnUtils=vulnUtils)
+
+                        vulnUtils.get_url_open_results(method, data[self.regular_imitating_result_index], url)
+                        otherPages_imitating_results = self.get_pages_results(pages=other_pages, vulnUtils=vulnUtils)
+
+                        affected_urls = self.get_affected_urls(
+                            otherPages=other_pages,
+                            otherPages_regular_results=otherPages_regular_results,
+                            otherPages_error_results=otherPages_error_results,
+                            otherPages_imitating_results=otherPages_imitating_results,
+                            vulnUtils=vulnUtils)
+
+                        if len(affected_urls) > 0:
+                            self.event = "SQLI - 2nd Order Detected in :" + inputName
+                            print(self.event)
+                            vulnUtils.add_event(name=self.second_order, url=url, payload=payload.getPayload(),
+                                                requestB64=error_result[self.requestb64_index],
+                                                affected_urls=affected_urls)
+
+                # Inject to all links
+                for link in links:
+                    all_inputnames = self.get_link_input_names(link)
+                    for inputName in all_inputnames:
+                        method = "get"
+                        data = self.get_link_data_with_payload(inputname=inputName,
+                                                               inputnames=all_inputnames,
+                                                               payload_list=splitted_payload)
+
+                        vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
+                        otherPages_regular_results = self.get_pages_results(pages=other_pages, vulnUtils=vulnUtils)
+
+                        error_result = vulnUtils.get_url_open_results(method, data[self.error_result_index], url)
+                        otherPages_error_results = self.get_pages_results(pages=other_pages, vulnUtils=vulnUtils)
+
+                        vulnUtils.get_url_open_results(method, data[self.regular_imitating_result_index], url)
+                        otherPages_imitating_results = self.get_pages_results(pages=other_pages, vulnUtils=vulnUtils)
+
+                        affected_urls = self.get_affected_urls(
+                            otherPages=other_pages,
+                            otherPages_regular_results=otherPages_regular_results,
+                            otherPages_error_results=otherPages_error_results,
+                            otherPages_imitating_results=otherPages_imitating_results,
+                            vulnUtils=vulnUtils)
+
+                        if len(affected_urls) > 0:
+                            self.event = "SQLI - 2nd Order Detected in :" + inputName
+                            print(self.event)
+                            vulnUtils.add_event(name='second_order', url=url, payload=payload.getPayload(),
+                                                requestB64=error_result[self.requestb64_index],
+                                                affected_urls=affected_urls)
+
+    def get_affected_urls(self, otherPages, otherPages_regular_results,
+                          otherPages_error_results, otherPages_imitating_results, vulnUtils):
+        affected_urls = []
+        for index in range(len(otherPages)):
+            if self.validate_error_based(otherPages_regular_results[index],
+                                         otherPages_error_results[index],
+                                         otherPages_imitating_results[index], vulnUtils):
+                affected_urls.append(otherPages[index].getURL())
+        return affected_urls
 
     def handle_error_based(self, non_vulnerable_inputnames, page_entity, form_attributes=None, link_attributes=None,
                            vulnUtils=None):
@@ -168,7 +277,8 @@ class SQLIAlgorithm():
                     vulnerable = True
                     break
                 else:
-                    print (inputname + " not vulnerable to payload " + payload_string)  # non_vulnerable_inputnames.append(inputname)
+                    print (
+                                inputname + " not vulnerable to payload " + payload_string)  # non_vulnerable_inputnames.append(inputname)
             if not vulnerable:
                 final_non_vulnerable_input_names.append(inputname)
         return final_non_vulnerable_input_names
@@ -215,7 +325,7 @@ class SQLIAlgorithm():
         if time <= result[self.time_index]:
             return True
         else:
-            #get the content of the regular page
+            # get the content of the regular page
             regular_page_response = vulnUtils.get_url_open_results("get", "", url)
             diff = self.get_diff_response_content(result[self.response_index],
                                                   regular_page_response[self.response_index],
@@ -224,7 +334,6 @@ class SQLIAlgorithm():
                 if response.getResponse() in diff:
                     return True
         return False
-
 
     def get_diff_response_content(self, response1, response2, response3):
         soup1 = BeautifulSoup(response1, 'html.parser').find_all()

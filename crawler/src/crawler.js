@@ -18,23 +18,23 @@ function doEmit(action, mainUrl, data) {
 }
 
 function startCrawl(mainUrl, loginInfo) {
-    const crawler = Crawler(mainUrl);
-    crawler.interval = crawler_config.interval;
-    crawler.maxDepth = crawler_config.maxDepth;
-    crawler.maxConcurrency = crawler_config.maxConcurrency;
-    crawler.timeout = crawler_config.timeout;
-    crawler.decodeResponses = true;
-    crawler.parseHTMLComments = false;
-    crawler.allowInitialDomainChange = false;
-    crawler.parseScriptTags = true;
-    crawler.respectRobotsTxt = false;
-    crawler.filterByDomain = true;
-    crawler.scanSubdomains = false;
-    crawler.acceptCookies = true;
-    crawler.userAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34";
+	const crawler = Crawler(mainUrl);
+	crawler.interval = crawler_config.interval;
+	crawler.maxDepth = crawler_config.maxDepth;
+	crawler.maxConcurrency = crawler_config.maxConcurrency;
+	crawler.timeout = crawler_config.timeout;
+	crawler.decodeResponses = true;
+	crawler.parseHTMLComments = false;
+	crawler.allowInitialDomainChange = false;
+	crawler.parseScriptTags = true;
+	crawler.respectRobotsTxt = false;
+	crawler.filterByDomain = true;
+	crawler.scanSubdomains = false;
+	crawler.acceptCookies = true;
+	crawler.userAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34";
 
-    crawler.on('fetchcomplete', function (queueItem, responseBuffer, response) {
-        const hash = createHash(queueItem, responseBuffer);
+	crawler.on('fetchcomplete', function(queueItem, responseBuffer, response) {
+		const hash = createHash(queueItem, responseBuffer);
         console.log(`New page: ${queueItem.url} -> ${hash}`);
         const urlCookies = getCookies(crawler, queueItem.url);
         doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
@@ -43,29 +43,29 @@ function startCrawl(mainUrl, loginInfo) {
             type: urlCookies.length > 0 ? 'Cookie' : null,
             pageHash: hash,
         });
-    });
+	});
 
-    crawler.on('complete', function () {
-        console.log('Crawling completed');
-        doEmit(EVENTS.CRAWLER_DONE, mainUrl);
-    });
+	crawler.on('complete', function() {
+		console.log('Crawling completed');
+		doEmit(EVENTS.CRAWLER_DONE, mainUrl);
+	});
 
-    crawler.addFetchCondition(function (queueItem, referrerQueueItem, callback) {
-        callback(null, queueItem.depth < crawler.maxDepth);
-    });
+	crawler.addFetchCondition(function(queueItem, referrerQueueItem, callback) {
+		callback(null, queueItem.depth < crawler.maxDepth);
+	});
 
-    crawler.addDownloadCondition(function (queueItem, response, callback) {
-        const mimeTypeSupported = [/^text\/html/i].some(function (mimeCheck) {
-            return mimeCheck.test(queueItem.stateData.contentType);
-        });
-        callback(null, mimeTypeSupported);
-    });
+	crawler.addDownloadCondition(function(queueItem, response, callback) {
+		const mimeTypeSupported = [/^text\/html/i].some(function(mimeCheck) {
+			return mimeCheck.test(queueItem.stateData.contentType);
+		});
+		callback(null, mimeTypeSupported);
+	});
 
-    if (loginInfo) {
-        startAfterLogin(crawler, loginInfo, mainUrl);
-    } else {
-        crawler.start();
-    }
+	if (loginInfo) {
+		startAfterLogin(crawler, loginInfo, mainUrl);
+	} else {
+		crawler.start();
+	}
 }
 
 function startAfterLogin(crawler, loginInfo, mainUrl) {
@@ -152,16 +152,10 @@ function setConfig(config) {
     console.log('Crawler config: \n', crawler_config);
 }
 
-function createHash(queueItem, res) {
-    if (queueItem.url == 'http://192.168.56.101/dirtrav/example3.php?file=hacker.png' || queueItem.url == 'http://192.168.56.101/dirtrav/example1.php?file=hacker.png' || queueItem.url == 'http://192.168.56.101/dirtrav/example1.php?file=hacker.png'){
-        let a = res.length;
-        console.log(queueItem.url);
-        console.log(res.length);
-        console.log(res);
-    }
+function createHash(queueItem, responseBuffer) {
     return crypto
         .createHash('md5')
-        .update(`${queueItem.url}${res.length}`.toString())
+        .update(`${queueItem.url}${responseBuffer.length}`.toString())
         .digest('hex');
 }
 
