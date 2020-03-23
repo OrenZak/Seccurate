@@ -36,7 +36,7 @@ class RestServer():
         # TODO add threading support by create a new Message to return to the client, and wait for the message by while over the queue
         vulnBoundaryList = []
         vulnerabilityEntities, rxssDescriptorEntity, sqliErroBasedDescriporEntity, \
-        sqliTimeBasedDescriptorEntity = clientLogicService.retriveScanResults(
+        sqliTimeBasedDescriptorEntity, sqliSecondOrderDescriptor = clientLogicService.retriveScanResults(
             GetResultsRequestBoundary.deserialize(request.get_json()).getResultsEntity())
         for vuln in vulnerabilityEntities:
             if vuln.getName() == rxssDescriptorEntity.getName():
@@ -46,6 +46,8 @@ class RestServer():
                                                      vulnDescriptionEntity=sqliErroBasedDescriporEntity)
             elif vuln.getName() == sqliTimeBasedDescriptorEntity.getName():
                 vulnBoundary = VulnerabilityBoundary(vulnEntity=vuln, vulnDescriptionEntity=sqliTimeBasedDescriptorEntity)
+            elif vuln.getName() == sqliSecondOrderDescriptor.getName():
+                vulnBoundary = VulnerabilityBoundary(vulnEntity=vuln, vulnDescriptionEntity=sqliSecondOrderDescriptor)
             else:
                 continue
             vulnBoundaryList.append(vulnBoundary.serialize())

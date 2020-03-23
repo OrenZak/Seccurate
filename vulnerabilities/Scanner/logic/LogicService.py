@@ -51,9 +51,11 @@ class LogicService(threading.Thread):
         ################################################
         # TODO: Zur I think the way we read configurations is not good. I t doesn't seem right
         self.sqliErrorBasedDescriptor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'error_based'),
-                                                                          self.env_type)
+                                                                            self.env_type)
         self.sqliTimeBasedDescriptor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'time_based'),
-                                                                          self.env_type)
+                                                                           self.env_type)
+        self.sqliSecondOrderDescriptor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'second_order'),
+                                                                             self.env_type)
         self.rxssDescriptor = self.__vulnDescriptor.getVulnByName(config.get('RXSS', 'rxss'), self.env_type)
 
     def configNewScan(self, tableName=None, scanType=None, credentialsEntity=None):  # Config new db u
@@ -66,8 +68,8 @@ class LogicService(threading.Thread):
         print("vulnutils object : " + str(self.vulnUtils))
         return
 
-    def startScan(self, pageEntity=None, sessionEntity=None):
-        self.__pages.append(tuple((pageEntity, sessionEntity)))
+    def startScan(self, pageEntity=None):
+        self.__pages.append(pageEntity)
         flag = False
         while not flag:
             try:
@@ -78,7 +80,8 @@ class LogicService(threading.Thread):
                 print("in startScan->getInjectionPoints\n" + e.message)
                 self.vulnUtils.updateAuthenticationMethod()
             except UnexplainedDifferentHashesException:
-                raise UnexplainedDifferentHashesException("No login required yet different hash detected in url: " + pageEntity.getURL())
+                raise UnexplainedDifferentHashesException(
+                    "No login required yet different hash detected in url: " + pageEntity.getURL())
         print("url is being scanned : " + pageEntity.getURL())
         if self.__scanType == "ALL":
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)
@@ -95,19 +98,15 @@ class LogicService(threading.Thread):
     def startSqliSecondOrderScan(self):
         if self.__scanType == "ALL" or self.__scanType == "SQLI":
             sqli_algo = SQLIAlgorithm(db_type='test')
-            try:
-                sqli_algo.start_second_order_scan(pages=self.__pages, vulnUtils=self.vulnUtils)
-            except CookieException:
-                self.vulnUtils.generateNewCookie(self.credentialsEntity)
+            sqli_algo.start_second_order_scan(pages=self.__pages, vulnUtils=self.vulnUtils)
             secondOrderCompletedMessage = SecondOrderCompletedMessage()
-            print("Insert Scan complete message to queue")
+            print("Insert SQLI - Second Order scan complete message to queue")
             ProducerConsumerQueue.getInstance().getOutQueue().put(secondOrderCompletedMessage)
-
-
 
     def retriveScanResults(self, getResultEntity):
         vulnerabilityEntities = self.__vulnCrud.getVulns(self.env_type, getResultEntity.getScanName(), 1000, 0)
-        return vulnerabilityEntities, self.rxssDescriptor, self.sqliErrorBasedDescriptor, self.sqliTimeBasedDescriptor
+        return vulnerabilityEntities, self.rxssDescriptor, \
+               self.sqliErrorBasedDescriptor, self.sqliTimeBasedDescriptor, self.sqliSecondOrderDescriptor
 
     def updatePayloads(self, payloadObject):
         return

@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 from urllib import urlencode
 from urlparse import urlparse
 import ConfigParser
+from UnexplainedDifferentHashesException import UnexplainedDifferentHashesException
+from DifferentHashesException import DifferentHashesException
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -52,14 +54,15 @@ class SQLIAlgorithm():
     def inject_to_form(self, form_attributes, page_entity, vulnUtils):
         non_vulnerable_inputnames = form_attributes[self.inputnames_index]
         i = 0
-        #print("there are " + str(self.injection_types_count) + " types of injections")
+        # print("there are " + str(self.injection_types_count) + " types of injections")
         injection_types = self.filter_out_second_order_type()
         while i < self.injection_types_count - 1 and non_vulnerable_inputnames != {}:
             non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=injection_types[i],
                                                                   non_vulnerable_inputnames=non_vulnerable_inputnames,
                                                                   page_entity=page_entity,
                                                                   form_attributes=form_attributes, vulnUtils=vulnUtils)
-            print ("in inject to form => there are " + str(len(non_vulnerable_inputnames)) + " non_vulnerable_inputnames after round " + str(i))
+            print ("in inject to form => there are " + str(
+                len(non_vulnerable_inputnames)) + " non_vulnerable_inputnames after round " + str(i))
             i += 1
 
     def inject_to_links(self, link, page_entity, vulnUtils):
@@ -113,12 +116,17 @@ class SQLIAlgorithm():
             print("Payload: " + payload.getPayload())
             splitted_payload = payload.getPayload().split(';;')
             for page in pages:
-                pageEntity = page[0]
-                sessionEntity = page[1]
-                url = pageEntity.getURL()
-                forms, links = vulnUtils.get_injection_points(pageEntity=pageEntity, sessionEntity=sessionEntity)
+                url = page.getURL()
+                try:
+                    forms, links = vulnUtils.get_injection_points(pageEntity=page)
+                except DifferentHashesException as e:
+                    print("in startSqliSecondOrderScan\n" + e.message)
+                    vulnUtils.updateAuthenticationMethod()
+                except UnexplainedDifferentHashesException:
+                    raise UnexplainedDifferentHashesException(
+                        "No login required yet different hash detected in url: " + page.getURL())
                 # Create filtered list without the current running page.
-                otherPages = map(lambda a_page: a_page[0], filter(lambda a_page: a_page != page, pages))
+                other_pages = map(lambda a_page: a_page, filter(lambda a_page: a_page != page, pages))
 
                 # Inject to all forms
                 for form in forms:
@@ -130,27 +138,27 @@ class SQLIAlgorithm():
                                                                payload_list=splitted_payload)
 
                         vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
-                        otherPages_regular_results = self.get_pages_results(pages=otherPages, vulnUtils=vulnUtils)
+                        otherPages_regular_results = self.get_pages_results(pages=other_pages, vulnUtils=vulnUtils)
 
                         error_result = vulnUtils.get_url_open_results(method, data[self.error_result_index], url)
-                        otherPages_error_results = self.get_pages_results(pages=otherPages, vulnUtils=vulnUtils)
+                        otherPages_error_results = self.get_pages_results(pages=other_pages, vulnUtils=vulnUtils)
 
                         vulnUtils.get_url_open_results(method, data[self.regular_imitating_result_index], url)
-                        otherPages_imitating_results = self.get_pages_results(pages=otherPages, vulnUtils=vulnUtils)
+                        otherPages_imitating_results = self.get_pages_results(pages=other_pages, vulnUtils=vulnUtils)
 
-                        vulnerable = False
-                        for index in range(len(otherPages)):
-                            if self.validate_error_based(otherPages_regular_results[index],
-                                                         otherPages_error_results[index],
-                                                         otherPages_imitating_results[index], vulnUtils):
-                                vulnerable = True
-                                break
+                        affected_urls = self.get_affected_urls(
+                            otherPages=other_pages,
+                            otherPages_regular_results=otherPages_regular_results,
+                            otherPages_error_results=otherPages_error_results,
+                            otherPages_imitating_results=otherPages_imitating_results,
+                            vulnUtils=vulnUtils)
 
-                        if vulnerable:
+                        if len(affected_urls) > 0:
                             self.event = "SQLI - 2nd Order Detected in :" + inputName
                             print(self.event)
-                            vulnUtils.add_event(name='second_order', url=url, payload=payload.getPayload(),
-                                                requestB64=error_result[self.requestb64_index])
+                            vulnUtils.add_event(name=self.second_order, url=url, payload=payload.getPayload(),
+                                                requestB64=error_result[self.requestb64_index],
+                                                affected_urls=affected_urls)
 
                 # Inject to all links
                 for link in links:
@@ -158,33 +166,41 @@ class SQLIAlgorithm():
                     for inputName in all_inputnames:
                         method = "get"
                         data = self.get_link_data_with_payload(inputname=inputName,
-                                                               inputnames=forms[form][self.inputnames_index],
+                                                               inputnames=all_inputnames,
                                                                payload_list=splitted_payload)
 
                         vulnUtils.get_url_open_results(method, data[self.regular_result_index], url)
-                        otherPages_regular_results = self.get_pages_results(pages=otherPages, vulnUtils=vulnUtils)
+                        otherPages_regular_results = self.get_pages_results(pages=other_pages, vulnUtils=vulnUtils)
 
                         error_result = vulnUtils.get_url_open_results(method, data[self.error_result_index], url)
-                        otherPages_error_results = self.get_pages_results(pages=otherPages, vulnUtils=vulnUtils)
+                        otherPages_error_results = self.get_pages_results(pages=other_pages, vulnUtils=vulnUtils)
 
                         vulnUtils.get_url_open_results(method, data[self.regular_imitating_result_index], url)
-                        otherPages_imitating_results = self.get_pages_results(pages=otherPages, vulnUtils=vulnUtils)
+                        otherPages_imitating_results = self.get_pages_results(pages=other_pages, vulnUtils=vulnUtils)
 
-                        vulnerable = False
-                        for index in range(len(otherPages)):
-                            if self.validate_error_based(otherPages_regular_results[index],
-                                                         otherPages_error_results[index],
-                                                         otherPages_imitating_results[index], vulnUtils):
-                                vulnerable = True
-                                break
+                        affected_urls = self.get_affected_urls(
+                            otherPages=other_pages,
+                            otherPages_regular_results=otherPages_regular_results,
+                            otherPages_error_results=otherPages_error_results,
+                            otherPages_imitating_results=otherPages_imitating_results,
+                            vulnUtils=vulnUtils)
 
-                        if vulnerable:
+                        if len(affected_urls) > 0:
                             self.event = "SQLI - 2nd Order Detected in :" + inputName
                             print(self.event)
                             vulnUtils.add_event(name='second_order', url=url, payload=payload.getPayload(),
-                                                requestB64=error_result[self.requestb64_index])
+                                                requestB64=error_result[self.requestb64_index],
+                                                affected_urls=affected_urls)
 
-
+    def get_affected_urls(self, otherPages, otherPages_regular_results,
+                          otherPages_error_results, otherPages_imitating_results, vulnUtils):
+        affected_urls = []
+        for index in range(len(otherPages)):
+            if self.validate_error_based(otherPages_regular_results[index],
+                                         otherPages_error_results[index],
+                                         otherPages_imitating_results[index], vulnUtils):
+                affected_urls.append(otherPages[index].getURL())
+        return affected_urls
 
     def handle_error_based(self, non_vulnerable_inputnames, page_entity, form_attributes=None, link_attributes=None,
                            vulnUtils=None):
@@ -261,7 +277,8 @@ class SQLIAlgorithm():
                     vulnerable = True
                     break
                 else:
-                    print (inputname + " not vulnerable to payload " + payload_string)  # non_vulnerable_inputnames.append(inputname)
+                    print (
+                                inputname + " not vulnerable to payload " + payload_string)  # non_vulnerable_inputnames.append(inputname)
             if not vulnerable:
                 final_non_vulnerable_input_names.append(inputname)
         return final_non_vulnerable_input_names
@@ -308,7 +325,7 @@ class SQLIAlgorithm():
         if time <= result[self.time_index]:
             return True
         else:
-            #get the content of the regular page
+            # get the content of the regular page
             regular_page_response = vulnUtils.get_url_open_results("get", "", url)
             diff = self.get_diff_response_content(result[self.response_index],
                                                   regular_page_response[self.response_index],
@@ -317,7 +334,6 @@ class SQLIAlgorithm():
                 if response.getResponse() in diff:
                     return True
         return False
-
 
     def get_diff_response_content(self, response1, response2, response3):
         soup1 = BeautifulSoup(response1, 'html.parser').find_all()

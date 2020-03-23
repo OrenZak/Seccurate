@@ -55,7 +55,7 @@ def getVulns(env, table_name, size=10, page=0):
         for vuln in cursor.fetchall():
             if vuln[1] == config.get('SQLITypes', 'second_order'):
                 vulnEntity = SimpleVulnerabilityEntity(id=vuln[0], name=vuln[1], url=vuln[2], payload=vuln[3],
-                                                       requestB64=vuln[4],affected_urls=json.loads(vuln[5]))
+                                                       requestB64=vuln[4], affected_urls=json.loads(vuln[5]))
             else:
                 vulnEntity = SimpleVulnerabilityEntity(id=vuln[0], name=vuln[1], url=vuln[2], payload=vuln[3],
                                                        requestB64=vuln[4])

@@ -361,6 +361,7 @@ router.get(PATHS.GET_RESULTS, function(req, res, next) {
           description: elem._VulnerabilityBoundary__description,
           name: elem._VulnerabilityBoundary__name,
           payload: elem._VulnerabilityBoundary__payload,
+          affected_urls: elem._VulnerabilityBoundary__affected_urls,
           recommendation: elem._VulnerabilityBoundary__recommendations,
           requestB64: elem._VulnerabilityBoundary__requestB64,
           severity: elem._VulnerabilityBoundary__severity,
