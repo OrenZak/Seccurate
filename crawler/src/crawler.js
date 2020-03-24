@@ -188,15 +188,15 @@ function getAuthType(loginInfo) {
 // };
 // startCrawl('http://192.168.10.178//bWAPP', loginInfoCookie);
 
-const loginInfoBasicAuth = {
-  AuthenticationType: 'BasicAuth',
-  form: {
-    username: 'test',
-    password: '123qwe'
-  },
-  formAction: 'http://192.168.56.101'
-};
-startCrawl('http://192.168.56.101', loginInfoBasicAuth);
+// const loginInfoBasicAuth = {
+//   AuthenticationType: 'BasicAuth',
+//   form: {
+//     username: 'test',
+//     password: '123qwe'
+//   },
+//   formAction: 'http://192.168.56.101'
+// };
+// startCrawl('http://192.168.56.101', loginInfoBasicAuth);
 
 module.exports = {
   eventEmitter: new events.EventEmitter(),
