@@ -5,7 +5,7 @@
               "name": "error-based",
               "severity": 1,
               "description": "description of error-based sql injection",
-              "recommendations": "{\"description\":\"Implement the following solutions:\",\"mitigations\":[\"Validate and verify input existence, length, type and permitted values, and verify logical compliance of any user-controlled input. A whitelist approach for input validation is suggested, rather than a blacklist approach that prevents the usage of certain characters.\",\"Use secure database access methods in the application\"s development processes. It is recommended to construct and execute queries through the use of Prepared Statements or Stored Procedures. \"]}"
+              "recommendations": "{\"description\":\"Implement the following solutions:\",\"mitigations\":[\"Validate and verify input existence, length, type and permitted values, and verify logical compliance of any user-controlled input. A whitelist approach for input validation is suggested, rather than a blacklist approach that prevents the usage of certain characters.\",\"Use secure database access methods in the application's development processes. It is recommended to construct and execute queries through the use of Prepared Statements or Stored Procedures. \"]}"
             },
             {
               "name": "rxss",
@@ -17,13 +17,13 @@
               "name": "time-based",
               "severity": 3,
               "description": "description of time-based sql injection",
-              "recommendations": "recommendations for time-based"
+              "recommendations": "{\"description\":\"Implement the following solutions:\",\"mitigations\":[\"Validate and verify input existence, length, type and permitted values, and verify logical compliance of any user-controlled input. A whitelist approach for input validation is suggested, rather than a blacklist approach that prevents the usage of certain characters.\",\"Use secure database access methods in the application's development processes. It is recommended to construct and execute queries through the use of Prepared Statements or Stored Procedures. \"]}"
             },
             {
               "name": "second-order",
               "severity": 1,
               "description": "description of second order sql injection",
-              "recommendations": "{'description': 'Implement the following solutions:', 'mitigations': ['Validate and verify input existence, length, type, permitted values and verify logical compliance of any user-controlled input. A whitelist approach for input validation is suggested, rather than a blacklist approach that prevents the usage of certain characters.','Validate the values comes from the DB and not only from the user']}"
+              "recommendations": "{\"description\":\"Implement the following solutions:\",\"mitigations\":[\"Validate and verify input existence, length, type and permitted values, and verify logical compliance of any user-controlled input. A whitelist approach for input validation is suggested, rather than a blacklist approach that prevents the usage of certain characters.\",\"Use secure database access methods in the application's development processes. It is recommended to construct and execute queries through the use of Prepared Statements or Stored Procedures. \"]}"
             }
           ],
   "SQLI Payloads":
