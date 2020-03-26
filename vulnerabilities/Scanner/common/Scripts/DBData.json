@@ -5,13 +5,13 @@
               "name": "error-based",
               "severity": 1,
               "description": "description of error-based sql injection",
-              "recommendations": "{'description':'Implement the following solutions:','mitigations':['Validate and verify input existence, length, type and permitted values, and verify logical compliance of any user-controlled input. A whitelist approach for input validation is suggested, rather than a blacklist approach that prevents the usage of certain characters.','Use secure database access methods in the application's development processes. It is recommended to construct and execute queries through the use of Prepared Statements or Stored Procedures. ']}"
+              "recommendations": "{\"description\":\"Implement the following solutions:\",\"mitigations\":[\"Validate and verify input existence, length, type and permitted values, and verify logical compliance of any user-controlled input. A whitelist approach for input validation is suggested, rather than a blacklist approach that prevents the usage of certain characters.\",\"Use secure database access methods in the application\"s development processes. It is recommended to construct and execute queries through the use of Prepared Statements or Stored Procedures. \"]}"
             },
             {
               "name": "rxss",
               "severity": 2,
               "description": "description of rxss",
-              "recommendations": "{'description':'Implement the following solutions:','mitigations':['Validate and verify input existence, length, type, permitted values and verify logical compliance of any user-controlled input. A whitelist approach for input validation is suggested, rather than a blacklist approach that prevents the usage of certain characters.','Encode user-controlled output based on the context into which it is being embedded.','Prevent unauthorized user inputs from being embedded into client-side scripts.','sanitize all user input data on the client side.']}"
+              "recommendations": "{\"description\":\"Implement the following solutions:\",\"mitigations\":[\"Validate and verify input existence, length, type, permitted values and verify logical compliance of any user-controlled input. A whitelist approach for input validation is suggested, rather than a blacklist approach that prevents the usage of certain characters.\",\"Encode user-controlled output based on the context into which it is being embedded.\",\"Prevent unauthorized user inputs from being embedded into client-side scripts.\",\"sanitize all user input data on the client side.\"]}"
             },
             {
               "name": "time-based",
