@@ -305,12 +305,28 @@ const CreateTargetContent: React.FC<Props> = props => {
         );
     };
 
+    const handleFormFieldChanged = (key: string, event: React.ChangeEvent<{ value: string }>) => {
+        const newFields = {
+            ...loginFormFields,
+            [key]: event.target.value,
+        };
+        setLoginFormFields(newFields);
+    };
+
     const renderLoginFormFieldList = () => {
         if (loginFormFields) {
             return Object.entries(loginFormFields).map(([key, value]) => {
                 return (
                     <Grid item xs>
-                        <TextField label={`${key}`} value={value} disabled={!hasSiteLogin} fullWidth />
+                        <TextField
+                            label={`${key}`}
+                            value={value}
+                            disabled={!hasSiteLogin}
+                            onChange={(event: React.ChangeEvent<{ value: string }>) => {
+                                handleFormFieldChanged(key, event);
+                            }}
+                            fullWidth
+                        />
                     </Grid>
                 );
             });
