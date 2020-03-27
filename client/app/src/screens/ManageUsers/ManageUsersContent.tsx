@@ -55,28 +55,29 @@ const ManageUsersContent: React.FC<Props> = props => {
     const renderUsersRows = () => {
         return props.users.map((user: User, index: number) => {
             return (
-                <Grid container item xs={12} direction={'row'} justify={'center'} alignItems={'center'}>
-                    <Grid item xs={12} sm={6}>
+                <Grid container xs={12} item direction={'row'} justify={'center'} alignItems={'center'}>
+                    <Grid item xs={4}>
                         <h5 className={classes.columnText}>{user.username}</h5>
                     </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <Grid container item xs={12} direction={'row'} justify={'center'} alignItems={'center'}>
-                            <Grid item xs={10} sm={8}>
-                                <h5 className={classes.columnRole}>{user.role}</h5>
-                            </Grid>
-                            <Grid item xs={6} sm={2}>
-                                <Button onClick={() => handleEditClicked(user)}>
-                                    <EditIcon />
-                                </Button>
-                            </Grid>
-                            <Grid item xs={6} sm={2}>
-                                <Button onClick={() => handleDelete(user)}>
-                                    <DeleteIcon />
-                                </Button>
-                            </Grid>
-                        </Grid>
+                    <Grid item xs={4}>
+                        <h5 className={classes.columnRole}>{user.role}</h5>
                     </Grid>
-                    <Divider style={{ backgroundColor: 'red' }} />
+                    <Grid item xs={2}>
+                        <Button onClick={() => handleEditClicked(user)}>
+                            <EditIcon />
+                        </Button>
+                    </Grid>
+                    <Grid item xs={2}>
+                        <Button
+                            onClick={() => {
+                                if (window.confirm(`Are you sure you want to delete ${user.username} ?`)) {
+                                    handleDelete(user);
+                                }
+                            }}
+                        >
+                            <DeleteIcon />
+                        </Button>
+                    </Grid>
                     {renderDivider(index)}
                 </Grid>
             );
@@ -86,17 +87,30 @@ const ManageUsersContent: React.FC<Props> = props => {
     const renderUsersList = () => {
         return (
             <Grid container item direction={'column'} style={{ width: '80%' }}>
-                <Grid container item xs={12} direction={'row'} justify={'center'} alignItems={'center'}>
-                    <Grid item xs={12} sm={6}>
+                <Grid container item xs={12} direction={'row'}>
+                    <Grid item sm={4}>
                         <h4 className={classes.columnTitle}>User Name</h4>
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item sm={5}>
                         <h4 className={classes.columnTitle}>Role</h4>
                     </Grid>
                 </Grid>
                 {renderUsersRows()}
             </Grid>
         );
+        // return (
+        //     <Grid container item direction={'column'} style={{ width: '80%' }}>
+        //         <Grid container item xs={12} direction={'row'} justify={'center'} alignItems={'center'}>
+        //             <Grid item xs={12} sm={6}>
+        //                 <h4 className={classes.columnTitle}>User Name</h4>
+        //             </Grid>
+        //             <Grid item xs={12} sm={6}>
+        //                 <h4 className={classes.columnTitle}>Role</h4>
+        //             </Grid>
+        //         </Grid>
+        //         {renderUsersRows()}
+        //     </Grid>
+        // );
     };
 
     return (
@@ -154,6 +168,7 @@ const useStyles = makeStyles((theme: Theme) =>
         columnRole: {
             margin: 0,
             marginLeft: '50%',
+            marginRight: 10,
             textAlign: 'center',
             lineHeight: 3.5,
             color: '#757575',
