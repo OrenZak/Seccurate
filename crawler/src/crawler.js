@@ -64,7 +64,7 @@ function startCrawl(mainUrl, loginInfo) {
   });
 
   if (getAuthType(loginInfo) !== null) {
-    switch (loginInfo.AuthenticationType) {
+    switch (loginInfo.authenticationType) {
       case AuthenticationTypes.COOKIE:
         crawler.acceptCookies = true;
         startAfterLogin(crawler, loginInfo, mainUrl);
@@ -169,15 +169,15 @@ function setConfig(config) {
 }
 
 function getAuthType(loginInfo) {
-    if (loginInfo === undefined || loginInfo.AuthenticationType === undefined) {
+    if (loginInfo === undefined || loginInfo.authenticationType === undefined) {
         return AuthenticationTypes.None
     } else {
-        return loginInfo.AuthenticationType;
+        return loginInfo.authenticationType;
     }
 }
 
 // const loginInfoCookie = {
-//     AuthenticationType: 'Cookie',
+//     authenticationType: 'Cookie',
 // 	form: {
 // 		login: 'bee',
 // 		password: 'bug',
@@ -189,7 +189,7 @@ function getAuthType(loginInfo) {
 // startCrawl('http://192.168.10.178//bWAPP', loginInfoCookie);
 
 // const loginInfoBasicAuth = {
-//   AuthenticationType: 'BasicAuth',
+//   authenticationType: 'BasicAuth',
 //   form: {
 //     username: 'test',
 //     password: '123qwe'

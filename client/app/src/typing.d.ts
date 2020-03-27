@@ -1,5 +1,6 @@
 type ScanType = 'ALL' | 'RXSS' | 'SQLI';
 type Role = 'ADMIN' | 'USER';
+declare type AuthenticationType = 'Cookie' | 'BasicAuth'
 declare interface Target {
     scanID?: string;
     name: string;
@@ -11,6 +12,7 @@ declare interface Target {
 }
 
 declare interface LoginInfo {
+    authenticationType: AuthenticationType
     form: { [key: string]: string };
     formAction: string;
 }

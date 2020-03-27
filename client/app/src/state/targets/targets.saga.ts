@@ -66,7 +66,7 @@ function handleAddTarget({ apiGateway }: { apiGateway: ApiGateway }) {
             yield put(addTargetsFailed({ error: result.error }));
         } else if (result.response) {
             const currentTargets: Target[] = yield select(selectTargets);
-            yield put(fetchAllTargets({ page: 0, pageCount: currentTargets.length }));
+            yield put(fetchAllTargets({ page: 0, pageCount: currentTargets.length + 1 }));
             yield put(addTargetsSucceed());
             yield put(showMessage({ msg: { text: 'Target was added', type: 'success' } }));
         }
