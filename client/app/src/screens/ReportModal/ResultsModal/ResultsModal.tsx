@@ -88,7 +88,7 @@ const ResultsModal: React.FC<Props> = props => {
                         {renderRow(
                             'Request(Base64) :',
                             <div>
-                                <Tooltip title={result.requestB64} aria-label="add">
+                                <Tooltip title={atob(result.requestB64)} aria-label="add">
                                     <div className={classes.request}> {result.requestB64}</div>
                                 </Tooltip>
                             </div>,
