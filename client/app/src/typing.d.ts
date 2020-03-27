@@ -47,9 +47,15 @@ declare interface Result {
     name: string;
     description: string;
     payload: string;
-    recommendation: string;
+    recommendations: Recommendations;
     requestB64: string;
     severity: number;
     url: string;
+    affected_urls: string[];
     vulnID: string;
+}
+
+declare interface Recommendations {
+    description: string;
+    mitigations: string[];
 }

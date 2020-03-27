@@ -111,6 +111,7 @@ router.get(PATHS.GET_COMPLETED_SCANS, function(req, res, next) {
   try {
     logicService.getCompletedScans(req.query.page, req.query.size, scans => {
       let scansResponseBoundary = new GetCompletedScansBoundary(scans);
+      console.log('Scans count: ', scans.length);
       res.status(200).send({ results: scansResponseBoundary });
     });
   } catch (error) {
@@ -354,7 +355,7 @@ router.get(PATHS.GET_RESULTS, function(req, res, next) {
   try {
     logicService.getResults(req.query.scanName, results => {
       let resultsArray = [];
-      console.log('%%%% getResults: ', results);
+
       results.forEach(element => {
         elem = JSON.parse(element);
         resultsArray.push({
@@ -362,7 +363,7 @@ router.get(PATHS.GET_RESULTS, function(req, res, next) {
           name: elem._VulnerabilityBoundary__name,
           payload: elem._VulnerabilityBoundary__payload,
           affected_urls: elem._VulnerabilityBoundary__affected_urls,
-          recommendation: elem._VulnerabilityBoundary__recommendations,
+          recommendations: JSON.parse(elem._VulnerabilityBoundary__recommendations),
           requestB64: elem._VulnerabilityBoundary__requestB64,
           severity: elem._VulnerabilityBoundary__severity,
           url: elem._VulnerabilityBoundary__url,
