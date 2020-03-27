@@ -41,14 +41,13 @@ const ReportsScreen: React.FC<Props> = props => {
     }, []);
 
     useEffect(() => {
-        if (scanResults.data && scanResults.data.length > 0) {
+        if (targetLoadingIndex !== -1 && scanResults.data && scanResults.data.length > 0) {
             setShowReportModal(true);
             stopLoader();
         }
     }, [scanResults]);
 
     const onTargetClicked = (scan: Scan, index: number) => {
-        console.log('onTargetClicked ', scan);
         startLoader(index);
         fetchResults(scan);
     };
