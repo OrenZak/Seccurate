@@ -1,4 +1,4 @@
-import { Button, Switch } from '@material-ui/core';
+import { Button, Switch, FormLabel, RadioGroup, Radio } from '@material-ui/core';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -39,10 +39,11 @@ const CreateTargetContent: React.FC<Props> = props => {
     );
 
     const [isSaveChecked, setIsSaveChecked] = useState<boolean>(false);
-    const [configName, setConfigName] = useState<string>('');
+    const [configName, setConfigName] = useState<string>();
     const [hasSiteLogin, setHasSiteLogin] = useState<boolean>(false);
-    const [formAction, setFormAction] = useState<string>('');
-    const [loginFormFields, setLoginFormFields] = useState<{ [key: string]: string }>({});
+    const [formAction, setFormAction] = useState<string>();
+    const [authenticationType, setAuthenticationType] = useState<string>('Cookie');
+    const [loginFormFields, setLoginFormFields] = useState<{ [key: string]: string }>();
     const [addFieldShow, setAddFieldShow] = useState<boolean>(false);
     const [selectedConfig, setSelectedConfig] = useState<ScanConfig>();
     const [editConfigModalShow, setEditConfigModalShow] = useState<boolean>(false);
@@ -68,20 +69,26 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const handleIntervalChange = (event: React.ChangeEvent<{ value: string }>) => {
-        const interval = event.target.value;
-        const scanConfig: ScanConfig = Object.assign({}, target.config, { interval });
-        setTarget({ ...target, config: scanConfig });
+        if (Number(event.target.value) !== NaN) {
+            const interval = parseInt(event.target.value);
+            const scanConfig: ScanConfig = Object.assign({}, target.config, { interval });
+            setTarget({ ...target, config: scanConfig });
+        }
     };
     const handleTimeoutChange = (event: React.ChangeEvent<{ value: string }>) => {
-        const timeout = event.target.value;
-        const scanConfig: ScanConfig = Object.assign({}, target.config, { timeout });
-        setTarget({ ...target, config: scanConfig });
+        if (Number(event.target.value) !== NaN) {
+            const timeout = parseInt(event.target.value);
+            const scanConfig: ScanConfig = Object.assign({}, target.config, { timeout });
+            setTarget({ ...target, config: scanConfig });
+        }
     };
 
     const handleDepthChange = (event: React.ChangeEvent<{ value: string }>) => {
-        const maxDepth = event.target.value;
-        const scanConfig: ScanConfig = Object.assign({}, target.config, { maxDepth });
-        setTarget({ ...target, config: scanConfig });
+        if (Number(event.target.value) !== NaN) {
+            const maxDepth = parseInt(event.target.value);
+            const scanConfig: ScanConfig = Object.assign({}, target.config, { maxDepth });
+            setTarget({ ...target, config: scanConfig });
+        }
     };
 
     const handleSaveCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,9 +141,53 @@ const CreateTargetContent: React.FC<Props> = props => {
         setLoginInfo(loginFormFields);
     }, [loginFormFields]);
 
+    const setAuthenticationTypeInfo = (authenticationType: AuthenticationType) => {
+        const loginInfo: LoginInfo = Object.assign({}, target.loginInfo, { authenticationType, form: loginFormFields });
+        setTarget({ ...target, loginInfo });
+    };
+
     const setLoginInfo = (info?: { [key: string]: string }) => {
         const loginInfo: LoginInfo = Object.assign({}, target.loginInfo, { form: info });
         setTarget({ ...target, loginInfo });
+    };
+
+    const handleAuthenticationChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newAuthenticationType = (event.target as HTMLInputElement).value;
+        setAuthenticationType(newAuthenticationType);
+        if (newAuthenticationType === 'Cookie') {
+            setLoginFormFields({});
+            setAuthenticationTypeInfo('Cookie');
+        } else {
+            setLoginFormFields({});
+            if (newAuthenticationType === 'BasicAuth') {
+                setLoginFormFields({ username: '', password: '' });
+                setAuthenticationTypeInfo('BasicAuth');
+            }
+        }
+    };
+
+    const renderAuthenticationTypeRadio = () => {
+        return (
+            <FormControl component="fieldset" style={{ marginTop: 10 }}>
+                <FormLabel component="legend">Authentication Type</FormLabel>
+                <RadioGroup
+                    aria-label="authenticationType"
+                    name="authenticationType"
+                    value={authenticationType}
+                    onChange={handleAuthenticationChanged}
+                >
+                    <div style={{ flex: 1, flexDirection: 'column' }}>
+                        <FormControlLabel value="Cookie" control={<Radio />} label="Cookie" disabled={!hasSiteLogin} />
+                        <FormControlLabel
+                            value="BasicAuth"
+                            control={<Radio />}
+                            label="BasicAuth"
+                            disabled={!hasSiteLogin}
+                        />
+                    </div>
+                </RadioGroup>
+            </FormControl>
+        );
     };
 
     const renderMainForm = () => {
@@ -174,6 +225,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                                 <TextField
                                     placeholder={'1-10'}
                                     size={'small'}
+                                    type={'number'}
                                     value={target.config?.maxDepth ?? ''}
                                     onChange={handleDepthChange}
                                 />
@@ -189,6 +241,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                                 <TextField
                                     placeholder={'250-1000(milis)'}
                                     size={'small'}
+                                    type={'number'}
                                     value={target.config?.interval ?? ''}
                                     onChange={handleIntervalChange}
                                 />
@@ -204,6 +257,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                                 <TextField
                                     placeholder={'10-30(sec)'}
                                     size={'small'}
+                                    type={'number'}
                                     value={target.config?.timeout ?? ''}
                                     onChange={handleTimeoutChange}
                                 />
@@ -218,9 +272,9 @@ const CreateTargetContent: React.FC<Props> = props => {
                             <Grid item xs>
                                 <FormControl className={classes.formControl}>
                                     <Select value={target.scanType} onChange={handleScanTypeChange}>
-                                        <MenuItem value={'all'}>All</MenuItem>
-                                        <MenuItem value={'rxx'}>RXSS</MenuItem>
-                                        <MenuItem value={'sqli'}>SQLI</MenuItem>
+                                        <MenuItem value={'ALL'}>All</MenuItem>
+                                        <MenuItem value={'RXSS'}>RXSS</MenuItem>
+                                        <MenuItem value={'SQLI'}>SQLI</MenuItem>
                                     </Select>
                                 </FormControl>
                             </Grid>
@@ -252,29 +306,35 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const renderLoginFormFieldList = () => {
-        return Object.entries(loginFormFields).map(([key, value]) => {
-            return (
-                <Grid item xs>
-                    <TextField label={`${key}`} value={value} disabled={!hasSiteLogin} fullWidth />
-                </Grid>
-            );
-        });
+        if (loginFormFields) {
+            return Object.entries(loginFormFields).map(([key, value]) => {
+                return (
+                    <Grid item xs>
+                        <TextField label={`${key}`} value={value} disabled={!hasSiteLogin} fullWidth />
+                    </Grid>
+                );
+            });
+        } else {
+            return null;
+        }
     };
 
     const renderAddLoginFormButton = () => {
         return (
-            <Button
-                size="small"
-                variant="contained"
-                className={classes.button}
-                startIcon={<AddIcon />}
-                disabled={!hasSiteLogin}
-                onClick={() => {
-                    setAddFieldShow(true);
-                }}
-            >
-                Add field
-            </Button>
+            authenticationType === 'Cookie' && (
+                <Button
+                    size="small"
+                    variant="contained"
+                    className={classes.button}
+                    startIcon={<AddIcon />}
+                    disabled={!hasSiteLogin}
+                    onClick={() => {
+                        setAddFieldShow(true);
+                    }}
+                >
+                    Add field
+                </Button>
+            )
         );
     };
 
@@ -293,6 +353,9 @@ const CreateTargetContent: React.FC<Props> = props => {
                         control={<Switch checked={hasSiteLogin} onChange={handleHasSiteLoginChange} color="primary" />}
                         label="Site Login"
                     />
+                </Grid>
+                <Grid item xs>
+                    {renderAuthenticationTypeRadio()}
                 </Grid>
                 <Grid item xs>
                     <TextField
@@ -334,23 +397,100 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const verifyValues = () => {
-        if (hasSiteLogin && formAction.trim().length === 0) {
-            return false;
+        if (verifyTargetInfo() && verifyScanInfo() && verifyLoginInfo()) {
+            props.onShowMessage({
+                text: `Target was ${props.isEdit ? 'updated' : 'added'} successfully`,
+                type: 'success',
+                duration: 1000,
+            });
+            return true;
         }
+        return false;
+    };
 
-        if (isSaveChecked && configName?.trim().length === 0) {
-            return false;
-        }
-
+    const verifyTargetInfo = () => {
         if (
             target.name.trim().length === 0 ||
             target.description.trim().length === 0 ||
-            target.url.trim().length === 0 ||
-            target.config === undefined
+            target.url.trim().length === 0
         ) {
+            props.onShowMessage({ text: 'Please fill the target info ', type: 'error', duration: 1000 });
+            return false;
+        }
+        return true;
+    };
+
+    const verifyScanInfo = () => {
+        if (target.config) {
+            if (!target.config.maxDepth || target.config.maxDepth < 1 || target.config.maxDepth > 10) {
+                props.onShowMessage({ text: 'Depth should be between 1-10 value', type: 'error', duration: 1000 });
+                return false;
+            }
+            if (!target.config.interval || target.config.interval < 250 || target.config.interval > 1000) {
+                props.onShowMessage({
+                    text: 'Interval should be between 250-1000 milliseconds',
+                    type: 'error',
+                    duration: 1000,
+                });
+                return false;
+            }
+            if (!target.config.timeout || target.config.timeout < 10 || target.config.timeout > 30) {
+                props.onShowMessage({ text: 'Timeout should be between 10-30 seconds', type: 'error', duration: 1000 });
+                return false;
+            }
+        } else {
+            props.onShowMessage({ text: 'Please fill the scan info', type: 'error', duration: 1000 });
             return false;
         }
 
+        if (isSaveChecked) {
+            if (!configName || configName.trim().length === 0) {
+                props.onShowMessage({ text: 'Please set the saved config name', type: 'error', duration: 1000 });
+                return false;
+            }
+        }
+        return true;
+    };
+
+    const verifyLoginInfo = () => {
+        if (hasSiteLogin) {
+            if (target.loginInfo === undefined) {
+                props.onShowMessage({ text: 'Please fill site login info', type: 'error', duration: 1000 });
+                return false;
+            }
+            if (!formAction || formAction.trim().length === 0) {
+                props.onShowMessage({ text: 'Please fill form action', type: 'error', duration: 1000 });
+                return false;
+            }
+            if (authenticationType === 'BasicAuth') {
+                if (
+                    !loginFormFields ||
+                    loginFormFields.username === undefined ||
+                    loginFormFields.password === undefined
+                ) {
+                    props.onShowMessage({ text: 'Please fill username and password', type: 'error', duration: 1000 });
+                    return false;
+                } else {
+                    if (
+                        !loginFormFields ||
+                        loginFormFields.username.trim().length === 0 ||
+                        loginFormFields.password.trim().length === 0
+                    ) {
+                        props.onShowMessage({
+                            text: 'Please fill username and password',
+                            type: 'error',
+                            duration: 1000,
+                        });
+                        return false;
+                    }
+                }
+            } else {
+                if (loginFormFields === {} || loginFormFields === undefined) {
+                    props.onShowMessage({ text: 'Please fill site login form info', type: 'error', duration: 1000 });
+                    return false;
+                }
+            }
+        }
         return true;
     };
 
