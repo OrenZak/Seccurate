@@ -84,7 +84,7 @@ const ResultsModal: React.FC<Props> = props => {
                         {renderRow('Description :', <h5 className={classes.text}>{result.description}</h5>)}
                         {renderRow('Severity :', <h5 className={classes.text}>{result.severity}</h5>)}
                         {renderRow('Vulnerable Url :', <h5 className={classes.text}>{result.url}</h5>)}
-                        {renderAffectedUrlsSection()}
+                        {props.result.affected_urls && renderAffectedUrlsSection()}
                         {renderRow(
                             'Request(Base64) :',
                             <div>
