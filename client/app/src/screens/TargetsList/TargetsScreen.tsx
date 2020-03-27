@@ -19,6 +19,7 @@ import { startScan, selectIsScanRunning, updateScanCompleted } from '../../state
 import { connect } from 'react-redux';
 import { selectIsLoggedIn } from '../../state/app/app.slice';
 import { END_POINTS } from '../../config';
+import { setTimeout } from 'timers';
 
 interface OwnProps {}
 
@@ -45,6 +46,7 @@ const TargetsScreen: React.FC<Props> = props => {
     const classes = useStyles();
     const [selectedTarget, setSelectedTarget] = useState<Target>();
     const [openCrateTargetModal, setOpenCrateTargetModal] = useState(false);
+    const [shouldClearSelection, setShouldClearSelection] = useState(false);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -85,6 +87,11 @@ const TargetsScreen: React.FC<Props> = props => {
 
     const handleCreateTargetModalClose = () => {
         setOpenCrateTargetModal(false);
+        setSelectedTarget(undefined);
+        setShouldClearSelection(true);
+        setTimeout(() => {
+            setShouldClearSelection(false);
+        }, 100)
     };
 
     useEffect(() => {
@@ -126,6 +133,7 @@ const TargetsScreen: React.FC<Props> = props => {
                         targets={props.targets}
                         totalTargets={props.totalTargets}
                         onItemSelected={onItemSelected}
+                        shouldClearSelection={shouldClearSelection}
                         page={page}
                         rowsPerPage={rowsPerPage}
                         onChangePage={handleOnChangePage}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -49,6 +49,7 @@ interface Props {
     totalTargets: number;
     page: number;
     rowsPerPage: number;
+    shouldClearSelection: boolean;
     onItemSelected: (target: Target) => void;
     onChangePage: (newPage: number) => void;
     onChangeRowsPerPage: (newRowsPerPage: number) => void;
@@ -65,6 +66,12 @@ const TargetList: React.FC<Props> = props => {
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         props.onChangeRowsPerPage(+event.target.value);
     };
+
+    useEffect(() => {
+        if (props.shouldClearSelection) {
+            setSelectedIndex(-1);
+        }
+    }, [props.shouldClearSelection]);
 
     const { page, rowsPerPage } = props;
     return (
