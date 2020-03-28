@@ -63,21 +63,17 @@ function startCrawl(mainUrl, loginInfo) {
     callback(null, mimeTypeSupported);
   });
 
-  if (getAuthType(loginInfo) !== null) {
-    switch (loginInfo.authenticationType) {
-      case AuthenticationTypes.COOKIE:
-        crawler.acceptCookies = true;
-        startAfterLogin(crawler, loginInfo, mainUrl);
-        break;
-      case AuthenticationTypes.BASIC_AUTH:
-        crawler.needsAuth = true;
-        crawler.authUser = loginInfo.form.username;
-        crawler.authPass = loginInfo.form.password;
-      default:
-        crawler.start();
-    }
-  } else {
-    crawler.start();
+  switch (getAuthType(loginInfo)) {
+    case AuthenticationTypes.COOKIE:
+      crawler.acceptCookies = true;
+      startAfterLogin(crawler, loginInfo, mainUrl);
+      break;
+    case AuthenticationTypes.BASIC_AUTH:
+      crawler.needsAuth = true;
+      crawler.authUser = loginInfo.form.username;
+      crawler.authPass = loginInfo.form.password;
+    default:
+      crawler.start();
   }
 }
 
@@ -169,11 +165,11 @@ function setConfig(config) {
 }
 
 function getAuthType(loginInfo) {
-    if (loginInfo === undefined || loginInfo.authenticationType === undefined) {
-        return AuthenticationTypes.None
-    } else {
-        return loginInfo.authenticationType;
-    }
+  if (loginInfo === undefined || loginInfo.authenticationType === undefined) {
+    return AuthenticationTypes.None;
+  } else {
+    return loginInfo.authenticationType;
+  }
 }
 
 // const loginInfoCookie = {
@@ -197,6 +193,9 @@ function getAuthType(loginInfo) {
 //   formAction: 'http://192.168.56.101'
 // };
 // startCrawl('http://192.168.56.101', loginInfoBasicAuth);
+
+//None Auth
+startCrawl('http://192.168.56.102');
 
 module.exports = {
   eventEmitter: new events.EventEmitter(),
