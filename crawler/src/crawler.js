@@ -194,8 +194,8 @@ function getAuthType(loginInfo) {
 // };
 // startCrawl('http://192.168.56.101', loginInfoBasicAuth);
 
-//None Auth
-startCrawl('http://192.168.56.102');
+// // None Auth
+// startCrawl('http://192.168.56.102');
 
 module.exports = {
   eventEmitter: new events.EventEmitter(),
