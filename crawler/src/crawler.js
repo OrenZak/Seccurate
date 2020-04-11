@@ -18,7 +18,7 @@ const AuthenticationTypes = {
 };
 
 function doEmit(action, mainUrl, data) {
-  module.exports.eventEmitter.emit(action, { mainUrl: mainUrl, data: data });
+  module.exports.eventEmitter.emit(action, { mainUrl, data });
 }
 
 function startCrawl(mainUrl, loginInfo) {
@@ -44,9 +44,7 @@ function startCrawl(mainUrl, loginInfo) {
     count += 1;
     const urlCookies = getCookies(crawler, queueItem.url);
     doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
-      url: queueItem.url,
-      value: urlCookies,
-      type: getAuthType(loginInfo),
+      url: queueItem.url
     });
   });
 
