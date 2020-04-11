@@ -18,10 +18,11 @@ const AuthenticationTypes = {
 };
 
 function doEmit(action, mainUrl, data) {
-  module.exports.eventEmitter.emit(action, { mainUrl: mainUrl, data: data });
+  module.exports.eventEmitter.emit(action, { mainUrl, data });
 }
 
 function startCrawl(mainUrl, loginInfo) {
+  let count = 0;
   const crawler = Crawler(mainUrl);
   crawler.interval = crawler_config.interval;
   crawler.maxDepth = crawler_config.maxDepth;
@@ -39,16 +40,15 @@ function startCrawl(mainUrl, loginInfo) {
 
   crawler.on('fetchcomplete', function(queueItem, responseBuffer, response) {
     console.log(`New page: ${queueItem.url}`);
+    count += 1;
     const urlCookies = getCookies(crawler, queueItem.url);
     doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
-      url: queueItem.url,
-      value: urlCookies,
-      type: getAuthType(loginInfo),
+      url: queueItem.url
     });
   });
 
   crawler.on('complete', function() {
-    console.log('Crawling completed');
+    console.log(`Crawling completed and found ${count} pages`);
     doEmit(EVENTS.CRAWLER_DONE, mainUrl);
   });
 
@@ -177,12 +177,12 @@ function getAuthType(loginInfo) {
 // 	form: {
 // 		login: 'bee',
 // 		password: 'bug',
-// 		security: 0,
+// 		security_level: 0,
 // 		form: 'submit',
 // 	},
-// 	formAction: 'http://192.168.10.178//bWAPP/login.php',
+// 	formAction: 'http://192.168.64.2/bWAPP/login.php',
 // };
-// startCrawl('http://192.168.10.178//bWAPP', loginInfoCookie);
+// startCrawl('http://192.168.64.2/bWAPP', loginInfoCookie);
 
 // const loginInfoBasicAuth = {
 //   authenticationType: 'BasicAuth',
@@ -194,8 +194,9 @@ function getAuthType(loginInfo) {
 // };
 // startCrawl('http://192.168.56.101', loginInfoBasicAuth);
 
-// // None Auth
+// None Auth
 // startCrawl('http://192.168.56.102');
+// startCrawl('https://www.crawler-test.com/');
 
 module.exports = {
   eventEmitter: new events.EventEmitter(),
