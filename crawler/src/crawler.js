@@ -1,8 +1,8 @@
 const Crawler = require('simplecrawler'),
-  config = require('../config'),
-  events = require('events'),
-  request = require('request'),
-  extractDomain = require('./utils').extractDomain;
+    config = require('../config'),
+    events = require('events'),
+    request = require('request'),
+    extractDomain = require('./utils').extractDomain;
 
 let crawler_config = config.crawler;
 
@@ -22,6 +22,7 @@ function doEmit(action, mainUrl, data) {
 }
 
 function startCrawl(mainUrl, loginInfo) {
+  let count = 0;
   const crawler = Crawler(mainUrl);
   crawler.interval = crawler_config.interval;
   crawler.maxDepth = crawler_config.maxDepth;
@@ -35,10 +36,12 @@ function startCrawl(mainUrl, loginInfo) {
   crawler.filterByDomain = true;
   crawler.scanSubdomains = false;
   crawler.userAgent =
-    'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34';
+      'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34';
+  // crawler.downloadUnsupported = false;
 
   crawler.on('fetchcomplete', function(queueItem, responseBuffer, response) {
     console.log(`New page: ${queueItem.url}`);
+    count += 1;
     const urlCookies = getCookies(crawler, queueItem.url);
     doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
       url: queueItem.url,
@@ -48,7 +51,7 @@ function startCrawl(mainUrl, loginInfo) {
   });
 
   crawler.on('complete', function() {
-    console.log('Crawling completed');
+    console.log(`Crawling completed and found ${count} pages`);
     doEmit(EVENTS.CRAWLER_DONE, mainUrl);
   });
 
@@ -60,6 +63,7 @@ function startCrawl(mainUrl, loginInfo) {
     const mimeTypeSupported = [/^text\/html/i].some(function(mimeCheck) {
       return mimeCheck.test(queueItem.stateData.contentType);
     });
+    console.log("mime: ", mimeTypeSupported, queueItem.stateData.contentType);
     callback(null, mimeTypeSupported);
   });
 
@@ -79,60 +83,60 @@ function startCrawl(mainUrl, loginInfo) {
 
 function startAfterLogin(crawler, loginInfo, mainUrl) {
   request(
-    loginInfo.formAction,
-    {
-      // The jar option isn't necessary for simplecrawler integration, but it's
-      // the easiest way to have request remember the session cookie between this
-      // request and the next
-      jar: true
-    },
-    function(error, response, body) {
-      // Start by saving the cookies. We'll likely be assigned a session cookie
-      // straight off the bat, and then the server will remember the fact that
-      // this session is logged in as user "bee" after we've successfully
-      // logged in
-      if (error) {
-        console.log('There is an error: ', error);
-      }
-
-      addCookieHeader(crawler, response);
-
-      // Time for the login request!
-      // const resolved = urlLib.resolve(loginUrl, loginInfo.formAction);
-      // console.log(' Resoved : ', resolved);
-      request.post(
-        loginInfo.formAction,
-        // urlLib.resolve(loginUrl, loginInfo.formAction),
-        {
-          // We can't be sure that all of the input fields have a correct default
-          // value. Maybe the user has to tick a checkbox or something similar in
-          // order to log in. This is something you have to find this out manually
-          // by logging in to the site in your browser and inspecting in the
-          // network panel of your favorite dev tools what parameter`s are included
-          // in the request.
-          form: loginInfo.form,
-          // We want to include the saved cookies from the last request in this
-          // one as well
-          jar: true
-        },
-        function(error, response, body) {
-          // That should do it! We're now ready to start the crawler
-          // console.log('sec req', response);
-          if (error) {
-            console.log('There is an error: ', error);
-          } else {
-            const nextPage = response.headers.location;
-            addCookieHeader(crawler, response);
-            if (nextPage) {
-              const nextUrl = mainUrl + '/' + nextPage;
-              console.log('Crawler login succeed, adding to queue: ', nextUrl);
-              crawler.queueURL(nextUrl);
-            }
-            crawler.start();
-          }
+      loginInfo.formAction,
+      {
+        // The jar option isn't necessary for simplecrawler integration, but it's
+        // the easiest way to have request remember the session cookie between this
+        // request and the next
+        jar: true
+      },
+      function(error, response, body) {
+        // Start by saving the cookies. We'll likely be assigned a session cookie
+        // straight off the bat, and then the server will remember the fact that
+        // this session is logged in as user "bee" after we've successfully
+        // logged in
+        if (error) {
+          console.log('There is an error: ', error);
         }
-      );
-    }
+
+        addCookieHeader(crawler, response);
+
+        // Time for the login request!
+        // const resolved = urlLib.resolve(loginUrl, loginInfo.formAction);
+        // console.log(' Resoved : ', resolved);
+        request.post(
+            loginInfo.formAction,
+            // urlLib.resolve(loginUrl, loginInfo.formAction),
+            {
+              // We can't be sure that all of the input fields have a correct default
+              // value. Maybe the user has to tick a checkbox or something similar in
+              // order to log in. This is something you have to find this out manually
+              // by logging in to the site in your browser and inspecting in the
+              // network panel of your favorite dev tools what parameter`s are included
+              // in the request.
+              form: loginInfo.form,
+              // We want to include the saved cookies from the last request in this
+              // one as well
+              jar: true
+            },
+            function(error, response, body) {
+              // That should do it! We're now ready to start the crawler
+              // console.log('sec req', response);
+              if (error) {
+                console.log('There is an error: ', error);
+              } else {
+                const nextPage = response.headers.location;
+                addCookieHeader(crawler, response);
+                if (nextPage) {
+                  const nextUrl = mainUrl + '/' + nextPage;
+                  console.log('Crawler login succeed, adding to queue: ', nextUrl);
+                  crawler.queueURL(nextUrl);
+                }
+                crawler.start();
+              }
+            }
+        );
+      }
   );
 }
 
@@ -140,8 +144,8 @@ function getCookies(crawler, url) {
   let cookiesRes = [];
   crawler.cookies.cookies.forEach(cookie => {
     if (
-      cookie.value != 'deleted' &&
-      (cookie.domain === '*' || url.includes(cookie.domain))
+        cookie.value != 'deleted' &&
+        (cookie.domain === '*' || url.includes(cookie.domain))
     ) {
       if (cookie.domain === '*') {
         cookie.domain = extractDomain(url);
@@ -177,12 +181,12 @@ function getAuthType(loginInfo) {
 // 	form: {
 // 		login: 'bee',
 // 		password: 'bug',
-// 		security: 0,
+// 		security_level: 0,
 // 		form: 'submit',
 // 	},
-// 	formAction: 'http://192.168.10.178//bWAPP/login.php',
+// 	formAction: 'http://192.168.64.2/bWAPP/login.php',
 // };
-// startCrawl('http://192.168.10.178//bWAPP', loginInfoCookie);
+// startCrawl('http://192.168.64.2/bWAPP', loginInfoCookie);
 
 // const loginInfoBasicAuth = {
 //   authenticationType: 'BasicAuth',
@@ -194,8 +198,9 @@ function getAuthType(loginInfo) {
 // };
 // startCrawl('http://192.168.56.101', loginInfoBasicAuth);
 
-// // None Auth
+// None Auth
 // startCrawl('http://192.168.56.102');
+// startCrawl('https://www.crawler-test.com/');
 
 module.exports = {
   eventEmitter: new events.EventEmitter(),

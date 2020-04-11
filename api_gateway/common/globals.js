@@ -25,8 +25,8 @@ const THRESHOLD_VALUES = {
     max: 1000
   },
   timeout: {
-    max: 30,
-    min: 10
+    max: 30000,
+    min: 10000
   }
 };
 
