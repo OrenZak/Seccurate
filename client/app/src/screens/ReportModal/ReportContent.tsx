@@ -13,7 +13,7 @@ const ReportContent: React.FC<Props> = props => {
     const getDisplayableSeverity = (severity: number): string => {
         switch (severity) {
             case 1:
-                return 'Heigh';
+                return 'High';
             case 2:
                 return 'Medium';
             case 3:
@@ -22,10 +22,10 @@ const ReportContent: React.FC<Props> = props => {
                 return '';
         }
     };
-    const renderItem = ({ index }: ListChildComponentProps) => {
+    const renderItem = ({ style, index }: ListChildComponentProps) => {
         const result = props.results[index];
         return (
-            <ListItem key={result.vulnID}>
+            <ListItem style={style} key={index}>
                 <ListItemIcon>
                     <ErrorIcon />
                 </ListItemIcon>
@@ -53,7 +53,7 @@ const ReportContent: React.FC<Props> = props => {
                     <h4>Found Vulnerabilities:</h4>
                 </Grid>
                 <Grid item>
-                    <FixedSizeList height={500} itemCount={props.results.length} itemSize={35} width={500}>
+                    <FixedSizeList height={500} itemCount={props.results.length} itemSize={80} width={500}>
                         {renderItem}
                     </FixedSizeList>
                 </Grid>

@@ -71,6 +71,19 @@ const ResultsModal: React.FC<Props> = props => {
         );
     };
 
+    const getDisplayableSeverity = (severity: number): string => {
+        switch (severity) {
+            case 1:
+                return 'High';
+            case 2:
+                return 'Medium';
+            case 3:
+                return 'Low';
+            default:
+                return '';
+        }
+    };
+
     const renderContent = () => {
         const { result } = props;
         return (
@@ -82,7 +95,7 @@ const ResultsModal: React.FC<Props> = props => {
                     <div>
                         {renderRow('Name :', <h5 className={classes.text}>{result.name}</h5>)}
                         {renderRow('Description :', <h5 className={classes.text}>{result.description}</h5>)}
-                        {renderRow('Severity :', <h5 className={classes.text}>{result.severity}</h5>)}
+                        {renderRow('Severity :', <h5 className={classes.text}>{getDisplayableSeverity(result.severity)}</h5>)}
                         {renderRow('Vulnerable Url :', <h5 className={classes.text}>{result.url}</h5>)}
                         {props.result.affected_urls && renderAffectedUrlsSection()}
                         {renderRow(

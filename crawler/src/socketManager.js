@@ -18,7 +18,7 @@ api_gateway.on(ACTIONS.START_CRAWL, async function(data) {
 // crawler event listener
 eventEmitter.on(EVENTS.PAGE_FETCHED, ({ mainUrl, data }) => {
   try {
-    console.log(data);
+    // console.log(data);
     api_gateway.emit(EVENTS.PAGE_FETCHED, data);
   } catch (err) {
     console.log(err);

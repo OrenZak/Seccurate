@@ -77,7 +77,7 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
     const handleTimeoutChange = (event: React.ChangeEvent<{ value: string }>) => {
         if (Number(event.target.value) !== NaN) {
-            const timeout = parseInt(event.target.value);
+            const timeout = parseInt(event.target.value) * 1000;
             const scanConfig: ScanConfig = Object.assign({}, target.config, { timeout });
             setTarget({ ...target, config: scanConfig });
         }
@@ -450,7 +450,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                 });
                 return false;
             }
-            if (!target.config.timeout || target.config.timeout < 10 || target.config.timeout > 30) {
+            if (!target.config.timeout || target.config.timeout < 10000 || target.config.timeout > 30000) {
                 props.onShowMessage({ text: 'Timeout should be between 10-30 seconds', type: 'error', duration: 1000 });
                 return false;
             }
