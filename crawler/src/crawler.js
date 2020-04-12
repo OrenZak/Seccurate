@@ -40,21 +40,16 @@ function startCrawl(mainUrl, loginInfo) {
   // crawler.downloadUnsupported = false;
 
   crawler.on('fetchcomplete', function(queueItem, responseBuffer, response) {
-    console.log(`New page: ${queueItem.url}`);
-    count += 1;
-    const urlCookies = getCookies(crawler, queueItem.url);
-    doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
-      url: queueItem.url
-    });
+    console.log(`New page: ${queueItem.url}  -  Referred:  ${queueItem.referrer}`);
+      count += 1;
+      doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
+        url: queueItem.url
+      });
   });
 
   crawler.on('complete', function() {
     console.log(`Crawling completed and found ${count} pages`);
     doEmit(EVENTS.CRAWLER_DONE, mainUrl);
-  });
-
-  crawler.addFetchCondition(function(queueItem, referrerQueueItem, callback) {
-    callback(null, queueItem.depth < crawler.maxDepth);
   });
 
   crawler.addDownloadCondition(function(queueItem, response, callback) {
