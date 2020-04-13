@@ -47,6 +47,7 @@ const CreateTargetContent: React.FC<Props> = props => {
     const [addFieldShow, setAddFieldShow] = useState<boolean>(false);
     const [selectedConfig, setSelectedConfig] = useState<ScanConfig>();
     const [editConfigModalShow, setEditConfigModalShow] = useState<boolean>(false);
+    const [timeout, setConfigTimeout] = useState<number>();
 
     const handleScanTypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
         const scanType: ScanType = event.target.value as ScanType;
@@ -77,7 +78,9 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
     const handleTimeoutChange = (event: React.ChangeEvent<{ value: string }>) => {
         if (Number(event.target.value) !== NaN) {
-            const timeout = parseInt(event.target.value) * 1000;
+            const timeoutValue = parseInt(event.target.value);
+            const timeout = timeoutValue * 1000;
+            setConfigTimeout(timeoutValue);
             const scanConfig: ScanConfig = Object.assign({}, target.config, { timeout });
             setTarget({ ...target, config: scanConfig });
         }
@@ -124,6 +127,9 @@ const CreateTargetContent: React.FC<Props> = props => {
                 setHasSiteLogin(true);
                 extractFormFields(target.loginInfo);
             }
+        }
+        if(target?.config?.timeout) {
+            setConfigTimeout(target.config.timeout);
         }
     }, []);
 
@@ -258,7 +264,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                                     placeholder={'10-30(sec)'}
                                     size={'small'}
                                     type={'number'}
-                                    value={target.config?.timeout ?? ''}
+                                    value={timeout ?? ''}
                                     onChange={handleTimeoutChange}
                                 />
                             </Grid>
