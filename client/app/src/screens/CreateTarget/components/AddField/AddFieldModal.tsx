@@ -7,6 +7,7 @@ import AddFieldContent from './AddFieldContent';
 
 interface Props {
     isOpen: boolean;
+    formFields?: { [key: string]: string };
     onFieldsAdded: (fields: Field[]) => void;
     onClose: () => void;
 }
@@ -34,7 +35,7 @@ const AddFieldModal: React.FC<Props> = props => {
             >
                 <Fade in={props.isOpen}>
                     <div className={classes.paper}>
-                        <AddFieldContent onFieldsAdded={props.onFieldsAdded} />
+                        <AddFieldContent formFields={props.formFields} onFieldsAdded={props.onFieldsAdded} />
                     </div>
                 </Fade>
             </Modal>

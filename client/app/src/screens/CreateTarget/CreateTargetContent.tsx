@@ -550,6 +550,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                 onClose={() => {
                     setAddFieldShow(false);
                 }}
+                formFields={loginFormFields}
                 onFieldsAdded={handleAddFields}
             />
             <Grid container direction={'column'} spacing={1} justify={'center'} alignItems={'center'}>

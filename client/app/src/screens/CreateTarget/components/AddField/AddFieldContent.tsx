@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import { Button } from '@material-ui/core';
@@ -6,6 +6,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import DoneIcon from '@material-ui/icons/Done';
 
 interface Props {
+    formFields?: { [key: string]: string },
     onFieldsAdded: (fields: Field[]) => void;
 }
 
@@ -19,6 +20,21 @@ const AddFieldContent: React.FC<Props> = props => {
         const newList = loginFormFields.filter((_: Field, index: number) => index !== deleteIndex);
         setLoginFormFields(newList);
     };
+
+    useEffect(() => {
+        if (props.formFields) {
+            setLoginFormFields(createFormFields(props.formFields));
+        }
+    }, []);
+
+    const createFormFields = (formFields: { [key: string]: string }): Field[] => {
+        const fields: Field[] = [];
+        for (const [name, value] of Object.entries(formFields)) {
+            fields.push({name, value});
+        }
+        return fields;
+    }
+
 
     const renderLoginFormFieldList = () => {
         return loginFormFields.map((field: Field, index: number) => (
