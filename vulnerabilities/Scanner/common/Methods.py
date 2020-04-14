@@ -71,7 +71,11 @@ def ParseForms(inputname, inputnames, payload, inputnonames):
             continue
         if not deepCopyInputNames[name]:
             deepCopyInputNames[name] = "1"
-    data = urllib.urlencode(deepCopyInputNames)
+    a = []
+    for k in deepCopyInputNames:
+        a.append(k + '=' + deepCopyInputNames[k])
+    data = '&'.join(a)
+    #data = urllib.urlencode(deepCopyInputNames)
     removefirstchar = len(data) == 0
     for inputnoname in inputnonames:
         data = data + "&" + inputnoname

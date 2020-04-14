@@ -209,10 +209,13 @@ class SQLIAlgorithm():
         for inputname in non_vulnerable_inputnames:
             vulnerable = False
             for payload in vulnUtils.getErrorBasedPayloads():
-                print("there are payloads")
-                # TODO: turn error_based_payloads into a list of tuples instead of splitting it every iteration
-                splitted_payload = payload.getPayload().split(';;')
-
+                payload_from_db = str(payload.getPayload())
+                if non_vulnerable_inputnames[inputname]:
+                    payload_from_db = payload_from_db.replace('[]', str(non_vulnerable_inputnames[inputname]))
+                else:
+                    payload_from_db = payload_from_db.replace('[]', str(inputname))
+                splitted_payload = payload_from_db.split(';;')
+                #splitted_payload = payload.getPayload().split(';;')
                 if form_attributes:
                     method = form_attributes[self.method_index]
                     data = self.get_form_data_with_payload(inputname=inputname,
@@ -301,7 +304,14 @@ class SQLIAlgorithm():
         for payload in payload_list:
             temp_inputnames = inputnames
             temp_inputnames[inputname] = payload
-            data.append(urlencode(temp_inputnames))
+            a = []
+            for k in temp_inputnames:
+                if k and temp_inputnames[k]:
+                    a.append(k + '=' + temp_inputnames[k])
+                elif k:
+                    a.append(k)
+            data.append('&'.join(a))
+            #data.append(urlencode(temp_inputnames))
         return data
 
     def link_to_url(self, link):
