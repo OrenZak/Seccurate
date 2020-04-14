@@ -42,7 +42,7 @@ const CreateTargetContent: React.FC<Props> = props => {
     const [configName, setConfigName] = useState<string>();
     const [hasSiteLogin, setHasSiteLogin] = useState<boolean>(false);
     const [formAction, setFormAction] = useState<string>();
-    const [authenticationType, setAuthenticationType] = useState<string>('Cookie');
+    const [authenticationType, setAuthenticationType] = useState<string>();
     const [loginFormFields, setLoginFormFields] = useState<{ [key: string]: string }>();
     const [addFieldShow, setAddFieldShow] = useState<boolean>(false);
     const [selectedConfig, setSelectedConfig] = useState<ScanConfig>();
@@ -110,12 +110,19 @@ const CreateTargetContent: React.FC<Props> = props => {
         if (event.target.checked) {
             setLoginInfo(loginFormFields);
         } else {
-            setLoginInfo();
+            clearAllLoginInfo();
         }
     };
 
+    const clearAllLoginInfo = () => {
+        setAuthenticationType(undefined);
+        setAuthenticationTypeInfo(undefined)
+        setFormAction(undefined);
+        setLoginFormFields({});
+        setTarget({ ...target, loginInfo: undefined });
+    }
+
     const extractFormFields = (loginInfo: LoginInfo) => {
-        console.log(loginInfo);
         setFormAction(loginInfo.formAction);
         setLoginFormFields(loginInfo.form);
     };
@@ -147,7 +154,7 @@ const CreateTargetContent: React.FC<Props> = props => {
         setLoginInfo(loginFormFields);
     }, [loginFormFields]);
 
-    const setAuthenticationTypeInfo = (authenticationType: AuthenticationType) => {
+    const setAuthenticationTypeInfo = (authenticationType?: AuthenticationType) => {
         const loginInfo: LoginInfo = Object.assign({}, target.loginInfo, { authenticationType, form: loginFormFields });
         setTarget({ ...target, loginInfo });
     };
@@ -179,7 +186,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                 <RadioGroup
                     aria-label="authenticationType"
                     name="authenticationType"
-                    value={authenticationType}
+                    value={authenticationType ?? null}
                     onChange={handleAuthenticationChanged}
                 >
                     <div style={{ flex: 1, flexDirection: 'column' }}>
@@ -382,7 +389,7 @@ const CreateTargetContent: React.FC<Props> = props => {
                 <Grid item xs>
                     <TextField
                         label={'Form Action'}
-                        value={formAction}
+                        value={formAction ?? ''}
                         disabled={!hasSiteLogin}
                         fullWidth
                         onChange={handleFormActionChange}
@@ -476,14 +483,21 @@ const CreateTargetContent: React.FC<Props> = props => {
 
     const verifyLoginInfo = () => {
         if (hasSiteLogin) {
+            if(authenticationType === undefined) {
+                props.onShowMessage({ text: 'Please select AuthenticationType', type: 'error', duration: 1000 });
+                return false;
+            }
+
             if (target.loginInfo === undefined) {
                 props.onShowMessage({ text: 'Please fill site login info', type: 'error', duration: 1000 });
                 return false;
             }
+
             if (!formAction || formAction.trim().length === 0) {
                 props.onShowMessage({ text: 'Please fill form action', type: 'error', duration: 1000 });
                 return false;
             }
+
             if (authenticationType === 'BasicAuth') {
                 if (
                     !loginFormFields ||
