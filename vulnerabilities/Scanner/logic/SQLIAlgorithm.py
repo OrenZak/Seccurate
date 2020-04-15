@@ -114,7 +114,6 @@ class SQLIAlgorithm():
         payloads = vulnUtils.getSecondOrderPayloads()
         for payload in payloads:
             print("Payload: " + payload.getPayload())
-            splitted_payload = payload.getPayload().split(';;')
             for page in pages:
                 url = page.getURL()
                 try:
@@ -132,6 +131,13 @@ class SQLIAlgorithm():
                 for form in forms:
                     for inputName in forms[form][self.inputnames_index]:
                         method = forms[form][self.method_index]
+                        #splitted_payload = payload.getPayload().split(';;')
+                        payload_from_db = str(payload.getPayload())
+                        if forms[form][self.inputnames_index][inputName]:
+                            payload_from_db = payload_from_db.replace('[]', str(forms[form][self.inputnames_index][inputName]))
+                        else:
+                            payload_from_db = payload_from_db.replace('[]', str(inputName))
+                        splitted_payload = payload_from_db.split(';;')
                         #TODO: switch '[]' in relevant payloads in payload_list with the relevant value just like in the beginning of the for loop in the handle_error_based_function, and send it as payload_list
                         data = self.get_form_data_with_payload(inputname=inputName,
                                                                inputnames=forms[form][self.inputnames_index],
@@ -166,7 +172,13 @@ class SQLIAlgorithm():
                     all_inputnames = self.get_link_input_names(link)
                     for inputName in all_inputnames:
                         method = "get"
-                        #TODO: same thing here as above
+                        payload_from_db = str(payload.getPayload())
+                        if all_inputnames[inputName]:
+                            payload_from_db = payload_from_db.replace('[]', str(
+                                all_inputnames[inputName]))
+                        else:
+                            payload_from_db = payload_from_db.replace('[]', str(inputName))
+                        splitted_payload = payload_from_db.split(';;')
                         data = self.get_link_data_with_payload(inputname=inputName,
                                                                inputnames=all_inputnames,
                                                                payload_list=splitted_payload)
