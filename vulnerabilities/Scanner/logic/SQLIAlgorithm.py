@@ -113,6 +113,7 @@ class SQLIAlgorithm():
         print("@2nd start_second_order_scan")
         payloads = vulnUtils.getSecondOrderPayloads()
         vulnerable_form_inputNames = {}
+        vulnerable_links_inputNames = {}
         for payload in payloads:
             print("Payload: " + payload.getPayload())
             for page in pages:
@@ -165,7 +166,7 @@ class SQLIAlgorithm():
                             vulnUtils=vulnUtils)
 
                         if len(affected_urls) > 0:
-                            self.event = "SQLI - 2nd Order Detected in :" + inputName
+                            self.event = "SQLI - 2nd Order Detected in page: " + url + " and input: " + inputName
                             print(self.event)
                             if vulnerable_form_inputNames.get(url) is None:
                                 vulnerable_form_inputNames[url] = [inputName]
@@ -180,6 +181,9 @@ class SQLIAlgorithm():
                 for link in links:
                     all_inputnames = self.get_link_input_names(link)
                     for inputName in all_inputnames:
+                        if vulnerable_links_inputNames.get(url) is not None and inputName in vulnerable_links_inputNames[url]:
+                            continue
+
                         method = "get"
                         payload_from_db = str(payload.getPayload())
                         if all_inputnames[inputName]:
@@ -209,8 +213,12 @@ class SQLIAlgorithm():
                             vulnUtils=vulnUtils)
 
                         if len(affected_urls) > 0:
-                            self.event = "SQLI - 2nd Order Detected in :" + inputName
+                            self.event = "SQLI - 2nd Order Detected in page: " + url + " and input: " + inputName
                             print(self.event)
+                            if vulnerable_links_inputNames.get(url) is None:
+                                vulnerable_links_inputNames[url] = [inputName]
+                            else:
+                                vulnerable_links_inputNames[url].append(inputName)
                             vulnUtils.add_event(name='second_order', url=url, payload=payload.getPayload(),
                                                 requestB64=error_result[self.requestb64_index],
                                                 affected_urls=affected_urls)
