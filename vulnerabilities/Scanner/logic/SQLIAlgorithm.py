@@ -109,9 +109,10 @@ class SQLIAlgorithm():
         return results
 
     def start_second_order_scan(self, pages, vulnUtils):
-        # TODO: run on all pages, get inject_p do injected, check all other pages if were changed
+        # Run on all pages, get inject_p do injected, check all other pages if were changed
         print("@2nd start_second_order_scan")
         payloads = vulnUtils.getSecondOrderPayloads()
+        vulnerable_form_inputNames = {}
         for payload in payloads:
             print("Payload: " + payload.getPayload())
             for page in pages:
@@ -130,15 +131,18 @@ class SQLIAlgorithm():
                 # Inject to all forms
                 for form in forms:
                     for inputName in forms[form][self.inputnames_index]:
+                        if vulnerable_form_inputNames.get(url) is not None and inputName in vulnerable_form_inputNames[url]:
+                            continue
+
                         method = forms[form][self.method_index]
-                        #splitted_payload = payload.getPayload().split(';;')
                         payload_from_db = str(payload.getPayload())
                         if forms[form][self.inputnames_index][inputName]:
                             payload_from_db = payload_from_db.replace('[]', str(forms[form][self.inputnames_index][inputName]))
+                            print("After payload default from input replace: " + payload_from_db)
                         else:
                             payload_from_db = payload_from_db.replace('[]', str(inputName))
+                            print("After payload default replace: " + payload_from_db)
                         splitted_payload = payload_from_db.split(';;')
-                        #TODO: switch '[]' in relevant payloads in payload_list with the relevant value just like in the beginning of the for loop in the handle_error_based_function, and send it as payload_list
                         data = self.get_form_data_with_payload(inputname=inputName,
                                                                inputnames=forms[form][self.inputnames_index],
                                                                inputnonames=forms[form][self.inputnonames_index],
@@ -163,6 +167,11 @@ class SQLIAlgorithm():
                         if len(affected_urls) > 0:
                             self.event = "SQLI - 2nd Order Detected in :" + inputName
                             print(self.event)
+                            if vulnerable_form_inputNames.get(url) is None:
+                                vulnerable_form_inputNames[url] = [inputName]
+                            else:
+                                vulnerable_form_inputNames[url].append(inputName)
+
                             vulnUtils.add_event(name=self.second_order, url=url, payload=payload.getPayload(),
                                                 requestB64=error_result[self.requestb64_index],
                                                 affected_urls=affected_urls)
