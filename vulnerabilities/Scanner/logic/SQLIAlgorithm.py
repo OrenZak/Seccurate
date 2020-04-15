@@ -14,7 +14,7 @@ sys.setdefaultencoding('utf8')
 
 class SQLIAlgorithm():
 
-    def __init__(self, db_type):
+    def __init__(self):#, db_type):
         self.get_configuration_properties()
 
     def get_configuration_properties(self):
@@ -132,6 +132,7 @@ class SQLIAlgorithm():
                 for form in forms:
                     for inputName in forms[form][self.inputnames_index]:
                         method = forms[form][self.method_index]
+                        #TODO: switch '[]' in relevant payloads in payload_list with the relevant value just like in the beginning of the for loop in the handle_error_based_function, and send it as payload_list
                         data = self.get_form_data_with_payload(inputname=inputName,
                                                                inputnames=forms[form][self.inputnames_index],
                                                                inputnonames=forms[form][self.inputnonames_index],
@@ -165,6 +166,7 @@ class SQLIAlgorithm():
                     all_inputnames = self.get_link_input_names(link)
                     for inputName in all_inputnames:
                         method = "get"
+                        #TODO: same thing here as above
                         data = self.get_link_data_with_payload(inputname=inputName,
                                                                inputnames=all_inputnames,
                                                                payload_list=splitted_payload)
@@ -215,7 +217,6 @@ class SQLIAlgorithm():
                 else:
                     payload_from_db = payload_from_db.replace('[]', str(inputname))
                 splitted_payload = payload_from_db.split(';;')
-                #splitted_payload = payload.getPayload().split(';;')
                 if form_attributes:
                     method = form_attributes[self.method_index]
                     data = self.get_form_data_with_payload(inputname=inputname,
@@ -255,7 +256,6 @@ class SQLIAlgorithm():
         for inputname in non_vulnerable_inputnames:
             vulnerable = False
             for payload in vulnUtils.getTimeBasedPayloads():
-                print("there are payloads in timebased")
                 payload_string = payload.getPayload().split(';;')[1]
                 time = float(payload.getPayload().split(';;')[0])
 
@@ -271,6 +271,7 @@ class SQLIAlgorithm():
                                                            payload_list=[payload_string])
 
                 result = vulnUtils.get_url_open_results(method=method, data=data[0], url=url)
+                vulnUtils.compareHashes(url, page_entity.getPageHash())
 
                 if self.validate_time_based(result=result, time=time, vulnUtils=vulnUtils, url=url):
                     self.event = "SQLI Detected in :" + inputname

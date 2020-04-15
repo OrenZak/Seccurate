@@ -25,7 +25,7 @@ from ResponseObject import ResponseEntity
 
 
 class LogicService(threading.Thread):
-    def __init__(self, db_type):
+    def __init__(self):#, db_type):
         super(LogicService, self).__init__()
         config = ConfigParser.RawConfigParser()
         config.read('../common/config.properties')
@@ -58,14 +58,13 @@ class LogicService(threading.Thread):
                                                                              self.env_type)
         self.rxssDescriptor = self.__vulnDescriptor.getVulnByName(config.get('RXSS', 'rxss'), self.env_type)
 
-    def configNewScan(self, tableName=None, scanType=None, credentialsEntity=None):  # Config new db u
+    def configNewScan(self, tableName=None, scanType=None, credentialsEntity=None):
         self.__vulnCrud.createTable(tableName, self.env_type)
         self.__tableName = tableName
         self.__scanType = scanType
         self.credentialsEntity = credentialsEntity
         self.vulnUtils = VulnerabilityUtils(tableName, scanType, credentialsEntity)
         self.__pages = []
-        print("vulnutils object : " + str(self.vulnUtils))
         return
 
     def startScan(self, pageEntity=None):
@@ -97,7 +96,7 @@ class LogicService(threading.Thread):
 
     def startSqliSecondOrderScan(self):
         if self.__scanType == "ALL" or self.__scanType == "SQLI":
-            sqli_algo = SQLIAlgorithm(db_type='test')
+            sqli_algo = SQLIAlgorithm()#db_type='test')
             sqli_algo.start_second_order_scan(pages=self.__pages, vulnUtils=self.vulnUtils)
             secondOrderCompletedMessage = SecondOrderCompletedMessage()
             print("Insert SQLI - Second Order scan complete message to queue")
@@ -115,7 +114,7 @@ class LogicService(threading.Thread):
         flag = False
         if self.rxssalgo == None:
             print("init MainWindows")
-            self.rxssalgo = MainWindow(db_type='test', table_name=self.__tableName)
+            self.rxssalgo = MainWindow()#db_type='test', table_name=self.__tableName)
         while not flag:
             try:
                 self.rxssalgo.ScanPage(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
@@ -125,9 +124,8 @@ class LogicService(threading.Thread):
                 self.vulnUtils.updateAuthenticationMethod()
         return
 
-    # TODO: what about type of db - prod or test? how do we get this value and pass it?
     def __scanForSqlInjection(self, pageEntity=None, forms=None, links=None):
-        sqli_algo = SQLIAlgorithm(db_type='test')
+        sqli_algo = SQLIAlgorithm()#db_type='test')
         flag = False
         while not flag:
             try:
@@ -143,7 +141,7 @@ class LogicService(threading.Thread):
             if not ProducerConsumerQueue.getInstance().getIncomeQueue().empty():
                 item = ProducerConsumerQueue.getInstance().getIncomeQueue().get()
                 if isinstance(item, ConfigDatabaseMessage):
-                    self.configNewScan(tableName=item.getDbName(), scanType=item.getScanType(),
+                    self.configNewScan(tableName=item.getTableName(), scanType=item.getScanType(),
                                        credentialsEntity=item.getCredentialsEntity())
                 elif isinstance(item, ScanPageMessage):
                     self.startScan(pageEntity=item.getPageEntity())
