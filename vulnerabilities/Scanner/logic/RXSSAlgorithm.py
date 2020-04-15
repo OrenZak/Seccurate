@@ -111,8 +111,7 @@ class MainWindow():
                         self.vulnUtils.compareHashes(self.url, self.page_entity.getPageHash())
                     except Exception as e:
                         check_r = False
-                        print "<h1>[-]Error:<h1><h2>URL:</h2> " + self.urlform + "<br><h2>Data:</h2> " + data.encode(
-                            'utf-8') + "<br><h2>Error: </h2>" + str(e) + "<br><br><br><br>"
+                        print "[-] Error happend " + str(e)
                     if check_r:
                         result = self.validatePayload(payload=payload, method=method, data=data, htmlResponse=htmlResponse,
                                              requestB64=requestB64)
