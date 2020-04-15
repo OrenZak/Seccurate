@@ -1,8 +1,7 @@
 const Crawler = require('simplecrawler'),
     config = require('../config'),
     events = require('events'),
-    request = require('request'),
-    extractDomain = require('./utils').extractDomain;
+    request = require('request');
 
 let crawler_config = config.crawler;
 
@@ -120,33 +119,17 @@ function startAfterLogin(crawler, loginInfo, mainUrl) {
               } else {
                 const nextPage = response.headers.location;
                 addCookieHeader(crawler, response);
-                if (nextPage) {
-                  const nextUrl = mainUrl + '/' + nextPage;
-                  console.log('Crawler login succeed, adding to queue: ', nextUrl);
-                  crawler.queueURL(nextUrl);
-                }
+                // if (nextPage) {
+                //   const nextUrl = mainUrl + '/' + nextPage;
+                //   console.log('Crawler login succeed, adding to queue: ', nextUrl);
+                //   crawler.queueURL(nextUrl);
+                // }
                 crawler.start();
               }
             }
         );
       }
   );
-}
-
-function getCookies(crawler, url) {
-  let cookiesRes = [];
-  crawler.cookies.cookies.forEach(cookie => {
-    if (
-        cookie.value != 'deleted' &&
-        (cookie.domain === '*' || url.includes(cookie.domain))
-    ) {
-      if (cookie.domain === '*') {
-        cookie.domain = extractDomain(url);
-      }
-      cookiesRes.push(cookie);
-    }
-  });
-  return cookiesRes;
 }
 
 function addCookieHeader(crawler, response) {
