@@ -97,14 +97,12 @@ class LogicService(threading.Thread):
 
     def startSqliSecondOrderScan(self):
         self.vulnUtils.reset_scanned_parameters()
-        print ("reseted scanned parameters")
-        ProducerConsumerQueue.getInstance().getOutQueue().put(SecondOrderCompletedMessage())
-        # if self.__scanType == "ALL" or self.__scanType == "SQLI":
-        #     sqli_algo = SQLIAlgorithm()#db_type='test')
-        #     sqli_algo.start_second_order_scan(pages=self.__pages, vulnUtils=self.vulnUtils)
-        #     secondOrderCompletedMessage = SecondOrderCompletedMessage()
-        #     print("Insert SQLI - Second Order scan complete message to queue")
-        #     ProducerConsumerQueue.getInstance().getOutQueue().put(secondOrderCompletedMessage)
+        if self.__scanType == "ALL" or self.__scanType == "SQLI":
+            sqli_algo = SQLIAlgorithm()#db_type='test')
+            sqli_algo.start_second_order_scan(pages=self.__pages, vulnUtils=self.vulnUtils)
+            secondOrderCompletedMessage = SecondOrderCompletedMessage()
+            print("Insert SQLI - Second Order scan complete message to queue")
+            ProducerConsumerQueue.getInstance().getOutQueue().put(secondOrderCompletedMessage)
 
     def retriveScanResults(self, getResultEntity):
         vulnerabilityEntities = self.__vulnCrud.getVulns(self.env_type, getResultEntity.getScanName(), 1000, 0)
