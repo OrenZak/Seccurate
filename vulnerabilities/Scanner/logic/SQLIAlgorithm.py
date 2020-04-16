@@ -115,7 +115,6 @@ class SQLIAlgorithm():
         vulnerable_form_inputNames = {}
         vulnerable_links_inputNames = {}
         for payload in payloads:
-            print("Payload: " + payload.getPayload())
             for page in pages:
                 url = page.getURL()
                 try:
@@ -166,7 +165,7 @@ class SQLIAlgorithm():
                             vulnUtils=vulnUtils)
 
                         if len(affected_urls) > 0:
-                            self.event = "SQLI - 2nd Order Detected in page: " + url + " and input: " + inputName
+                            self.event = "SQLI - 2nd Order Detected in page: " + url + " and input: " + inputName + " with payload: " + payload.getPayload()
                             print(self.event)
                             if vulnerable_form_inputNames.get(url) is None:
                                 vulnerable_form_inputNames[url] = [inputName]
@@ -213,13 +212,13 @@ class SQLIAlgorithm():
                             vulnUtils=vulnUtils)
 
                         if len(affected_urls) > 0:
-                            self.event = "SQLI - 2nd Order Detected in page: " + url + " and input: " + inputName
+                            self.event = "SQLI - 2nd Order Detected in page: " + url + " and input: " + inputName + " with payload: " + payload.getPayload()
                             print(self.event)
                             if vulnerable_links_inputNames.get(url) is None:
                                 vulnerable_links_inputNames[url] = [inputName]
                             else:
                                 vulnerable_links_inputNames[url].append(inputName)
-                            vulnUtils.add_event(name='second_order', url=url, payload=payload.getPayload(),
+                            vulnUtils.add_event(name=self.second_order, url=url, payload=payload.getPayload(),
                                                 requestB64=error_result[self.requestb64_index],
                                                 affected_urls=affected_urls)
 
