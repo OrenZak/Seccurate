@@ -89,18 +89,22 @@ class LogicService(threading.Thread):
             self.__scanForSqlInjection(pageEntity=pageEntity, forms=forms, links=links)
         elif self.__scanType == "RXSS":
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)
+        self.vulnUtils.free_pending_parameters(pageEntity.getURL())
         nextPageMessage = NextPageMessage()
         print("Insert Next Page message to queue")
         ProducerConsumerQueue.getInstance().getOutQueue().put(nextPageMessage)
         return
 
     def startSqliSecondOrderScan(self):
-        if self.__scanType == "ALL" or self.__scanType == "SQLI":
-            sqli_algo = SQLIAlgorithm()#db_type='test')
-            sqli_algo.start_second_order_scan(pages=self.__pages, vulnUtils=self.vulnUtils)
-            secondOrderCompletedMessage = SecondOrderCompletedMessage()
-            print("Insert SQLI - Second Order scan complete message to queue")
-            ProducerConsumerQueue.getInstance().getOutQueue().put(secondOrderCompletedMessage)
+        self.vulnUtils.reset_scanned_parameters()
+        print ("reseted scanned parameters")
+        ProducerConsumerQueue.getInstance().getOutQueue().put(SecondOrderCompletedMessage())
+        # if self.__scanType == "ALL" or self.__scanType == "SQLI":
+        #     sqli_algo = SQLIAlgorithm()#db_type='test')
+        #     sqli_algo.start_second_order_scan(pages=self.__pages, vulnUtils=self.vulnUtils)
+        #     secondOrderCompletedMessage = SecondOrderCompletedMessage()
+        #     print("Insert SQLI - Second Order scan complete message to queue")
+        #     ProducerConsumerQueue.getInstance().getOutQueue().put(secondOrderCompletedMessage)
 
     def retriveScanResults(self, getResultEntity):
         vulnerabilityEntities = self.__vulnCrud.getVulns(self.env_type, getResultEntity.getScanName(), 1000, 0)
