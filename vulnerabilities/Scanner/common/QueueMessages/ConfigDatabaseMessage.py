@@ -2,16 +2,16 @@ from AbstractMessage import AbstractMessage
 
 
 class ConfigDatabaseMessage(AbstractMessage):
-    def __init__(self, dbName=None, scanType=None, credentialsEntity=None):
-        self.__dbName = dbName
+    def __init__(self, tableName=None, scanType=None, credentialsEntity=None):
+        self.__tableName = tableName
         self.__scanType = scanType
         self.__credentialsEntity = credentialsEntity
 
-    def getDbName(self):
-        return self.__dbName
+    def getTableName(self):
+        return self.__tableName
 
-    def setDbName(self, dbName=None):
-        self.__dbName = dbName
+    def setTableName(self, tableName=None):
+        self.__tableName = tableName
 
     def getScanType(self):
         return self.__scanType

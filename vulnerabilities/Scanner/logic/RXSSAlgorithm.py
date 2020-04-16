@@ -44,14 +44,14 @@ from urlparse import urlparse
 
 
 class MainWindow():
-    def __init__(self, table_name=None, db_type=None, *args,
+    def __init__(self, *args,
                  **kwargs):
         self.__VulnCrud = VulnerabilitiesCRUD
-        self.__tableName = table_name
+        #self.__tableName = table_name
         self.get_configuration_properties()
 
-    def setTableName(self, tableName):
-        self.__tableName = tableName
+    # def setTableName(self, tableName):
+    #     self.__tableName = tableName
 
     def get_configuration_properties(self):
         self.config = ConfigParser.RawConfigParser()
@@ -173,11 +173,11 @@ class MainWindow():
                         except Exception as e:
                             print "[-] Error happend " + str(e)
 
-    def addEvent(self, vuln_descriptor=None, url=None,
-                 payload=None,
-                 requestB64=None):
-        simpleVulnerability = SimpleVulnerabilityEntity(name=vuln_descriptor, url=url,
-                                                        payload=payload,
-                                                        requestB64=requestB64)
-        createdVuln = self.__VulnCrud.createVulnerability(simpleVulnerability, self.__tableName, self.env_type)
-        print(self.event)
+    # def addEvent(self, vuln_descriptor=None, url=None,
+    #              payload=None,
+    #              requestB64=None):
+    #     simpleVulnerability = SimpleVulnerabilityEntity(name=vuln_descriptor, url=url,
+    #                                                     payload=payload,
+    #                                                     requestB64=requestB64)
+    #     createdVuln = self.__VulnCrud.createVulnerability(simpleVulnerability, self.__tableName, self.env_type)
+    #     print(self.event)
