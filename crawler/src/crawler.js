@@ -2,7 +2,7 @@ const Crawler = require('simplecrawler'),
     config = require('../config'),
     events = require('events'),
     request = require('request'),
-    extractDomain = require('./utils').extractDomain;
+    logDebug = require('./logger').logDebug;
 
 let crawler_config = config.crawler;
 
@@ -37,14 +37,13 @@ function startCrawl(mainUrl, loginInfo) {
   crawler.scanSubdomains = false;
   crawler.userAgent =
       'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/534.34 (KHTML, like Gecko) Chrome/53.0.2785.113 Safari/534.34';
-  // crawler.downloadUnsupported = false;
 
   crawler.on('fetchcomplete', function(queueItem, responseBuffer, response) {
     console.log(`New page: ${queueItem.url}  -  Referred:  ${queueItem.referrer}`);
-      count += 1;
-      doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
-        url: queueItem.url
-      });
+    count += 1;
+    doEmit(EVENTS.PAGE_FETCHED, mainUrl, {
+      url: queueItem.url
+    });
   });
 
   crawler.on('complete', function() {
@@ -56,7 +55,7 @@ function startCrawl(mainUrl, loginInfo) {
     const mimeTypeSupported = [/^text\/html/i].some(function(mimeCheck) {
       return mimeCheck.test(queueItem.stateData.contentType);
     });
-    console.log("mime: ", mimeTypeSupported, queueItem.stateData.contentType);
+    logDebug("mime: ", mimeTypeSupported, queueItem.stateData.contentType);
     callback(null, mimeTypeSupported);
   });
 
@@ -120,11 +119,11 @@ function startAfterLogin(crawler, loginInfo, mainUrl) {
               } else {
                 const nextPage = response.headers.location;
                 addCookieHeader(crawler, response);
-                if (nextPage) {
-                  const nextUrl = mainUrl + '/' + nextPage;
-                  console.log('Crawler login succeed, adding to queue: ', nextUrl);
-                  crawler.queueURL(nextUrl);
-                }
+                // if (nextPage) {
+                //   const nextUrl = mainUrl + '/' + nextPage;
+                //   console.log('Crawler login succeed, adding to queue: ', nextUrl);
+                //   crawler.queueURL(nextUrl);
+                // }
                 crawler.start();
               }
             }
@@ -133,32 +132,16 @@ function startAfterLogin(crawler, loginInfo, mainUrl) {
   );
 }
 
-function getCookies(crawler, url) {
-  let cookiesRes = [];
-  crawler.cookies.cookies.forEach(cookie => {
-    if (
-        cookie.value != 'deleted' &&
-        (cookie.domain === '*' || url.includes(cookie.domain))
-    ) {
-      if (cookie.domain === '*') {
-        cookie.domain = extractDomain(url);
-      }
-      cookiesRes.push(cookie);
-    }
-  });
-  return cookiesRes;
-}
-
 function addCookieHeader(crawler, response) {
   if (response && response.headers && response.headers['set-cookie']) {
     crawler.cookies.addFromHeaders(response.headers['set-cookie']);
-    console.log('The cookie is', response.headers['set-cookie']);
+    logDebug('The cookie is', response.headers['set-cookie']);
   }
 }
 
 function setConfig(config) {
   crawler_config = config;
-  console.log('Crawler config: \n', crawler_config);
+  logDebug('Crawler config: \n', crawler_config);
 }
 
 function getAuthType(loginInfo) {

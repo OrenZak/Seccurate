@@ -57,17 +57,14 @@ class RestServer():
 
 class SocketIOClient(threading.Thread):
     global sio
-    # global clientLogicService
     global dbBoundary
     sio = socketio.Client()
 
     def __init__(self):
         super(SocketIOClient, self).__init__()
         global clientLogicService
-        # clientLogicService = logicService
 
     def connectToServer(self, serverURL):
-        # global clientLogicService
         self.severURL = serverURL
         sio.connect(serverURL)
 
@@ -77,23 +74,18 @@ class SocketIOClient(threading.Thread):
     @sio.on('config_database')
     def configNewScan(dbNameBoundary):  # set up a scan, needs to create a new db in the logic service
         print("config database")
-        # global clientLogicService
         dbBoundary = ConfigScanBoundary.deserialize(dbNameBoundary)
         credentialsEntity = CredentialsEntity(dbBoundary.getLoginInfo())
-        msg = ConfigDatabaseMessage(dbName=dbBoundary.getDbName(), scanType=dbBoundary.getScanType(),
+        msg = ConfigDatabaseMessage(tableName=dbBoundary.getTableName(), scanType=dbBoundary.getScanType(),
                                     credentialsEntity=credentialsEntity)
         print("Inserting ConfigDatabaseMessage to queue")
         ProducerConsumerQueue.getInstance().getIncomeQueue().put(msg)
-        # clientLogicService.configNewScan(tableName=dbBoundary.getDbName(), scanType=dbBoundary.getScanType(),
-        #                                  credentialsEntity=credentialsEntity)
         return
 
     @sio.on('scan_page')
     def startScan(scanParams):  # start scan method, the server needs to provide urls to scan
         configScanBoundary = ScanBoundary.deserialize(scanParams)
         msg = ScanPageMessage(pageEntity=configScanBoundary.getPageEntity())
-        # clientLogicService.startScan(pageEntity=configScanBoundary.getPageEntity(),
-        #                              sessionEntity=configScanBoundary.getSessionEntity())
         print("Inserting ScanPageMessage to queue")
         ProducerConsumerQueue.getInstance().getIncomeQueue().put(msg)
 

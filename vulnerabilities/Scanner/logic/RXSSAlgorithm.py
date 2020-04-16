@@ -44,14 +44,14 @@ from urlparse import urlparse
 
 
 class MainWindow():
-    def __init__(self, table_name=None, db_type=None, *args,
+    def __init__(self, *args,
                  **kwargs):
         self.__VulnCrud = VulnerabilitiesCRUD
-        self.__tableName = table_name
+        #self.__tableName = table_name
         self.get_configuration_properties()
 
-    def setTableName(self, tableName):
-        self.__tableName = tableName
+    # def setTableName(self, tableName):
+    #     self.__tableName = tableName
 
     def get_configuration_properties(self):
         self.config = ConfigParser.RawConfigParser()
@@ -111,8 +111,7 @@ class MainWindow():
                         self.vulnUtils.compareHashes(self.url, self.page_entity.getPageHash())
                     except Exception as e:
                         check_r = False
-                        print "<h1>[-]Error:<h1><h2>URL:</h2> " + self.urlform + "<br><h2>Data:</h2> " + data.encode(
-                            'utf-8') + "<br><h2>Error: </h2>" + str(e) + "<br><br><br><br>"
+                        print "[-] Error happend " + str(e)
                     if check_r:
                         result = self.validatePayload(payload=payload, method=method, data=data, htmlResponse=htmlResponse,
                                              requestB64=requestB64)
@@ -174,11 +173,11 @@ class MainWindow():
                         except Exception as e:
                             print "[-] Error happend " + str(e)
 
-    def addEvent(self, vuln_descriptor=None, url=None,
-                 payload=None,
-                 requestB64=None):
-        simpleVulnerability = SimpleVulnerabilityEntity(name=vuln_descriptor, url=url,
-                                                        payload=payload,
-                                                        requestB64=requestB64)
-        createdVuln = self.__VulnCrud.createVulnerability(simpleVulnerability, self.__tableName, self.env_type)
-        print(self.event)
+    # def addEvent(self, vuln_descriptor=None, url=None,
+    #              payload=None,
+    #              requestB64=None):
+    #     simpleVulnerability = SimpleVulnerabilityEntity(name=vuln_descriptor, url=url,
+    #                                                     payload=payload,
+    #                                                     requestB64=requestB64)
+    #     createdVuln = self.__VulnCrud.createVulnerability(simpleVulnerability, self.__tableName, self.env_type)
+    #     print(self.event)

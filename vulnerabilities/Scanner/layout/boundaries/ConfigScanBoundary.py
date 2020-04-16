@@ -3,16 +3,16 @@ import json
 
 class ConfigScanBoundary:
 
-    def __init__(self, dbName=None, scanType=None, loginInfo=None):
-        self.__dbName = dbName
+    def __init__(self, tableName=None, scanType=None, loginInfo=None):
+        self.__tableName = tableName
         self.__scanType = scanType
         self.__loginInfo = loginInfo
 
-    def getDbName(self):
-        return self.__dbName
+    def getTableName(self):
+        return self.__tableName
 
-    def setDbName(self, dbName=None):
-        self.__dbName = dbName
+    def setTableName(self, tableName=None):
+        self.__tableName = tableName
 
     def getScanType(self):
         return self.__scanType
@@ -31,8 +31,8 @@ class ConfigScanBoundary:
 
     @staticmethod
     def deserialize(serializedConfigScan):
-        deserializedDbName = serializedConfigScan["dbName"]
+        deserializedTableName = serializedConfigScan["dbName"]
         deserializedScanType = serializedConfigScan["scanType"]
         deserializedLoginInfo = serializedConfigScan["loginInfo"]
-        return ConfigScanBoundary(dbName=deserializedDbName, scanType=deserializedScanType,
+        return ConfigScanBoundary(tableName=deserializedTableName, scanType=deserializedScanType,
                                   loginInfo=deserializedLoginInfo)

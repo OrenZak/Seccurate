@@ -9,7 +9,7 @@ if __name__ == '__main__':
     config = ConfigParser.RawConfigParser()
     config.read('../common/config.properties')
     URL = config.get('SocketIOServerInfo', 'hostname')
-    logicService = LogicService(db_type="test")
+    logicService = LogicService()#db_type="test")
     socketIOClient = SocketIOClient()
     socketIOClient.connectToServer(URL)
     logicService.start()
