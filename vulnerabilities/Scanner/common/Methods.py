@@ -7,8 +7,6 @@ import copy
 def GetFormInputFields(url, form):
     inputnames = {}
     inputnonames = []
-    # print form.attrs['action']
-    # self.urlform = urljoin(url, form.attrs['action'])
     try:
         method = form.attrs['method']
     except:
@@ -18,9 +16,7 @@ def GetFormInputFields(url, form):
     for input in inputs:
         if input.has_attr('name'):
             if input.has_attr('value'):
-                # print type(str(input.attrs['value']))
                 inputnames[input.attrs['name']] = input.attrs['value']
-            # print urllib.quote(input.attrs['value'], safe='')
             elif input.has_attr('list'):
                 datalist = form.find('datalist', {'id': input['list']})
                 if datalist:
@@ -45,9 +41,6 @@ def GetFormInputFields(url, form):
                     inputnames[select.attrs['name']] = options[0].attrs['value']
                 else:
                     inputnames[select.attrs['name']] = ""
-
-    # for option in options:
-    # print option.attrs['value']
     ######## Handle Textarea element #########
     textareas = form.findAll(name='textarea')
     for textarea in textareas:
@@ -75,7 +68,6 @@ def ParseForms(inputname, inputnames, payload, inputnonames):
     for k in deepCopyInputNames:
         a.append(k + '=' + deepCopyInputNames[k])
     data = '&'.join(a)
-    #data = urllib.urlencode(deepCopyInputNames)
     removefirstchar = len(data) == 0
     for inputnoname in inputnonames:
         data = data + "&" + inputnoname
@@ -93,9 +85,6 @@ def ParseFormsSQLI(inputname, inputnames, payload, inputnonames):
         data = data + "&" + inputnoname
     if removefirstchar:
         data = data[1::]
-    # print "[*] Url: " + self.urlform
-    # print "[*] Data: " + data.encode('utf-8') + "\n\n"
-    # exit()
     inputnames[inputname] = originalvalue
     return data
 

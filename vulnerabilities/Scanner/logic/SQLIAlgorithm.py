@@ -1,8 +1,6 @@
 import sys
 from Methods import ParseForms
-import SQLICrud
 from bs4 import BeautifulSoup
-from urllib import urlencode
 from urlparse import urlparse
 import ConfigParser
 from UnexplainedDifferentHashesException import UnexplainedDifferentHashesException
@@ -14,7 +12,7 @@ sys.setdefaultencoding('utf8')
 
 class SQLIAlgorithm():
 
-    def __init__(self):#, db_type):
+    def __init__(self):
         self.get_configuration_properties()
 
     def get_configuration_properties(self):
@@ -54,7 +52,6 @@ class SQLIAlgorithm():
     def inject_to_form(self, form_attributes, page_entity, vulnUtils):
         non_vulnerable_inputnames = form_attributes[self.inputnames_index]
         i = 0
-        # print("there are " + str(self.injection_types_count) + " types of injections")
         injection_types = self.filter_out_second_order_type()
         while i < self.injection_types_count - 1 and non_vulnerable_inputnames != {}:
             non_vulnerable_inputnames = self.inject_to_inputnames(injection_type=injection_types[i],
@@ -330,7 +327,6 @@ class SQLIAlgorithm():
                 elif k:
                     a.append(k)
             data.append('&'.join(a))
-            #data.append(urlencode(temp_inputnames))
         return data
 
     def link_to_url(self, link):
@@ -338,8 +334,8 @@ class SQLIAlgorithm():
         return urlform.encode("utf8")
 
     def validate_error_based(self, regular_result, error_result, regular_imitating_result, vulnUtils):
-        if regular_result[self.hash_index] == regular_imitating_result[self.hash_index] and regular_result[
-            self.hash_index] != error_result[self.hash_index]:
+        if regular_result[self.hash_index] == regular_imitating_result[self.hash_index] \
+                and regular_result[self.hash_index] != error_result[self.hash_index]:
             return True
         else:
             diff = self.get_diff_response_content(regular_result[self.response_index],

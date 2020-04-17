@@ -1,6 +1,5 @@
 import ConfigParser
 import threading
-import time
 
 from ConfigDatabaseMessage import ConfigDatabaseMessage
 from ProducerConsumerQueue import ProducerConsumerQueue
@@ -13,7 +12,6 @@ from SecondOrderCompletedMessage import SecondOrderCompletedMessage
 from NextPageMessage import NextPageMessage
 from ScanPageMessage import ScanPageMessage
 from StartSecondOrderScanMessage import StartSecondOrderScanMessage
-from cookieExpiration import CookieException
 from UnexplainedDifferentHashesException import UnexplainedDifferentHashesException
 from DifferentHashesException import DifferentHashesException
 ####################################################
@@ -25,7 +23,7 @@ from ResponseObject import ResponseEntity
 
 
 class LogicService(threading.Thread):
-    def __init__(self):#, db_type):
+    def __init__(self):
         super(LogicService, self).__init__()
         config = ConfigParser.RawConfigParser()
         config.read('../common/config.properties')
@@ -49,7 +47,7 @@ class LogicService(threading.Thread):
         # SQLICrud.createPayload(self.sqli1, self.env_type)
         # self.response1 = SQLICrud.createResponse(ResponseEntity("error"), "test")
         ################################################
-        # TODO: Zur I think the way we read configurations is not good. I t doesn't seem right
+
         self.sqliErrorBasedDescriptor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'error_based'),
                                                                             self.env_type)
         self.sqliTimeBasedDescriptor = self.__vulnDescriptor.getVulnByName(config.get('SQLITypes', 'time_based'),
@@ -98,7 +96,7 @@ class LogicService(threading.Thread):
     def startSqliSecondOrderScan(self):
         self.vulnUtils.reset_scanned_parameters()
         if self.__scanType == "ALL" or self.__scanType == "SQLI":
-            sqli_algo = SQLIAlgorithm()#db_type='test')
+            sqli_algo = SQLIAlgorithm()
             sqli_algo.start_second_order_scan(pages=self.__pages, vulnUtils=self.vulnUtils)
             secondOrderCompletedMessage = SecondOrderCompletedMessage()
             print("Insert SQLI - Second Order scan complete message to queue")
@@ -116,7 +114,7 @@ class LogicService(threading.Thread):
         flag = False
         if self.rxssalgo == None:
             print("init MainWindows")
-            self.rxssalgo = MainWindow()#db_type='test', table_name=self.__tableName)
+            self.rxssalgo = MainWindow()
         while not flag:
             try:
                 self.rxssalgo.ScanPage(pageEntity=pageEntity, forms=forms, links=links, vulnUtils=self.vulnUtils)
@@ -127,7 +125,7 @@ class LogicService(threading.Thread):
         return
 
     def __scanForSqlInjection(self, pageEntity=None, forms=None, links=None):
-        sqli_algo = SQLIAlgorithm()#db_type='test')
+        sqli_algo = SQLIAlgorithm()
         flag = False
         while not flag:
             try:

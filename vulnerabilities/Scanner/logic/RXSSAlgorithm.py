@@ -2,7 +2,6 @@ import ConfigParser
 import requests
 
 import VulnerabilitiesCRUD
-from VulnerabilitiesObjects import SimpleVulnerabilityEntity
 from Methods import ParseForms
 import urllib
 from urlparse import urlparse
@@ -47,11 +46,7 @@ class MainWindow():
     def __init__(self, *args,
                  **kwargs):
         self.__VulnCrud = VulnerabilitiesCRUD
-        #self.__tableName = table_name
         self.get_configuration_properties()
-
-    # def setTableName(self, tableName):
-    #     self.__tableName = tableName
 
     def get_configuration_properties(self):
         self.config = ConfigParser.RawConfigParser()
@@ -135,19 +130,19 @@ class MainWindow():
             print("page : " + self.url + " does not vulnerable to RXSS using the following payload :" + payload.getPayload())
         return False
 
-    def GetLinkInputFields(self, link):
-        self.urlform = urlparse(link).scheme + "://" + urlparse(link).hostname + urlparse(link).path + urlparse(
-            link).params
-        self.urlform = self.urlform.encode("utf8")
-        if len(urlparse(link).query):
-            inputnames = {}
-            print urlparse(link).query
-            for parameter in urlparse(link).query.split('&'):
-                if len(parameter.split('=')) >= 2:
-                    inputnames[parameter.split('=')[0]] = parameter.split('=')[1]
-                elif len(parameter.split('=')) == 1:
-                    inputnames[parameter.split('=')[0]] = ''
-            return inputnames
+    # def GetLinkInputFields(self, link):
+    #     self.urlform = urlparse(link).scheme + "://" + urlparse(link).hostname + urlparse(link).path + urlparse(
+    #         link).params
+    #     self.urlform = self.urlform.encode("utf8")
+    #     if len(urlparse(link).query):
+    #         inputnames = {}
+    #         print urlparse(link).query
+    #         for parameter in urlparse(link).query.split('&'):
+    #             if len(parameter.split('=')) >= 2:
+    #                 inputnames[parameter.split('=')[0]] = parameter.split('=')[1]
+    #             elif len(parameter.split('=')) == 1:
+    #                 inputnames[parameter.split('=')[0]] = ''
+    #         return inputnames
 
     def ScanLinks(self):
         print("scanning links")
@@ -177,12 +172,3 @@ class MainWindow():
                             break
                     except Exception as e:
                         print "[-] Error happend " + str(e)
-
-    # def addEvent(self, vuln_descriptor=None, url=None,
-    #              payload=None,
-    #              requestB64=None):
-    #     simpleVulnerability = SimpleVulnerabilityEntity(name=vuln_descriptor, url=url,
-    #                                                     payload=payload,
-    #                                                     requestB64=requestB64)
-    #     createdVuln = self.__VulnCrud.createVulnerability(simpleVulnerability, self.__tableName, self.env_type)
-    #     print(self.event)

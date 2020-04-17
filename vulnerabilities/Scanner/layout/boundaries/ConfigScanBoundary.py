@@ -1,6 +1,3 @@
-import json
-
-
 class ConfigScanBoundary:
 
     def __init__(self, tableName=None, scanType=None, loginInfo=None):

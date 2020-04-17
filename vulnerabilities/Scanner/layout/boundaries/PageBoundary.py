@@ -1,9 +1,6 @@
 from PageObject import PageEntity
 import json
 
-from SessionObject import SessionEntity
-
-
 class ScanBoundary:
 
     def __init__(self, pageEntity=None):
@@ -21,5 +18,5 @@ class ScanBoundary:
     @staticmethod
     def deserialize(serializedConfigScan):
         deserialized = json.loads(serializedConfigScan)
-        newPageEntity = PageEntity(url=deserialized["url"])#, deserialized["pageHash"])
+        newPageEntity = PageEntity(url=deserialized["url"])
         return ScanBoundary(newPageEntity)

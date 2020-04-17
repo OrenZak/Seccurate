@@ -1,5 +1,3 @@
-import time
-
 import socketio
 
 from ConfigDatabaseMessage import ConfigDatabaseMessage
@@ -12,7 +10,6 @@ from ProducerConsumerQueue import ProducerConsumerQueue
 
 from flask import Flask, jsonify, request
 import threading
-import json
 
 from SecondOrderCompletedMessage import SecondOrderCompletedMessage
 from NextPageMessage import NextPageMessage
@@ -32,7 +29,6 @@ class RestServer():
 
     @app.route('/get_results', methods=['POST'])
     def results_api():
-        #serializedGetResultBoundary):
         # TODO add threading support by create a new Message to return to the client, and wait for the message by while over the queue
         vulnBoundaryList = []
         vulnerabilityEntities, rxssDescriptorEntity, sqliErroBasedDescriporEntity, \
@@ -51,7 +47,6 @@ class RestServer():
             else:
                 continue
             vulnBoundaryList.append(vulnBoundary.serialize())
-        #return json.dumps(vulnBoundaryList)
         return jsonify(vulnBoundaryList)
 
 

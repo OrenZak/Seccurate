@@ -1,7 +1,4 @@
-import json
-
 from GetResultsObject import GetResultsEntity
-
 
 class GetResultsRequestBoundary:
 
@@ -19,6 +16,5 @@ class GetResultsRequestBoundary:
 
     @staticmethod
     def deserialize(serializedGetResult):
-        #deserialized = json.loads(serializedGetResult)
         deserializedScanName = serializedGetResult["scanID"]
         return GetResultsRequestBoundary(GetResultsEntity(scanName=deserializedScanName))
