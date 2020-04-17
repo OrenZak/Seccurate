@@ -152,26 +152,31 @@ class MainWindow():
     def ScanLinks(self):
         print("scanning links")
         for link in self.links:
-            inputnames = self.GetLinkInputFields(link)
-            if (inputnames != None):
-                for inputname in inputnames:
-                    for payload in self.xsspayload:
-                        originalvalue = inputnames[inputname]
-                        inputnames[inputname] = payload.getPayload()
-                        data = urllib.urlencode(inputnames)
-                        print self.urlform + "?" + data.encode('utf-8')
-                        inputnames[inputname] = originalvalue
-                        try:
-                            method = "GET"
-                            htmlresponse, response_hash, elapsed_time, requestB64 = self.vulnUtils.get_url_open_results(
-                                method, data, self.url)
-                            self.vulnUtils.compareHashes(self.url, self.page_entity.getPageHash())
-                            result = self.validatePayload(payload=payload, method=method, data=data, htmlResponse=htmlresponse,
-                                                 requestB64=requestB64)
-                            if result:
-                                break
-                        except Exception as e:
-                            print "[-] Error happend " + str(e)
+            #I moved the self.urlform update to here from GetLinkInputFields
+            self.urlform = urlparse(link).scheme + "://" + urlparse(link).hostname + urlparse(link).path + urlparse(
+                link).params
+            self.urlform = self.urlform.encode("utf8")
+            #inputnames = self.GetLinkInputFields(link)
+            allInputnames, uncheckedInputNames = self.vulnUtils.get_link_input_names(link)
+            #if (inputnames != None):
+            for inputname in uncheckedInputNames:
+                for payload in self.xsspayload:
+                    originalvalue = allInputnames[inputname]#changed from inputnames
+                    allInputnames[inputname] = payload.getPayload()#changed from inputnames
+                    data = urllib.urlencode(allInputnames)#changed from inputnames
+                    print self.urlform + "?" + data.encode('utf-8')
+                    allInputnames[inputname] = originalvalue#changed from inputnames
+                    try:
+                        method = "GET"
+                        htmlresponse, response_hash, elapsed_time, requestB64 = self.vulnUtils.get_url_open_results(
+                            method, data, self.url)
+                        self.vulnUtils.compareHashes(self.url, self.page_entity.getPageHash())
+                        result = self.validatePayload(payload=payload, method=method, data=data, htmlResponse=htmlresponse,
+                                             requestB64=requestB64)
+                        if result:
+                            break
+                    except Exception as e:
+                        print "[-] Error happend " + str(e)
 
     # def addEvent(self, vuln_descriptor=None, url=None,
     #              payload=None,

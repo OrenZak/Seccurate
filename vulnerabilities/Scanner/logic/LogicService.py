@@ -89,12 +89,14 @@ class LogicService(threading.Thread):
             self.__scanForSqlInjection(pageEntity=pageEntity, forms=forms, links=links)
         elif self.__scanType == "RXSS":
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)
+        self.vulnUtils.free_pending_parameters(pageEntity.getURL())
         nextPageMessage = NextPageMessage()
         print("Insert Next Page message to queue")
         ProducerConsumerQueue.getInstance().getOutQueue().put(nextPageMessage)
         return
 
     def startSqliSecondOrderScan(self):
+        self.vulnUtils.reset_scanned_parameters()
         if self.__scanType == "ALL" or self.__scanType == "SQLI":
             sqli_algo = SQLIAlgorithm()#db_type='test')
             sqli_algo.start_second_order_scan(pages=self.__pages, vulnUtils=self.vulnUtils)

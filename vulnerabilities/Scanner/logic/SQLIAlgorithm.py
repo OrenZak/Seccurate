@@ -66,8 +66,8 @@ class SQLIAlgorithm():
             i += 1
 
     def inject_to_links(self, link, page_entity, vulnUtils):
-        all_inputnames = self.get_link_input_names(link)
-        non_vulnerable_inputnames = all_inputnames
+        all_inputnames, inputnames_to_inject = vulnUtils.get_link_input_names(link)
+        non_vulnerable_inputnames = inputnames_to_inject
         i = 0
         injection_types = self.filter_out_second_order_type()
         while i < self.injection_types_count - 1 and non_vulnerable_inputnames != {}:
@@ -82,7 +82,6 @@ class SQLIAlgorithm():
 
     def inject_to_inputnames(self, injection_type, non_vulnerable_inputnames, page_entity, form_attributes=None,
                              link_attributes=None, vulnUtils=None):
-        # TODO: add other types in the next version and check if it is a form or a link
         if injection_type == self.error_based:
             if form_attributes:
                 return self.handle_error_based(non_vulnerable_inputnames=non_vulnerable_inputnames,
@@ -178,14 +177,14 @@ class SQLIAlgorithm():
 
                 # Inject to all links
                 for link in links:
-                    all_inputnames = self.get_link_input_names(link)
-                    for inputName in all_inputnames:
+                    all_inputnames, uncheckedInputNames = vulnUtils.get_link_input_names(link)
+                    for inputName in uncheckedInputNames:#changed from all_inputnames
                         if vulnerable_links_inputNames.get(url) is not None and inputName in vulnerable_links_inputNames[url]:
                             continue
 
                         method = "get"
                         payload_from_db = str(payload.getPayload())
-                        if all_inputnames[inputName]:
+                        if all_inputnames[inputName] != '':
                             payload_from_db = payload_from_db.replace('[]', str(
                                 all_inputnames[inputName]))
                         else:
@@ -221,6 +220,7 @@ class SQLIAlgorithm():
                             vulnUtils.add_event(name=self.second_order, url=url, payload=payload.getPayload(),
                                                 requestB64=error_result[self.requestb64_index],
                                                 affected_urls=affected_urls)
+                    vulnUtils.free_pending_parameters(link)
 
     def get_affected_urls(self, otherPages, otherPages_regular_results,
                           otherPages_error_results, otherPages_imitating_results, vulnUtils):
@@ -240,7 +240,7 @@ class SQLIAlgorithm():
             vulnerable = False
             for payload in vulnUtils.getErrorBasedPayloads():
                 payload_from_db = str(payload.getPayload())
-                if non_vulnerable_inputnames[inputname]:
+                if non_vulnerable_inputnames[inputname] != '':
                     payload_from_db = payload_from_db.replace('[]', str(non_vulnerable_inputnames[inputname]))
                 else:
                     payload_from_db = payload_from_db.replace('[]', str(inputname))
@@ -272,7 +272,7 @@ class SQLIAlgorithm():
                     break
                 else:
                     print (inputname + " not vulnerable to payload " + splitted_payload[
-                        1])  # non_vulnerable_inputnames.append(inputname)
+                        1])
             if not vulnerable:
                 final_non_vulnerable_input_names.append(inputname)
         return final_non_vulnerable_input_names
@@ -317,16 +317,6 @@ class SQLIAlgorithm():
 
     def get_form_data_with_payload(self, inputname, inputnames, inputnonames, payload_list):
         return [ParseForms(inputname, inputnames, payload, inputnonames) for payload in payload_list]
-
-    def get_link_input_names(self, link):
-        inputnames = {}
-        if len(urlparse(link).query):
-            for parameter in urlparse(link).query.split('&'):
-                if len(parameter.split('=')) >= 2:
-                    inputnames[parameter.split('=')[0]] = parameter.split('=')[1]
-                elif len(parameter.split('=')) == 1:
-                    inputnames[parameter.split('=')[0]] = ''
-        return inputnames
 
     def get_link_data_with_payload(self, inputname, inputnames, payload_list):
         data = []
