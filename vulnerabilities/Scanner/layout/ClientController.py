@@ -72,11 +72,11 @@ class SocketIOClient(threading.Thread):
         sio.disconnect()
 
     @sio.on('config_database')
-    def configNewScan(dbNameBoundary):  # set up a scan, needs to create a new db in the logic service
+    def configNewScan(configScanBoundary):  # set up a scan, needs to create a new db in the logic service
         print("config database")
-        dbBoundary = ConfigScanBoundary.deserialize(dbNameBoundary)
-        credentialsEntity = CredentialsEntity(dbBoundary.getLoginInfo())
-        msg = ConfigDatabaseMessage(tableName=dbBoundary.getTableName(), scanType=dbBoundary.getScanType(),
+        configBoundary = ConfigScanBoundary.deserialize(configScanBoundary)
+        credentialsEntity = CredentialsEntity(configBoundary.getLoginInfo())
+        msg = ConfigDatabaseMessage(tableName=configBoundary.getTableName(), scanType=configBoundary.getScanType(),
                                     credentialsEntity=credentialsEntity)
         print("Inserting ConfigDatabaseMessage to queue")
         ProducerConsumerQueue.getInstance().getIncomeQueue().put(msg)

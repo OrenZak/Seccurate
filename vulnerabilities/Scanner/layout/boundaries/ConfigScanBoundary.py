@@ -31,7 +31,7 @@ class ConfigScanBoundary:
 
     @staticmethod
     def deserialize(serializedConfigScan):
-        deserializedTableName = serializedConfigScan["dbName"]
+        deserializedTableName = serializedConfigScan["vulnTableName"]
         deserializedScanType = serializedConfigScan["scanType"]
         deserializedLoginInfo = serializedConfigScan["loginInfo"]
         return ConfigScanBoundary(tableName=deserializedTableName, scanType=deserializedScanType,
