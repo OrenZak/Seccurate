@@ -366,8 +366,7 @@ router.get(PATHS.GET_RESULTS, function(req, res, next) {
           recommendations: JSON.parse(elem._VulnerabilityBoundary__recommendations),
           requestB64: elem._VulnerabilityBoundary__requestB64,
           severity: elem._VulnerabilityBoundary__severity,
-          url: elem._VulnerabilityBoundary__url,
-          vulnID: elem._VulnerabilityBoundary__vulnID
+          url: elem._VulnerabilityBoundary__url
         });
       });
       res.status(200).send({ results: resultsArray });
