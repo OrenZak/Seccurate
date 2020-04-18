@@ -98,14 +98,7 @@ const ResultsModal: React.FC<Props> = props => {
                         {renderRow('Severity :', <h5 className={classes.text}>{getDisplayableSeverity(result.severity)}</h5>)}
                         {renderRow('Vulnerable Url :', <h5 className={classes.text}>{result.url}</h5>)}
                         {props.result.affected_urls && renderAffectedUrlsSection()}
-                        {renderRow(
-                            'Request(Base64) :',
-                            <div>
-                                <Tooltip title={atob(result.requestB64)} aria-label="add">
-                                    <div className={classes.request}> {result.requestB64}</div>
-                                </Tooltip>
-                            </div>,
-                        )}
+                        {renderRow('Request(Base64):', <h5 className={classes.text}>{atob(result.requestB64)}</h5>)}
                         {renderRow('Payload :', <h5 className={classes.text}>{result.payload}</h5>)}
                         {renderRecommendationSection()}
                     </div>

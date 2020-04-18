@@ -1,7 +1,7 @@
 import { Link, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import ErrorIcon from '@material-ui/icons/Error';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 interface Props {
@@ -10,6 +10,9 @@ interface Props {
 }
 
 const ReportContent: React.FC<Props> = props => {
+    const [screenWidth, setScreenWidth] = useState<number>(0);
+    const [screenHeight, setScreenHeight] = useState<number>(0);
+
     const getDisplayableSeverity = (severity: number): string => {
         switch (severity) {
             case 1:
@@ -22,6 +25,13 @@ const ReportContent: React.FC<Props> = props => {
                 return '';
         }
     };
+
+    useEffect(() => {
+        setScreenWidth(window.innerWidth);
+        setScreenHeight(window.innerHeight);
+
+    }, [])
+
     const renderItem = ({ style, index }: ListChildComponentProps) => {
         const result = props.results[index];
         return (
@@ -32,12 +42,14 @@ const ReportContent: React.FC<Props> = props => {
                 <ListItemText
                     primary={result.name + ' - ' + getDisplayableSeverity(result.severity)}
                     secondary={result.url}
+                    style={{width: screenWidth * 0.36}}
                 />
                 <ListItemText
                     primary={<Link>See more...</Link>}
                     onClick={() => {
                         props.onResultClicked(result);
                     }}
+                    style={{width: screenWidth * 0.1}}
                 />
             </ListItem>
         );
@@ -53,7 +65,7 @@ const ReportContent: React.FC<Props> = props => {
                     <h4>Found Vulnerabilities:</h4>
                 </Grid>
                 <Grid item>
-                    <FixedSizeList height={500} itemCount={props.results.length} itemSize={80} width={500}>
+                    <FixedSizeList height={screenHeight * 0.65} width={screenWidth * 0.4} itemCount={props.results.length} itemSize={80} >
                         {renderItem}
                     </FixedSizeList>
                 </Grid>
