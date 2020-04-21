@@ -43,14 +43,18 @@ class SQLIAlgorithm():
         self.time_based = self.config.get('SQLITypes', 'time_based')
         self.second_order = self.config.get('SQLITypes', 'second_order')
 
+        self.sqli = self.config.get('Vulnerabilities', 'SQLI')
+
     def start_scan(self, pageEntity, forms, links, vulnUtils):
         for link in links:
             self.inject_to_links(link, pageEntity, vulnUtils)
         for form in forms:
-            self.inject_to_form(forms[form], pageEntity, vulnUtils)
+            self.inject_to_form(form, forms[form], pageEntity, vulnUtils, self.sqli)
 
-    def inject_to_form(self, form_attributes, page_entity, vulnUtils):
-        non_vulnerable_inputnames = form_attributes[self.inputnames_index]
+    def inject_to_form(self, form, form_attributes, page_entity, vulnUtils, vulnType):
+        non_vulnerable_inputnames = vulnUtils.getUncheckedFormInputNames(form,
+                                                                         form_attributes[self.inputnames_index],
+                                                                         vulnType)
         i = 0
         injection_types = self.filter_out_second_order_type()
         while i < self.injection_types_count - 1 and non_vulnerable_inputnames != {}:
@@ -61,6 +65,9 @@ class SQLIAlgorithm():
             print ("in inject to form => there are " + str(
                 len(non_vulnerable_inputnames)) + " non_vulnerable_inputnames after round " + str(i))
             i += 1
+        #All inputnames left are not vulnerable and will not be checked again for vulnType vulnerability
+        vulnUtils.addNonVulnerableFormInputNames(form, non_vulnerable_inputnames, vulnType)
+
 
     def inject_to_links(self, link, page_entity, vulnUtils):
         all_inputnames, inputnames_to_inject = vulnUtils.get_link_input_names(link)
@@ -126,21 +133,32 @@ class SQLIAlgorithm():
 
                 # Inject to all forms
                 for form in forms:
-                    for inputName in forms[form][self.inputnames_index]:
+                    uncheckedInputNames = vulnUtils.getUncheckedFormInputNames(form=form,
+                                                                               inputnames=forms[form][self.inputnames_index],
+                                                                         vuln_type=self.second_order,
+                                                                               payload=str(payload.getPayload()))
+                    #for inputName in forms[form][self.inputnames_index]:
+                    for inputName in uncheckedInputNames:
                         if vulnerable_form_inputNames.get(url) is not None and inputName in vulnerable_form_inputNames[url]:
                             continue
 
                         method = forms[form][self.method_index]
                         payload_from_db = str(payload.getPayload())
-                        if forms[form][self.inputnames_index][inputName]:
-                            payload_from_db = payload_from_db.replace('[]', str(forms[form][self.inputnames_index][inputName]))
+                        #if forms[form][self.inputnames_index][inputName]:
+                        if uncheckedInputNames[inputName]:
+                            #payload_from_db = payload_from_db.replace('[]', str(forms[form][self.inputnames_index][inputName]))
+                            payload_from_db = payload_from_db.replace('[]', str(uncheckedInputNames[inputName]))
                             print("After payload default from input replace: " + payload_from_db)
                         else:
                             payload_from_db = payload_from_db.replace('[]', str(inputName))
                             print("After payload default replace: " + payload_from_db)
                         splitted_payload = payload_from_db.split(';;')
+                        # data = self.get_form_data_with_payload(inputname=inputName,
+                        #                                        inputnames=forms[form][self.inputnames_index],
+                        #                                        inputnonames=forms[form][self.inputnonames_index],
+                        #                                        payload_list=splitted_payload)
                         data = self.get_form_data_with_payload(inputname=inputName,
-                                                               inputnames=forms[form][self.inputnames_index],
+                                                               inputnames=uncheckedInputNames,
                                                                inputnonames=forms[form][self.inputnonames_index],
                                                                payload_list=splitted_payload)
 
@@ -171,6 +189,12 @@ class SQLIAlgorithm():
                             vulnUtils.add_event(name=self.second_order, url=url, payload=payload.getPayload(),
                                                 requestB64=error_result[self.requestb64_index],
                                                 affected_urls=affected_urls)
+                        ############Added
+                        else:
+                            vulnUtils.addNonVulnerableFormInputNames(form=form,
+                                                                     inputnames={inputName: uncheckedInputNames[inputName]},
+                                                                     vuln_type=self.second_order,
+                                                                     payload=str(payload.getPayload()))
 
                 # Inject to all links
                 for link in links:
