@@ -67,6 +67,7 @@ class MainWindow():
 
         # get rxss description key
         self.descriptionKey = self.config.get('RXSS', 'rxss')
+        self.vulnType = self.config.get('Vulnerabilities', 'RXSS');
 
     def ScanPage(self, pageEntity=None, forms=None, links=None, vulnUtils=None):
         self.forms = forms
@@ -88,9 +89,10 @@ class MainWindow():
     def ScanForms(self):
         print("scanning forms")
         for form in self.forms:
-            (method, inputnames, inputnonames) = self.forms[form][self.method_index], self.forms[form][
-                self.inputnames_index], self.forms[form][
-                                                     self.inputnonames_index]
+            (method, inputnames) = self.forms[form][self.method_index], self.forms[form][self.inputnames_index]
+            inputnonames = self.vulnUtils.getUncheckedFormInputNames(form,
+                                                                     self.forms[form][self.inputnonames_index],
+                                                                     self.vulnType)
             str_inputnames = {}
             for k, v in inputnames.iteritems():
                 str_inputnames[k] = unicode(v).encode('utf-8')
@@ -108,26 +110,31 @@ class MainWindow():
                         check_r = False
                         print "[-] Error happend " + str(e)
                     if check_r:
-                        result = self.validatePayload(payload=payload, method=method, data=data, htmlResponse=htmlResponse,
-                                             requestB64=requestB64)
+                        result = self.validatePayload(payload=payload, method=method, data=data,
+                                                      htmlResponse=htmlResponse,
+                                                      requestB64=requestB64)
                         if result:
                             break
+                        #All inputnames left are not vulnerable and will not be checked again for vulnType vulnerability
+                        self.vulnUtils.addNonVulnerableFormInputNames(form, inputnonames, self.vulnType)
 
     def validatePayload(self, payload=None, method=None, data=None, htmlResponse=None, requestB64=None):
         self.htmlResponse = htmlResponse
-        if (payload.getExpectedResult() in urllib.unquote(self.htmlResponse)) or payload.getPayload() in urllib.unquote(self.htmlResponse):
+        if (payload.getExpectedResult() in urllib.unquote(self.htmlResponse)) or payload.getPayload() in urllib.unquote(
+                self.htmlResponse):
             print "**Response Before Rendering** method: " + method + " Maybe XSS: payload " + payload.getPayload() + " return in the response, URL: " + self.url + " payload: " + data + "\n"
             req = requests.post(self.renderServiceURL, data={'content': str(self.htmlResponse)})
             if payload.getExpectedResult() in urllib.unquote(req.json()["result"]):
                 self.event = "**XSS Detected After Rendering** method: " + method + " payload " + payload.getPayload() + " URL : " + self.url + " payload: " + data + "\n"
                 print(self.event)
                 self.vulnUtils.add_event(name=self.descriptionKey, url=self.url, payload=payload.getPayload(),
-                                    requestB64=requestB64)
+                                         requestB64=requestB64)
                 return True
             else:  # False Positive
                 print "***Identified False Positive*** method:" + method + " payload " + payload.getPayload() + " URL: " + self.url + " payload: " + data + "\n"
         else:
-            print("page : " + self.url + " does not vulnerable to RXSS using the following payload :" + payload.getPayload())
+            print(
+                    "page : " + self.url + " does not vulnerable to RXSS using the following payload :" + payload.getPayload())
         return False
 
     # def GetLinkInputFields(self, link):
@@ -147,27 +154,28 @@ class MainWindow():
     def ScanLinks(self):
         print("scanning links")
         for link in self.links:
-            #I moved the self.urlform update to here from GetLinkInputFields
+            # I moved the self.urlform update to here from GetLinkInputFields
             self.urlform = urlparse(link).scheme + "://" + urlparse(link).hostname + urlparse(link).path + urlparse(
                 link).params
             self.urlform = self.urlform.encode("utf8")
-            #inputnames = self.GetLinkInputFields(link)
+            # inputnames = self.GetLinkInputFields(link)
             allInputnames, uncheckedInputNames = self.vulnUtils.get_link_input_names(link)
-            #if (inputnames != None):
+            # if (inputnames != None):
             for inputname in uncheckedInputNames:
                 for payload in self.xsspayload:
-                    originalvalue = allInputnames[inputname]#changed from inputnames
-                    allInputnames[inputname] = payload.getPayload()#changed from inputnames
-                    data = urllib.urlencode(allInputnames)#changed from inputnames
+                    originalvalue = allInputnames[inputname]  # changed from inputnames
+                    allInputnames[inputname] = payload.getPayload()  # changed from inputnames
+                    data = urllib.urlencode(allInputnames)  # changed from inputnames
                     print self.urlform + "?" + data.encode('utf-8')
-                    allInputnames[inputname] = originalvalue#changed from inputnames
+                    allInputnames[inputname] = originalvalue  # changed from inputnames
                     try:
                         method = "GET"
                         htmlresponse, response_hash, elapsed_time, requestB64 = self.vulnUtils.get_url_open_results(
                             method, data, self.url)
                         self.vulnUtils.compareHashes(self.url, self.page_entity.getPageHash())
-                        result = self.validatePayload(payload=payload, method=method, data=data, htmlResponse=htmlresponse,
-                                             requestB64=requestB64)
+                        result = self.validatePayload(payload=payload, method=method, data=data,
+                                                      htmlResponse=htmlresponse,
+                                                      requestB64=requestB64)
                         if result:
                             break
                     except Exception as e:
