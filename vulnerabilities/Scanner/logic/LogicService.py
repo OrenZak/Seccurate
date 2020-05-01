@@ -84,8 +84,7 @@ class LogicService(threading.Thread):
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)
             self.__scanForSqlInjection(pageEntity=pageEntity, forms=forms, links=links)
         elif self.__scanType == "SQLI":
-            pass
-            #self.__scanForSqlInjection(pageEntity=pageEntity, forms=forms, links=links)
+            self.__scanForSqlInjection(pageEntity=pageEntity, forms=forms, links=links)
         elif self.__scanType == "RXSS":
             self.__scanForRXSS(pageEntity=pageEntity, forms=forms, links=links)
         self.vulnUtils.free_pending_parameters(pageEntity.getURL())
