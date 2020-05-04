@@ -38,7 +38,5 @@ export function createTypedTarget(target: Target): Target {
 }
 
 export function createHumanTarget(target: Target): Target {
-  const newtarget = createTargetWithValueModifier(target, toHumanValue);
-  console.log("the human target: ", newtarget.loginInfo?.form);
-  return newtarget;
+  return createTargetWithValueModifier(target, toHumanValue);
 }
