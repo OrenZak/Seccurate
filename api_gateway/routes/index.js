@@ -150,10 +150,6 @@ router.post(PATHS.CONFIG_TARGET, async function(req, res, next) {
 
 router.put(PATHS.CONFIG_TARGET, async function(req, res, next) {
   try {
-    console.log(
-      'router.put(PATHS.CONFIG_TARGET body',
-      JSON.stringify(req.body)
-    );
     scanConfigBoundary = UpdateScanTargetBoundary.deserialize(req.body);
     let result = await logicService.updateScanTarget(
       scanConfigBoundary.config.interval,
@@ -166,7 +162,6 @@ router.put(PATHS.CONFIG_TARGET, async function(req, res, next) {
       scanConfigBoundary.description,
       scanConfigBoundary.scanID
     );
-    console.log('router.put(PATHS.CONFIG_TARGET', result);
     res.status(200).send({ results: result });
   } catch (error) {
     res.status(500).send({ error: error.message });

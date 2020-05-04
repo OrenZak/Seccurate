@@ -13,7 +13,7 @@ declare interface Target {
 
 declare interface LoginInfo {
     authenticationType: AuthenticationType
-    form: { [key: string]: string };
+    form: { [key: string]: any };
     formAction: string;
 }
 

@@ -38,9 +38,9 @@ const AddFieldContent: React.FC<Props> = props => {
 
     const renderLoginFormFieldList = () => {
         return loginFormFields.map((field: Field, index: number) => (
-            <Grid container item direction={'row'} justify={'center'} alignItems={'center'}>
+            <Grid container item direction={'row'} justify={'center'} alignItems={'center'} key={index}>
                 <Grid item xs>
-                    <TextField   label={`${field.name}`} value={field.value} fullWidth />
+                    <TextField label={`${field.name}`} value={field.value} fullWidth />
                 </Grid>
                 <Grid item>
                     <Button onClick={() => deleteField(index)}>
@@ -60,7 +60,7 @@ const AddFieldContent: React.FC<Props> = props => {
     const handleValueChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value as string;
         setValueField(value);
-        setNextFieldIsEmpty(nameField.trim().length === 0 || value.trim().length === 0);
+        setNextFieldIsEmpty(nameField.trim().length === 0 || event.target.value.trim().length === 0);
     };
 
     const addNextField = () => {

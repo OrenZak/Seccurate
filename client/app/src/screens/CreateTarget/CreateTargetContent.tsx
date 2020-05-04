@@ -43,7 +43,7 @@ const CreateTargetContent: React.FC<Props> = props => {
     const [hasSiteLogin, setHasSiteLogin] = useState<boolean>(false);
     const [formAction, setFormAction] = useState<string>();
     const [authenticationType, setAuthenticationType] = useState<string>();
-    const [loginFormFields, setLoginFormFields] = useState<{ [key: string]: string }>();
+    const [loginFormFields, setLoginFormFields] = useState<{ [key: string]: any }>();
     const [addFieldShow, setAddFieldShow] = useState<boolean>(false);
     const [selectedConfig, setSelectedConfig] = useState<ScanConfig>();
     const [editConfigModalShow, setEditConfigModalShow] = useState<boolean>(false);
@@ -129,14 +129,16 @@ const CreateTargetContent: React.FC<Props> = props => {
 
     useEffect(() => {
         if (target?.loginInfo) {
-            const ent = Object.entries(target?.loginInfo!);
+            setAuthenticationType(target.loginInfo.authenticationType);
+            setAuthenticationTypeInfo('BasicAuth');
+            const ent = Object.entries(target.loginInfo);
             if (ent.length > 0) {
                 setHasSiteLogin(true);
                 extractFormFields(target.loginInfo);
             }
         }
         if(target?.config?.timeout) {
-            setConfigTimeout(target.config.timeout);
+            setConfigTimeout(target.config.timeout / 1000);
         }
     }, []);
 
@@ -159,7 +161,7 @@ const CreateTargetContent: React.FC<Props> = props => {
         setTarget({ ...target, loginInfo });
     };
 
-    const setLoginInfo = (info?: { [key: string]: string }) => {
+    const setLoginInfo = (info?: { [key: string]: (string | number | boolean) }) => {
         const loginInfo: LoginInfo = Object.assign({}, target.loginInfo, { form: info });
         setTarget({ ...target, loginInfo });
     };
@@ -406,6 +408,7 @@ const CreateTargetContent: React.FC<Props> = props => {
         if (!selectedConfig || scanConfig.id !== selectedConfig?.id) {
             console.log('selectedConfig: ', scanConfig);
             setSelectedConfig(scanConfig);
+            setConfigTimeout(scanConfig.timeout / 1000);
         } else {
             setSelectedConfig(undefined);
         }
@@ -416,7 +419,7 @@ const CreateTargetContent: React.FC<Props> = props => {
     };
 
     const handleAddFields = (fields: Field[]) => {
-        let simplifiedFields: { [key: string]: string } = {};
+        let simplifiedFields: { [key: string]: any } = {};
         fields.forEach((field: Field) => {
             simplifiedFields[field.name] = field.value;
         });

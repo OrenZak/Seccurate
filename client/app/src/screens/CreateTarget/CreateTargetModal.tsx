@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
@@ -15,6 +15,7 @@ import {
 import { showMessage, SnackBarMessage } from '../../state/app/app.slice';
 import { addConfig, updateConfig, deleteConfig } from '../../state/configs/configs.slice';
 import { connect } from 'react-redux';
+import {createHumanTarget} from '../../utils/typeConverter';
 
 interface OwnProps {
     isOpen: boolean;
@@ -40,13 +41,22 @@ type Props = OwnProps & ConnectedProps & DispatchProps;
 
 const CreateTargetModal: React.FC<Props> = props => {
     const classes = useStyles();
+    const [selectedTarget, setSelectedTarget] = useState<Target>();
 
     const handleClose = () => {
         props.onClose();
     };
 
+    useEffect(() => {
+        if (props.isOpen && props.target) {
+            setSelectedTarget(createHumanTarget(props.target));
+        } else {
+            setSelectedTarget(undefined);
+        }
+    }, [props.isOpen]);
+
     const handOnTargetAdded = ({ target }: AddTargetParams) => {
-        if (props.target) {
+        if (selectedTarget) {
             // is edit mode
             props.updateTarget({ target });
             props.onClose();
@@ -82,11 +92,12 @@ const CreateTargetModal: React.FC<Props> = props => {
                     timeout: 500,
                 }}
             >
+
                 <Fade in={props.isOpen}>
                     <div className={classes.paper}>
                         <CreateTargetContent
-                            target={props.target}
-                            isEdit={props.target !== undefined}
+                            target={selectedTarget}
+                            isEdit={selectedTarget !== undefined}
                             onTargetAdded={handOnTargetAdded}
                             onSaveConfig={handleOnSaveConfig}
                             onUpdateConfig={handleOnUpdateConfig}
