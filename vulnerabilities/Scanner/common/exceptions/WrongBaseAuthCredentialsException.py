@@ -1,0 +1,2 @@
+class WrongBaseAuthCredentialsException(Exception):
+    pass
