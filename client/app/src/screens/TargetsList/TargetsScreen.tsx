@@ -81,7 +81,6 @@ const TargetsScreen: React.FC<Props> = props => {
             setSelectedTarget(undefined);
         } else {
             setSelectedTarget(target);
-            console.log('Selected Target: ', target);
         }
     };
 
