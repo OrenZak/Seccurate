@@ -22,7 +22,9 @@ const ResultsModal: React.FC<Props> = props => {
         return (
             <div>
                 {renderRow('Affected Urls :')}
-                {renderAffectedUrlsList()}
+                <ul>
+                    {renderAffectedUrlsList()}
+                </ul>
             </div>
         );
     };
@@ -31,12 +33,11 @@ const ResultsModal: React.FC<Props> = props => {
         return props.result.affected_urls.map((url: string, index: number) =>
             renderRow(
                 '',
-                <pre>
                     <h5 className={classes.text}>
                         {`${index + 1}. `}
                         {url}
                     </h5>
-                </pre>,
+                ,
             ),
         );
     };
@@ -48,8 +49,7 @@ const ResultsModal: React.FC<Props> = props => {
                 <h5 className={classes.textList}>
                     {`${index + 1}. `}
                     {mitigation}
-                </h5>,
-                {height: 45}
+                </h5>
             ),
         );
     };
@@ -58,16 +58,18 @@ const ResultsModal: React.FC<Props> = props => {
         return (
             <div>
                 {renderRow(`Recommendations - ${props.result.recommendations.description}`)}
-                {renderRecommendationList()}
+                <ul>
+                    {renderRecommendationList()}
+                </ul>
             </div>
         );
     };
-    const renderRow = (title: string, value?: any, style = {height: 30}) => {
+    const renderRow = (title: string, value?: any) => {
         return (
-            <div className={classes.main} style={style}>
+            <li className={classes.main}>
                 <h4 className={classes.title}>{title}</h4>
                 {value}
-            </div>
+            </li>
         );
     };
 
@@ -87,21 +89,22 @@ const ResultsModal: React.FC<Props> = props => {
     const renderContent = () => {
         const { result } = props;
         return (
-            <Grid container direction={'column'} justify={'center'} alignItems={'center'}>
-                <Grid item>
+            <Grid container direction={'row'} justify={'center'}
+                style={{overflowY: 'scroll', height: '100%', width: '100%', padding: 10}}>
+                <Grid item >
                     <h2>Results</h2>
                 </Grid>
                 <Grid container item direction={'column'} justify={'flex-start'} alignItems={'flex-start'}>
-                    <div>
-                        {renderRow('Name :', <h5 className={classes.text}>{result.name}</h5>)}
-                        {renderRow('Description :', <h5 className={classes.text}>{result.description}</h5>)}
-                        {renderRow('Severity :', <h5 className={classes.text}>{getDisplayableSeverity(result.severity)}</h5>)}
-                        {renderRow('Vulnerable Url :', <h5 className={classes.text}>{result.url}</h5>)}
+                    <ul style={{display: 'flex', flexDirection: 'column', flexWrap: 'wrap', justifyContent: 'space-around'}}>
+                        {renderRow('Name:', <h5 className={classes.text}>{result.name}</h5>)}
+                        {renderRow('Description:', <h5 className={classes.text}>{result.description}</h5>)}
+                        {renderRow('Severity:', <h5 className={classes.text}>{getDisplayableSeverity(result.severity)}</h5>)}
+                        {renderRow('Vulnerable Url:', <h5 className={classes.text}>{result.url}</h5>)}
                         {props.result.affected_urls && renderAffectedUrlsSection()}
                         {renderRow('Request(Base64):', <h5 className={classes.text}>{atob(result.requestB64)}</h5>)}
-                        {renderRow('Payload :', <h5 className={classes.text}>{result.payload}</h5>)}
+                        {renderRow('Payload:', <h5 className={classes.text}>{result.payload}</h5>)}
                         {renderRecommendationSection()}
-                    </div>
+                    </ul>
                 </Grid>
             </Grid>
         );
@@ -140,10 +143,9 @@ const useStyles = makeStyles((theme: Theme) =>
         paper: {
             backgroundColor: 'white',
             boxShadow: theme.shadows[5],
-            width: '40%',
+            width: '50%',
             height: '75%',
             borderRadius: 10,
-            padding: theme.spacing(2, 4, 3),
             outline: 'none',
         },
         text: {
@@ -160,8 +162,7 @@ const useStyles = makeStyles((theme: Theme) =>
         main: {
             display: 'flex',
             flexDirection: 'row',
-            alignItems: 'center',
-            margin: 10,
+            margin: -10,
             // backgroundColor: '#000fff'
         },
         title: {
