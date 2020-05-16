@@ -11,9 +11,9 @@ def createSQLITable(env):
     """Creates the SQLI_Payloads table if it doesn't exist"""
     with sqlite3.connect(config.get('VulnServiceDB', env)) as db:
         cursor = db.cursor()
-        cursor.execute("PRAGMA foreign_keys=on")
+        #cursor.execute("PRAGMA foreign_keys=on")
         cursor.execute('CREATE TABLE IF NOT EXISTS SQLI_Payloads(id TEXT PRIMARY KEY, payload TEXT unique not null,\
-                               type TEXT REFERENCES Vulnerability_Types(name) ON DELETE CASCADE)')
+                               type TEXT not null)')# REFERENCES Vulnerability_Types(name) ON DELETE CASCADE)')
         cursor.execute('CREATE TABLE IF NOT EXISTS Error_Responses(response TEXT PRIMARY KEY)')
         db.commit()
 
