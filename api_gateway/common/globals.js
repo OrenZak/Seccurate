@@ -9,7 +9,7 @@ const DB_INFO = {
   host: 'mySQL',
   port: 3306,
   user: 'root',
-  password: 311248496,
+  password: '311248496',
   database: 'test'
 };
 
