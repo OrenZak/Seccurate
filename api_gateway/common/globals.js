@@ -1,15 +1,15 @@
-const VULNERABILITY_MICROSERVICE_SOCKETIO = 'localhost:8000';
-const VULNERABILITY_MICROSERVICE_REST = 'http://localhost:5000';
-const CRAWLER_MICROSERVICE = 'http://localhost:3000';
+const VULNERABILITY_MICROSERVICE_SOCKETIO = 'vulnerabilities:8000';
+const VULNERABILITY_MICROSERVICE_REST = 'http://vulnerabilities:5000';
+const CRAWLER_MICROSERVICE = 'http://crawler:3000';
 const API_GW_DB_NAME = 'test:prod';
 const SCAN_CRUD_TABLE = 'scans';
 const USERS_CRUD_TABLE = 'users';
 const VULN_TABLE_PREFIX = 'vuln_';
 const DB_INFO = {
-  host: 'localhost',
+  host: 'mySQL',
   port: 3306,
   user: 'root',
-  password: '',
+  password: 311248496,
   database: 'test'
 };
 
