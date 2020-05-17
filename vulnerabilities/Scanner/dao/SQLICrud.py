@@ -25,7 +25,7 @@ def createPayload(payload, env):
     id = str(datetime.now()).replace('-', '').replace(' ', '').replace(':', '').replace('.', '')
     with sqlite3.connect(config.get('VulnServiceDB', env)) as db:
         cursor = db.cursor()
-        cursor.execute("PRAGMA foreign_keys=on")
+        #cursor.execute("PRAGMA foreign_keys=on")
         cursor.execute("""insert into SQLI_Payloads values(?,?,?)""",
                               (id, payload.getPayload(), payload.getType()))
         db.commit()
