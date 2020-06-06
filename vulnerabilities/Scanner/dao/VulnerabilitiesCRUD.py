@@ -14,9 +14,9 @@ def createTable(table_name, env):
     with sqlite3.connect(config.get('VulnServiceDB', env)) as db:
         print ("connected to DB")
         cursor = db.cursor()
-        cursor.execute("PRAGMA foreign_keys=on")
+        #cursor.execute("PRAGMA foreign_keys=on")
         cursor.execute("CREATE TABLE IF NOT EXISTS " + table_name + "(id TEXT PRIMARY KEY, \
-            name TEXT REFERENCES Vulnerability_Types(name) ON DELETE CASCADE,\
+            name TEXT not null,\
                     url TEXT not null, payload TEXT not null, requestB64 TEXT not null, affected_urls TEXT)")
         db.commit()
         __tables.append(table_name)
