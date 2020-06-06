@@ -1,9 +1,8 @@
-socketio
 Mechanize
 Flask
 Bs4
-Python-engineio
-Python-socketio
+Python-engineio==3.9.3
+Python-socketio==4.3.1
 requests
 dateutils
 configparser
