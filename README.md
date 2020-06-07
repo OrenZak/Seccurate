@@ -5,3 +5,9 @@ In today’s world, cybersecurity must be taken into consideration while develop
 On one hand, there are good solutions which are quite costly and therefore usually deemed unreasonable for many SMEs; On the other hand, there are many open-source solutions which are not maintained properly, so that SMEs cannot rely on them.
 
 Seccurate system is designed to bridge that gap and transform the SMEs nightmare into a regulated and controlled threat, making their applications more secure.
+
+### Autors:
+* [Guy Shaked](https://github.com/guyshakk)
+* [Zur Ulianitzky](https://github.com/zur250)
+* [Oren Zakay](https://github.com/OrenZak)
+
