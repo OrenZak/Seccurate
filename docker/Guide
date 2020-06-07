@@ -3,9 +3,9 @@ cd ~/docker
 git clone https://github.com/OrenZak/Seccurate.git
 make sure that instead of using IP for the network use and service names. you can look on the services names inside docker-compose.yml file
 ********************from the docker folder run the following:******************
-docker build . -f RenderDockerfile -t seccurate:render
-docker build . -f CrawlerDockerfile -t seccurate:crawler
-docker build . -f APIGatewayDockerfile -t seccurate:apiGateway
+docker build . -f RenderDockerFile -t seccurate:render
+docker build . -f CrawlerDockerFile -t seccurate:crawler
+docker build . -f APIGatewayDockerFile -t seccurate:apiGateway
 docker build . -f MySQLDockerFile -t seccurate:mySQL
 docker build . -f VulnerabilitiesDockerFile -t seccurate:vulnerabilities
 docker build . -f ClientDockerFile -t seccurate:client
