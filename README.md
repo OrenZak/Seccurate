@@ -6,7 +6,7 @@ On one hand, there are good solutions which are quite costly and therefore usual
 
 Seccurate system is designed to bridge that gap and transform the SMEs nightmare into a regulated and controlled threat, making their applications more secure.
 
-### Autors:
+### Authors:
 * [Guy Shaked](https://github.com/guyshakk)
 * [Zur Ulianitzky](https://github.com/zur250)
 * [Oren Zakay](https://github.com/OrenZak)
